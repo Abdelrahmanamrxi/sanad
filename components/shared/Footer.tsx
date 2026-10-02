@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { Activity, ShieldCheck } from 'lucide-react'
 import { footerLinks } from '@/lib/navigation'
-import logo from '../public/sanad_logo.png'
+import logo from '../../public/sanad_logo.png'
 
 export default function Footer() {
   return (

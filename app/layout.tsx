@@ -1,6 +1,18 @@
-import {IBM_Plex_Sans_Arabic,IBM_Plex_Mono} from "next/font/google"
+import type { Metadata } from "next";
+import { IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
+export const metadata: Metadata = {
+  title: {
+    default: "Sanad Platform",
+    template: "%s | Sanad Platform",
+  },
+  description: "AI conversational support for Egyptian & MENA enterprises",
+  icons: {
+    icon: "/sanad_logo.png",
+    apple: "/sanad_logo.png",
+  },
+};
 
 const plex = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],
@@ -20,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       dir="ltr"
+      data-scroll-behavior="smooth"
       className={`scroll-smooth ${plex.variable} ${mono.variable}`}
       suppressHydrationWarning
     >

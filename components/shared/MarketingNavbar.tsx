@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Sun, Moon, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { navLinks } from '@/lib/navigation'
-import logo from '../public/sanad_logo.png'
+import logo from '../../public/sanad_logo.png'
 
 function subscribeTheme(callback: () => void) {
   const observer = new MutationObserver(callback)
