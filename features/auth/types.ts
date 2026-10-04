@@ -5,3 +5,8 @@ export type AuthResult={
     error?:string,
     fieldErrors?:Partial<Record<keyof User,string[]>>
 }
+
+export type VerifyOTPResult={
+    success:boolean,
+    error?:string
+}

@@ -53,8 +53,8 @@ export function AuthSplitLayout({
   return (
     <div className="flex min-h-svh lg:h-svh lg:max-h-svh w-full flex-col lg:grid lg:grid-cols-12 bg-background">
       {/* ========================================================================= */}
-      {/* LEFT COLUMN: Clean Authentication Form (Kept exactly as is) */}
-      <div className="relative col-span-12 lg:col-span-6 xl:col-span-6 flex flex-col justify-between p-6 sm:p-8 lg:p-10 xl:p-12 order-1 h-full overflow-y-auto">
+      {/* LEFT COLUMN: Clean Authentication Form */}
+      <div className="relative col-span-12 lg:col-span-6 xl:col-span-6 flex flex-col justify-start lg:justify-between p-4 sm:p-6 lg:p-10 xl:p-12 order-1 min-h-svh lg:h-full overflow-y-auto">
         {/* Subtle Ambient Blueprint Grid */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.15] dark:opacity-[0.08]"
@@ -103,12 +103,45 @@ export function AuthSplitLayout({
         </div>
 
         {/* Center: Clean Form Container */}
-        <div className="relative z-10 my-auto w-full max-w-md mx-auto py-4">
+        <div className="relative z-10 w-full max-w-md mx-auto my-2 sm:my-auto py-1 sm:py-4">
           {children}
+
+          {/* Mobile Product Value & Trust Highlights (Fills the mobile void with social proof) */}
+          <div className="mt-5 lg:hidden border border-border/80 bg-card/70 p-3.5 space-y-2.5 backdrop-blur-xs">
+            <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+              <div className="flex items-center gap-1.5 text-primary">
+                <ShieldCheck className="size-4" />
+                <span>Strictly Zero Hallucinations</span>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 border border-primary/20 font-mono">
+                Sanad AI
+              </span>
+            </div>
+
+            <div className="space-y-1.5 text-xs text-muted-foreground pt-0.5">
+              <div className="flex items-start gap-2">
+                <Check className="size-3.5 text-success shrink-0 mt-0.5" />
+                <span className="leading-tight">Answers strictly from your uploaded price lists, PDFs & files</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="size-3.5 text-success shrink-0 mt-0.5" />
+                <span className="leading-tight">1-line script embed for any website or store</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="size-3.5 text-success shrink-0 mt-0.5" />
+                <span className="leading-tight">&ldquo;Unanswered&rdquo; inbox: answer once, bot remembers forever</span>
+              </div>
+            </div>
+
+            <div className="border-t border-border/60 pt-2 flex items-center justify-between text-[11px] text-muted-foreground italic">
+              <span className="truncate pe-2">&ldquo;Answers our patients 24/7 without guessing.&rdquo;</span>
+              <span className="font-semibold text-foreground not-italic shrink-0">Dokki Dental</span>
+            </div>
+          </div>
         </div>
 
         {/* Bottom Trust & Legal Note */}
-        <div className="relative z-10 border-t border-border/60 pt-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <div className="relative z-10 mt-6 sm:mt-auto border-t border-border/60 pt-3 flex flex-col sm:flex-row items-center justify-between gap-1.5 text-[11px] text-muted-foreground pb-2 sm:pb-0">
           <div className="inline-flex items-center gap-1.5">
             <ShieldCheck className="size-3.5 text-primary" />
             <span>
