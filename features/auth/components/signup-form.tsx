@@ -87,7 +87,11 @@ export function SignupForm({
       setStep("otp");
       setResendCooldown(60); // Supabase rate limits email sends to 60s
     } catch (err) {
-      setServerError("A network error has occurred. Please try again later.");
+      if (err instanceof Error) {
+        setServerError(err.message);
+      } else {
+        setServerError("A network error has occurred. Please try again later.");
+      }
     }
   }
 

@@ -14,3 +14,16 @@ export const userSchema=z.object({
 })
 
 export type User=z.infer<typeof userSchema>
+
+export const signInSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required.")
+    .email("Please enter a valid email address."),
+  password: z
+    .string()
+    .min(1, "Password is required."),
+});
+
+export type SignInInput = z.infer<typeof signInSchema>;

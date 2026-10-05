@@ -111,7 +111,7 @@ export function AuthSplitLayout({
             <div className="flex items-center justify-between text-xs font-semibold text-foreground">
               <div className="flex items-center gap-1.5 text-primary">
                 <ShieldCheck className="size-4" />
-                <span>Strictly Zero Hallucinations</span>
+                <span>Answers From Your Files Only</span>
               </div>
               <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 border border-primary/20 font-mono">
                 Sanad AI
@@ -121,15 +121,15 @@ export function AuthSplitLayout({
             <div className="space-y-1.5 text-xs text-muted-foreground pt-0.5">
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
-                <span className="leading-tight">Answers strictly from your uploaded price lists, PDFs & files</span>
+                <span className="leading-tight">Only answers from the files, menus, and prices you upload</span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
-                <span className="leading-tight">1-line script embed for any website or store</span>
+                <span className="leading-tight">Takes 1 minute to add to any website or store</span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
-                <span className="leading-tight">&ldquo;Unanswered&rdquo; inbox: answer once, bot remembers forever</span>
+                <span className="leading-tight">Unanswered questions go to your inbox so you can train it easily</span>
               </div>
             </div>
 
@@ -145,7 +145,7 @@ export function AuthSplitLayout({
           <div className="inline-flex items-center gap-1.5">
             <ShieldCheck className="size-3.5 text-primary" />
             <span>
-              Answers strictly from your uploaded files • Zero Hallucination
+              Accurate answers from your business files • Never makes things up
             </span>
           </div>
           <div>
@@ -213,68 +213,151 @@ export function AuthSplitLayout({
           </div>
         </div>
 
-        {/* Center: Minimal Product Workflow & Killer Feature Card (Enlarged) */}
-        <div className="relative z-10 my-auto flex flex-col gap-5 max-w-lg mx-auto w-full">
-          <div className="space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-snug">
-              Your business files. An AI chatbot. Zero hallucinations.
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Tailored for clinics, restaurants, gyms, and shops in Egypt &amp; MENA.
-            </p>
-          </div>
-
-          {/* Minimal 3-Step Flow (Enlarged Cards) */}
-          <div className="border border-border/90 bg-card/85 p-5 backdrop-blur-md space-y-4">
-            <div className="flex items-start gap-3.5">
-              <div className="flex size-8 items-center justify-center bg-primary/10 text-primary border border-primary/20 shrink-0 mt-0.5">
-                <UploadCloud className="size-4.5" />
-              </div>
-              <div className="text-sm">
-                <span className="font-bold text-foreground">
-                  1. Upload your documents
-                </span>
-                <p className="text-muted-foreground text-xs sm:text-sm pt-0.5">
-                  Price lists, menus, or FAQs. The bot only answers from your files.
-                </p>
-              </div>
+        {/* Center: Contextual Showcase based on Sign In vs Sign Up */}
+        {type === "signin" ? (
+          <div className="relative z-10 my-auto flex flex-col gap-5 max-w-lg mx-auto w-full">
+            <div className="space-y-1.5">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-snug">
+                Welcome back to Sanad.
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Your AI customer assistant is active, answering customer questions in Egyptian Arabic &amp; English using your files.
+              </p>
             </div>
 
-            <div className="flex items-start gap-3.5">
-              <div className="flex size-8 items-center justify-center bg-primary/10 text-primary border border-primary/20 shrink-0 mt-0.5">
-                <Code2 className="size-4.5" />
-              </div>
-              <div className="text-sm">
-                <span className="font-bold text-foreground">
-                  2. Embed with 1 line
-                </span>
-                <p className="text-muted-foreground text-xs sm:text-sm pt-0.5">
-                  Paste a single script tag into your website or store.
-                </p>
-              </div>
-            </div>
-
-            {/* Killer Feature Highlighted Step */}
-            <div className="relative p-3.5 bg-highlight/10 border border-highlight/40 flex items-start gap-3.5">
-              <div className="flex size-8 items-center justify-center bg-highlight text-highlight-foreground shrink-0 mt-0.5">
-                <Inbox className="size-4.5" />
-              </div>
-              <div className="text-sm">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-foreground">
-                    3. The &ldquo;Unanswered&rdquo; Inbox
-                  </span>
-                  <span className="text-[10px] font-semibold bg-highlight/25 text-highlight-foreground px-1.5 py-0.5 uppercase tracking-wide">
-                    Killer Feature
+            {/* Studio Health & Live Dialogue Showcase Card */}
+            <div className="border border-border/90 bg-card/85 p-5 backdrop-blur-md space-y-4 rounded-none">
+              {/* Top Operational Status Bar */}
+              <div className="flex items-center justify-between pb-3 border-b border-border/60">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 bg-success animate-pulse inline-block" />
+                  <span className="text-xs font-medium uppercase tracking-wider text-foreground">
+                    Assistant Status: Active
                   </span>
                 </div>
-                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                  If the bot doesn&apos;t know an answer, it lands in your inbox. You answer once, and the bot learns it permanently.
-                </p>
+                <span className="text-xs text-muted-foreground">
+                  Online 24/7
+                </span>
+              </div>
+
+              {/* 2 Metric Tiles */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="p-3 border border-border bg-background/60 rounded-none space-y-1">
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Factual Accuracy
+                  </div>
+                  <div className="text-xl font-bold text-highlight">
+                    100%
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    From your files only
+                  </div>
+                </div>
+
+                <div className="p-3 border border-border bg-background/60 rounded-none space-y-1">
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Reply Speed
+                  </div>
+                  <div className="text-xl font-bold text-primary">
+                    &lt; 1s
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Instant answers
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Egyptian Dialogue Simulation Box */}
+              <div className="p-3.5 border border-border/80 bg-background/80 space-y-2 rounded-none">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Sample Customer Question</span>
+                  <span className="text-primary font-medium">Answered from files</span>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  {/* User query */}
+                  <div className="bg-muted/40 p-2.5 border border-border/60 text-foreground text-end dir-rtl">
+                    <p className="font-sans leading-relaxed">
+                      &ldquo;مساء الخير، عندكم كشف باطنة في فرع التجمع؟&rdquo;
+                    </p>
+                  </div>
+
+                  {/* AI Response */}
+                  <div className="bg-primary/10 border border-primary/25 p-2.5 text-foreground text-end dir-rtl space-y-1.5">
+                    <p className="font-sans leading-relaxed">
+                      &ldquo;أهلاً بك! نعم، متوفر استشاري باطنة في فرع التجمع الخامس يومياً من ١١:٠٠ ص حتى ٩:٠٠ م.&rdquo;
+                    </p>
+                    <span className="text-[11px] text-primary block tracking-wide text-start dir-ltr font-medium">
+                      Source: Clinic_Schedule.pdf
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="relative z-10 my-auto flex flex-col gap-5 max-w-lg mx-auto w-full">
+            <div className="space-y-1.5">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-snug">
+                Your business files. An AI chatbot. Zero hallucinations.
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Tailored for clinics, restaurants, gyms, and shops in Egypt &amp; MENA.
+              </p>
+            </div>
+
+            {/* Minimal 3-Step Flow (Enlarged Cards) */}
+            <div className="border border-border/90 bg-card/85 p-5 backdrop-blur-md space-y-4">
+              <div className="flex items-start gap-3.5">
+                <div className="flex size-8 items-center justify-center bg-primary/10 text-primary border border-primary/20 shrink-0 mt-0.5">
+                  <UploadCloud className="size-4.5" />
+                </div>
+                <div className="text-sm">
+                  <span className="font-bold text-foreground">
+                    1. Upload your documents
+                  </span>
+                  <p className="text-muted-foreground text-xs sm:text-sm pt-0.5">
+                    Price lists, menus, or FAQs. The bot only answers from your files.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3.5">
+                <div className="flex size-8 items-center justify-center bg-primary/10 text-primary border border-primary/20 shrink-0 mt-0.5">
+                  <Code2 className="size-4.5" />
+                </div>
+                <div className="text-sm">
+                  <span className="font-bold text-foreground">
+                    2. Embed with 1 line
+                  </span>
+                  <p className="text-muted-foreground text-xs sm:text-sm pt-0.5">
+                    Paste a single script tag into your website or store.
+                  </p>
+                </div>
+              </div>
+
+              {/* Killer Feature Highlighted Step */}
+              <div className="relative p-3.5 bg-highlight/10 border border-highlight/40 flex items-start gap-3.5">
+                <div className="flex size-8 items-center justify-center bg-highlight text-highlight-foreground shrink-0 mt-0.5">
+                  <Inbox className="size-4.5" />
+                </div>
+                <div className="text-sm">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-bold text-foreground">
+                      3. The &ldquo;Unanswered&rdquo; Inbox
+                    </span>
+                    <span className="text-[10px] font-semibold bg-highlight/25 text-highlight-foreground px-1.5 py-0.5 uppercase tracking-wide">
+                      Killer Feature
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                    If the bot doesn&apos;t know an answer, it lands in your inbox. You answer once, and the bot learns it permanently.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Testimonial / Real Usecase (Larger) */}
         <div className="relative z-10 border-t border-border/70 pt-4 flex items-center justify-between text-xs sm:text-sm">

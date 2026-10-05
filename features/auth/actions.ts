@@ -1,9 +1,9 @@
 "use server";
-import type { User } from "./schemas/auth";
-import { userSchema } from "./schemas/auth";
+import type { User, SignInInput } from "./schemas/auth";
+import { userSchema, signInSchema } from "./schemas/auth";
+import { redirect } from "next/navigation";
 import createClient from "@/lib/supabase/server";
-import { type AuthResult,type VerifyOTPResult } from "./types";
-;
+import { type AuthResult, type VerifyOTPResult } from "./types";
 
 export async function signUp(user: User): Promise<AuthResult> {
   const parseInfo = userSchema.safeParse(user);
@@ -32,6 +32,70 @@ export async function signUp(user: User): Promise<AuthResult> {
 
   return { success: true };
 }
+
+export async function signIn(data: SignInInput): Promise<AuthResult> {
+  // 1. Validate inputs using Zod
+  const validation = signInSchema.safeParse(data);
+  if (!validation.success) {
+    const fieldErrors = validation.error.flatten().fieldErrors;
+    return {
+      success: false,
+      error: "Please check the required fields below.",
+      fieldErrors,
+    };
+  }
+
+  // 2. Supabase Authentication
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: validation.data.email,
+    password: validation.data.password,
+  });
+
+  if (error) {
+    if (
+      error.code === "invalid_credentials" ||
+      error.message?.toLowerCase().includes("invalid login credentials")
+    ) {
+      return {
+        success: false,
+        error: "Invalid email or password. Please try again.",
+      };
+    }
+    if (error.code === "identity_not_found") {
+      return {
+        success: false,
+        error: "There is no user with such criteria.",
+      };
+    }
+
+    return { success: false, error: error.message };
+  }
+
+  // 3. Check if user already owns a business to route appropriately
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: business } = await supabase
+      .from("business")
+      .select("id")
+      .eq("owner_id", user.id)
+      .maybeSingle();
+
+    return {
+      success: true,
+      redirectTo: business ? "/dashboard" : "/onboarding",
+    };
+  }
+
+  return { success: true, redirectTo: "/dashboard" };
+}
+
+
+
 
 export async function verifyOtp(email:string,token:string):Promise<VerifyOTPResult>{
   const supabase=await createClient()

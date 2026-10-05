@@ -32,7 +32,7 @@ export default async function proxy(request: NextRequest) {
   const isProtectedRoute =
     pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding");
 
-  const isAuthPage = pathname === "/signin" || pathname === "/signup";
+  const isAuthPage =  pathname === "/signup";
 
   if (!user && isProtectedRoute) {
     return NextResponse.redirect(new URL("/signin?message=Please Login to Access", request.url));
