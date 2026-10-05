@@ -1,3 +1,4 @@
+import type { OnboardingType } from "./schema";
 import { BusinessSectorMeta, ColorPreset } from "./types";
 
 export const BUSINESS_SECTORS: BusinessSectorMeta[] = [
@@ -157,4 +158,11 @@ export interface BorderSideConfig {
   bottom: boolean;
   left: boolean;
   width: number;
+}
+
+export const STEP_FIELDS:Record<number,(keyof OnboardingType)[]>={
+    1:["businessNameEn","businessNameAr"],
+    2:["businessType"],
+    3:["city","district"],
+    4:['primaryColor',"secondaryColor","chatBgColor","borderRadius"]
 }

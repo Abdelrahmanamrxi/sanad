@@ -1,3 +1,5 @@
+
+
 export type BusinessType = "salon" | "brand" | "restaurant" | "clinic";
 
 export interface BusinessSectorMeta {
@@ -29,4 +31,9 @@ export interface ColorPreset {
   secondary: string;
   accent: string;
   description: string;
+}
+
+export interface OnboardingMutation{
+  success:boolean,
+  error?:string
 }

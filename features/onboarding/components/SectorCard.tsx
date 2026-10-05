@@ -9,6 +9,7 @@ interface SectorCardProps {
   sector: BusinessSectorMeta;
   isSelected: boolean;
   onSelect: (id: BusinessSectorMeta["id"]) => void;
+
 }
 
 const ICONS = {
@@ -24,7 +25,9 @@ export function SectorCard({ sector, isSelected, onSelect }: SectorCardProps) {
   return (
     <button
       type="button"
+      name="businessType"
       onClick={() => onSelect(sector.id)}
+      
       className={cn(
         "group relative flex flex-col text-start p-4 transition-all duration-150 cursor-pointer rounded-none border",
         isSelected
