@@ -1,24 +1,19 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { X, UploadCloud, RefreshCw } from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import type { MimeType } from "../types"
+import React, { useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { X, UploadCloud, RefreshCw } from "lucide-react";
+import type { MimeType } from "../types";
+import { fileSchema } from "../schemas/file";
 
 interface AddDocumentModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
   onAddDocument: (data: {
-    fileName: string
-    mimeType: MimeType
-    rawText: string
-  }) => void
+    fileName: string;
+    mimeType: MimeType;
+    rawText: string;
+  }) => void;
 }
 
 export function AddDocumentModal({
@@ -26,31 +21,38 @@ export function AddDocumentModal({
   onClose,
   onAddDocument,
 }: AddDocumentModalProps) {
-  const [fileName, setFileName] = useState("")
-  const [mimeType, setMimeType] = useState<MimeType>("application/pdf")
-  const [rawText, setRawText] = useState("")
-  const [isUploading, setIsUploading] = useState(false)
-
-  if (!isOpen) return null
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!fileName.trim()) return
-
-    setIsUploading(true)
-    setTimeout(() => {
-      onAddDocument({
-        fileName: fileName.trim(),
-        mimeType,
-        rawText: rawText.trim(),
-      })
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>("");
+  const [file, setFile] = useState<File | null>();
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+    multiple: false,
+    maxSize: 10 * 1024 * 1024,
+    accept: {
+      "application/pdf": [".pdf"],
+      "text/plain": [".txt"],
+      "text/markdown": [".md", ".markdown"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+        ".xlsx",
+      ],
+    },
+    onDrop(acceptedFiles) {
+      setError("");
       setIsUploading(false)
-      setFileName("")
-      setRawText("")
-      setMimeType("application/pdf")
-      onClose()
-    }, 600)
-  }
+      const file = acceptedFiles[0];
+      if (!file) setError("Please upload a file to get parsed.");
+
+      const result = fileSchema.safeParse(file);
+      if (!result.success) {
+        setError(result.error?.issues[0]?.message);
+        return;
+      }
+      setFile(result.data)
+    },
+  });
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
@@ -75,73 +77,34 @@ export function AddDocumentModal({
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              Document Filename / Storage Path
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. policies/pricing_and_delivery_terms_2026.pdf"
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              className="w-full border border-border bg-background px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none rounded-none font-mono"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              MIME Type / Format
-            </label>
-            <Select
-              value={mimeType}
-              onValueChange={(val) => {
-                if (val) setMimeType(val as MimeType)
-              }}
-            >
-              <SelectTrigger className="w-full h-9 border border-border bg-background px-3 py-1.5 text-xs text-foreground focus-visible:border-primary font-mono rounded-none">
-                <SelectValue placeholder="Select MIME format" />
-              </SelectTrigger>
-              <SelectContent className="rounded-none border border-border bg-popover font-mono text-xs">
-                <SelectItem value="application/pdf" className="rounded-none">
-                  application/pdf (PDF Document)
-                </SelectItem>
-                <SelectItem value="text/markdown" className="rounded-none">
-                  text/markdown (Markdown Document)
-                </SelectItem>
-                <SelectItem value="text/csv" className="rounded-none">
-                  text/csv (CSV Spreadsheet)
-                </SelectItem>
-                <SelectItem value="text/plain" className="rounded-none">
-                  text/plain (Plain Text File)
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              Raw Content / Initial Text (Optional)
-            </label>
-            <textarea
-              rows={4}
-              placeholder="Paste raw text or policy rules here in Arabic or English..."
-              value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
-              className="w-full border border-border bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none font-sans rounded-none"
-            />
-          </div>
-
+        <form  className="flex flex-col gap-4">
           {/* Drag & Drop Area */}
-          <div className="border border-dashed border-border p-4 text-center text-xs text-muted-foreground bg-muted/10 rounded-none">
+          <div
+            {...getRootProps({ className: "dropzone" })}
+            className="border cursor-pointer border-dashed border-border p-4 text-center text-xs text-muted-foreground bg-muted/10 rounded-none"
+          >
             <UploadCloud className="size-6 mx-auto mb-1 text-primary" />
             <span>Drag & drop source file or click to select</span>
+            <input {...getInputProps()} />
             <span className="block font-mono text-[10px] text-muted-foreground/60 mt-0.5">
               Supported formats: PDF, DOCX, TXT, CSV, Markdown (Max 25MB)
             </span>
           </div>
-
+          {acceptedFiles.length > 0 &&
+            acceptedFiles.map((file) => {
+              return (
+                <div
+                  className="flex flex-row font-sans justify-between"
+                  key={file.path}
+                >
+                  <p>{file.path}</p>
+                  <p className="font-bold">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              );
+            })}
+          {error && <p className="text-red-500">{error}</p>}
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 border-t border-border pt-3">
             <button
@@ -169,5 +132,5 @@ export function AddDocumentModal({
         </form>
       </div>
     </div>
-  )
+  );
 }
