@@ -6,9 +6,11 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import TanstackProvider from "@/providers/tanstack-provider";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
+    <TanstackProvider>
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
@@ -25,5 +27,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>
+    </TanstackProvider>
   );
 }

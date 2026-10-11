@@ -4,12 +4,18 @@ import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { X, UploadCloud, RefreshCw } from "lucide-react";
 import type { MimeType } from "../types";
+import { useUploadFile } from "../hooks/use-upload-file";
 import { fileSchema } from "../schemas/file";
 
 interface AddDocumentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddDocument: (data: {
+  onAddDocument?: (data: {
+    fileName: string;
+    mimeType: MimeType;
+    rawText: string;
+  }) => void;
+  onAddFile?: (data: {
     fileName: string;
     mimeType: MimeType;
     rawText: string;
@@ -19,38 +25,56 @@ interface AddDocumentModalProps {
 export function AddDocumentModal({
   isOpen,
   onClose,
-  onAddDocument,
 }: AddDocumentModalProps) {
-  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>("");
-  const [file, setFile] = useState<File | null>();
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+  const [file, setFile] = useState<File>();
+  const uploadFileMutation = useUploadFile();
+
+  const handleClose = () => {
+    setFile(undefined);
+    setError("");
+    onClose();
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
     maxSize: 10 * 1024 * 1024,
     accept: {
       "application/pdf": [".pdf"],
       "text/plain": [".txt"],
-      "text/markdown": [".md", ".markdown"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
-        ".xlsx",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+        ".docx",
       ],
     },
-    onDrop(acceptedFiles) {
+    async onDropAccepted(files) {
       setError("");
-      setIsUploading(false)
-      const file = acceptedFiles[0];
-      if (!file) setError("Please upload a file to get parsed.");
-
-      const result = fileSchema.safeParse(file);
+      const result = await fileSchema.safeParseAsync(files[0]);
       if (!result.success) {
-        setError(result.error?.issues[0]?.message);
+        setError(result.error.issues[0]?.message ?? "Invalid file");
+        setFile(undefined);
         return;
       }
-      setFile(result.data)
+      setFile(result.data);
+    },
+    onDropRejected(rejections) {
+      setError(rejections[0]?.errors[0]?.message ?? "File rejected");
+      setFile(undefined);
     },
   });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) {
+      setError("Please select a valid file to upload.");
+      return;
+    }
+
+    uploadFileMutation.mutate(file, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -64,12 +88,12 @@ export function AddDocumentModal({
               Add Document to Knowledge Base
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Upload file or enter raw text to parse and index into pgvector
+              Upload file to parse and index into pgvector
             </p>
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="text-muted-foreground hover:text-foreground rounded-none"
           >
             <X className="size-4" />
@@ -77,7 +101,7 @@ export function AddDocumentModal({
         </div>
 
         {/* Modal Form */}
-        <form  className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Drag & Drop Area */}
           <div
             {...getRootProps({ className: "dropzone" })}
@@ -87,42 +111,49 @@ export function AddDocumentModal({
             <span>Drag & drop source file or click to select</span>
             <input {...getInputProps()} />
             <span className="block font-mono text-[10px] text-muted-foreground/60 mt-0.5">
-              Supported formats: PDF, DOCX, TXT, CSV, Markdown (Max 25MB)
+              Supported formats: PDF, DOCX, TXT (Max 10MB)
             </span>
           </div>
-          {acceptedFiles.length > 0 &&
-            acceptedFiles.map((file) => {
-              return (
-                <div
-                  className="flex flex-row font-sans justify-between"
-                  key={file.path}
-                >
-                  <p>{file.path}</p>
-                  <p className="font-bold">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-              );
-            })}
-          {error && <p className="text-red-500">{error}</p>}
+
+          {/* Validated File Preview */}
+          {file && (
+            <div className="flex flex-row font-sans justify-between text-xs p-2.5 border border-border bg-background">
+              <span className="font-medium text-foreground truncate max-w-[320px]">
+                {file.name}
+              </span>
+              <span className="font-mono text-muted-foreground shrink-0">
+                {(file.size / 1024 / 1024).toFixed(2)} MB
+              </span>
+            </div>
+          )}
+
+          {/* Error Messages */}
+          {error && <p className="text-xs text-destructive">{error}</p>}
+          {uploadFileMutation.isError && (
+            <p className="text-xs text-destructive">
+              {uploadFileMutation.error.message}
+            </p>
+          )}
+
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 border-t border-border pt-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
+              disabled={uploadFileMutation.isPending}
               className="border border-border bg-background px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted rounded-none"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isUploading}
-              className="border border-primary bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 flex items-center gap-1.5 rounded-none"
+              disabled={!file || uploadFileMutation.isPending}
+              className="border border-primary bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 flex items-center gap-1.5 rounded-none disabled:opacity-50"
             >
-              {isUploading ? (
+              {uploadFileMutation.isPending ? (
                 <>
                   <RefreshCw className="size-3.5 animate-spin" />
-                  <span>Parsing & Chunking...</span>
+                  <span>Uploading & Indexing...</span>
                 </>
               ) : (
                 <span>Index Document</span>
