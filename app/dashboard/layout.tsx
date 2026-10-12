@@ -1,14 +1,18 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import ModeToggle from "@/components/ui/ui-toggle";
 import { Separator } from "@/components/ui/separator";
+import { getAuthContext } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import TanstackProvider from "@/providers/tanstack-provider";
+export const revalidate=0;
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+
   return (
     <TanstackProvider>
     <SidebarProvider>

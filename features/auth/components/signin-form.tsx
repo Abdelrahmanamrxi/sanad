@@ -52,7 +52,7 @@ export function SignInForm({
         return;
       }
 
-      router.replace(result.redirectTo || "/dashboard");
+      router.replace("/dashboard");
     } catch (err) {
       if (err instanceof Error) {
         setServerError(err.message);
