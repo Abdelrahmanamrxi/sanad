@@ -1,8 +1,12 @@
 
 
+import { parseHtmlTable } from "./table-parser";
+
 export type SectionBlock = {
   sectionPath: string;
-  text: string;
+  type: "prose" | "table";
+  text?: string;
+  tableRows?: string[];
 };
 
 export type DetectedHeading = {
@@ -99,46 +103,85 @@ export function detectHeading(line: string): DetectedHeading | null {
   return null;
 }
 
+function parseSectionContent(rawText: string, sectionPath: string): SectionBlock[] {
+  const blocks: SectionBlock[] = [];
+  if (!rawText.trim()) return blocks;
+
+  // Split on <table...>...</table> boundaries so prose before/after is never lost
+  const parts = rawText.split(/(<table[\s\S]*?<\/table>)/i);
+
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+
+    if (/<table[\s\S]*?<\/table>/i.test(trimmed)) {
+      const parsed = parseHtmlTable(trimmed);
+      if (parsed && parsed.rows.length > 0) {
+        blocks.push({
+          sectionPath,
+          type: "table",
+          tableRows: parsed.rows,
+        });
+      } else {
+        // Fallback: keep content as prose if table cannot be parsed
+        blocks.push({
+          sectionPath,
+          type: "prose",
+          text: trimmed,
+        });
+      }
+    } else {
+      blocks.push({
+        sectionPath,
+        type: "prose",
+        text: trimmed,
+      });
+    }
+  }
+
+  return blocks;
+}
+
 export function parseMarkdownSections(markdown: string): SectionBlock[] {
-  const headings: string[] = []; // Remembers the current heading hierarchy ["Part I", "Chapter 1"]
-  const blocks: SectionBlock[] = []; // Stores the finished section blocks
-  let paragraph: string[] = []; // Collects paragraphs until reaching a heading or blank line
+  const headings: string[] = []; // Current heading hierarchy
+  const blocks: SectionBlock[] = [];
+  let currentLines: string[] = [];
 
-  function flushParagraph() {
-    const text = paragraph.join("\n").trim();
-    paragraph = [];
-    if (!text) return;
+  function currentPath(): string {
+    return headings.filter(Boolean).join(" > ") || "Overview";
+  }
 
-    const path = headings.filter(Boolean).join(" > ");
-    blocks.push({
-      sectionPath: path || "Overview",
-      text,
-    });
+  function flushCurrent() {
+    if (currentLines.length === 0) return;
+    const text = currentLines.join("\n");
+    currentLines = [];
+    blocks.push(...parseSectionContent(text, currentPath()));
+  }
+
+  function hasUnclosedTable(lines: string[]): boolean {
+    const text = lines.join("\n");
+    const open = (text.match(/<table\b/gi) || []).length;
+    const close = (text.match(/<\/table>/gi) || []).length;
+    return open > close;
   }
 
   for (const line of markdown.split(/\r?\n/)) {
-    const heading = detectHeading(line);
-    if (heading) {
-      flushParagraph();
-
-      const { level, title } = heading;
-      // Truncate to current level and assign title
-      headings.length = level;
-      headings[level - 1] = title;
-
-      continue;
+    // Only detect headings when outside an open table
+    if (!hasUnclosedTable(currentLines)) {
+      const heading = detectHeading(line);
+      if (heading) {
+        flushCurrent();
+        const { level, title } = heading;
+        headings.length = level;
+        headings[level - 1] = title;
+        continue;
+      }
     }
 
-    if (!line.trim()) {
-      flushParagraph();
-      continue;
-    }
-
-    paragraph.push(line);
+    currentLines.push(line);
   }
 
-  flushParagraph();
-
+  flushCurrent();
   return blocks;
 }
 
@@ -146,8 +189,14 @@ export function mergeSections(blocks: SectionBlock[]): SectionBlock[] {
   const merged: SectionBlock[] = [];
   for (const block of blocks) {
     const previous = merged[merged.length - 1];
-    if (previous?.sectionPath === block.sectionPath) {
-      previous.text += "\n\n" + block.text;
+    // Merge consecutive prose blocks that share the same heading
+    if (
+      previous &&
+      previous.type === "prose" &&
+      block.type === "prose" &&
+      previous.sectionPath === block.sectionPath
+    ) {
+      previous.text = (previous.text ? previous.text + "\n\n" : "") + (block.text || "");
     } else {
       merged.push({ ...block });
     }
