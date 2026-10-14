@@ -4,7 +4,7 @@ import {openRouter} from "@/lib/openrouter"
 
 export const EMBEDDING_MODEL=process.env.OPENROUTER_EMBEDDING_MODEL!;
 
-export async function generateEmbedding(text:string[],batchSize:number=50):Promise<number[][]>{
+export async function generateEmbedding(text:string[],batchSize:number=20):Promise<number[][]>{
     if(text.length===0)
         return [];
     // Collects the embedding results

@@ -1,5 +1,5 @@
 "use server";
-import type { User, SignInInput } from "./schemas/auth";
+import type { User } from "./schemas/auth";
 import { userSchema, signInSchema } from "./schemas/auth";
 import { redirect } from "next/navigation";
 import createClient from "@/lib/supabase/server";
@@ -33,9 +33,14 @@ export async function signUp(user: User): Promise<AuthResult> {
   return { success: true };
 }
 
-export async function signIn(data: SignInInput): Promise<AuthResult> {
+export async function signIn(
+  formData: {email:string,password:string},
+){
+  const email = formData.email.trim();
+  const password = formData.password 
+
   // 1. Validate inputs using Zod
-  const validation = signInSchema.safeParse(data);
+  const validation = signInSchema.safeParse({ email, password });
   if (!validation.success) {
     const fieldErrors = validation.error.flatten().fieldErrors;
     return {
@@ -45,7 +50,6 @@ export async function signIn(data: SignInInput): Promise<AuthResult> {
     };
   }
 
-  // 2. Supabase Authentication
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -54,10 +58,7 @@ export async function signIn(data: SignInInput): Promise<AuthResult> {
   });
 
   if (error) {
-    if (
-      error.code === "invalid_credentials" ||
-      error.message?.toLowerCase().includes("invalid login credentials")
-    ) {
+    if (error.code === "invalid_credentials") {
       return {
         success: false,
         error: "Invalid email or password. Please try again.",
@@ -85,55 +86,58 @@ export async function signIn(data: SignInInput): Promise<AuthResult> {
       .eq("owner_id", user.id)
       .maybeSingle();
 
-    return {
-      success: true,
-      redirectTo: business ? "/dashboard" : "/onboarding",
-    };
+    if (business) {
+      redirect("/dashboard");
+    } else {
+      redirect("/onboarding");
+    }
   }
 
-  return { success: true, redirectTo: "/dashboard" };
+  redirect("/dashboard");
 }
 
-
-
-
-export async function verifyOtp(email:string,token:string):Promise<VerifyOTPResult>{
-  const supabase=await createClient()
+export async function verifyOtp(
+  email: string,
+  token: string,
+): Promise<VerifyOTPResult> {
+  const supabase = await createClient();
 
   const cleanEmail = email.trim().toLowerCase();
   const cleanToken = token.trim().replace(/[-\s]/g, "");
 
-  if(!cleanEmail || !cleanToken){
-    return {success:false,error:"Email and Verification Code are required."}
+  if (!cleanEmail || !cleanToken) {
+    return {
+      success: false,
+      error: "Email and Verification Code are required.",
+    };
   }
 
-  const{error}=await supabase.auth.verifyOtp({
-    email:cleanEmail,
-    token:cleanToken,
-    type:'signup'
-  })
+  const { error } = await supabase.auth.verifyOtp({
+    email: cleanEmail,
+    token: cleanToken,
+    type: "signup",
+  });
 
-   if (error) {
-
+  if (error) {
     if (error.code === "otp_expired") {
-      return { 
-        success: false, 
-        error: "Invalid or expired verification code. Please check your code or request a new one." 
+      return {
+        success: false,
+        error:
+          "Invalid or expired verification code. Please check your code or request a new one.",
       };
     }
 
     if (error.code === "over_email_send_rate_limit") {
-      return { 
-        success: false, 
-        error: "Too many attempts. Please wait a moment before trying again." 
+      return {
+        success: false,
+        error: "Too many attempts. Please wait a moment before trying again.",
       };
     }
 
     return { success: false, error: error.message || "Failed to verify code." };
   }
 
-  return {success:true}
-
+  return { success: true };
 }
 
 export const resendOTP = async (email: string): Promise<VerifyOTPResult> => {
@@ -153,7 +157,8 @@ export const resendOTP = async (email: string): Promise<VerifyOTPResult> => {
     if (error.code === "over_email_send_rate_limit") {
       return {
         success: false,
-        error: "Too many attempts. Please wait a minute before requesting another code.",
+        error:
+          "Too many attempts. Please wait a minute before requesting another code.",
       };
     }
     return { success: false, error: error.message || "Failed to resend code." };

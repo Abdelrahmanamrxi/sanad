@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import { Check, Loader, Mail, ArrowLeft } from "lucide-react";
 import {
   Field,
@@ -24,6 +26,8 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
+
   // Form States
   const [serverError, setServerError] = useState<string | null>();
   const [step, setStep] = useState<"form" | "otp" | "success">("form");
@@ -146,26 +150,51 @@ export function SignupForm({
     }
   }
 
-  // STEP 3: SUCCESS STATE
+  // STEP 3: SUCCESS STATE — brief message then redirect to onboarding
+  useEffect(() => {
+    if (step !== "success") return;
+    const timeout = setTimeout(() => {
+      router.replace("/onboarding");
+    }, 2000);
+    return () => clearTimeout(timeout);
+  }, [step, router]);
+
   if (step === "success") {
     return (
-      <div className={cn("border border-border bg-card p-5 sm:p-6 text-start space-y-4 shadow-xs", className)}>
-        <div className="flex items-center gap-2.5 text-primary font-semibold text-base">
-          <div className="size-8 bg-success/15 border border-success/30 flex items-center justify-center shrink-0">
-            <Check className="size-4 text-success" />
-          </div>
-          <span>Email verified successfully</span>
-        </div>
-        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-          Your account is fully verified and ready. Welcome to Sanad!
-        </p>
-        <Button
-          onClick={() => (window.location.href = "/dashboard")}
-          className="w-full h-11 sm:h-10 cursor-pointer text-sm font-medium"
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className={cn("border border-border bg-card p-6 sm:p-8 text-center space-y-4 shadow-xs", className)}
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 14 }}
+          className="size-12 bg-success/15 border border-success/30 flex items-center justify-center mx-auto"
         >
-          Go to Dashboard
-        </Button>
-      </div>
+          <Check className="size-5 text-success" />
+        </motion.div>
+
+        <div className="space-y-1">
+          <h2 className="text-base font-bold text-foreground">
+            Email verified successfully
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Redirecting you to set up your workspace...
+          </p>
+        </div>
+
+        {/* Auto-redirect progress bar */}
+        <div className="h-1 w-full bg-border overflow-hidden">
+          <motion.div
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 2, ease: "linear" }}
+            className="h-full bg-success"
+          />
+        </div>
+      </motion.div>
     );
   }
 

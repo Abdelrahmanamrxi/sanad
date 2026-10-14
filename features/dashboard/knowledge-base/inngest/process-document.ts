@@ -50,7 +50,9 @@ export const processDocument = inngest.createFunction(
         .single();
 
       if (!data || error) {
-        throw new Error("Couldn't find document matching your criteria");
+        throw new Error(
+          `Couldn't find document matching criteria: ${error?.message || "No data"}`,
+        );
       }
       return data;
     });
@@ -109,7 +111,7 @@ export const processDocument = inngest.createFunction(
 
       if (error) {
         throw new Error(
-          `Failed to store relevan data due to ${error.message} `,
+          `Failed to store relevant data due to ${error.message} `,
         );
       }
     });

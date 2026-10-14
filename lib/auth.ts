@@ -17,6 +17,7 @@ export async function getAuthContext() {
     .select("id")
     .eq("owner_id", user.id)
     .single();
+  
 
   if(!business?.id || dbError){
     throw new AppError("No business workspace has been found",404)
