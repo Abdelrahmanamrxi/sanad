@@ -1,5 +1,5 @@
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { mergeSections, parseMarkdownSections } from "./structured-text";
+import { mergeSections, parseMarkdownSections } from "./structure-text";
 
 const textSplitter = new RecursiveCharacterTextSplitter({
   chunkSize: 1000,

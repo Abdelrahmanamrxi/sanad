@@ -1,34 +1,48 @@
-import {openRouter} from "@/lib/openrouter"
 
+export const EMBEDDING_MODEL=process.env.CF_EMBEDDING_MODEL!;
 
+const CF_URL = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/baai/bge-m3`;
+const EXPECTED_DIMS = 1024;
 
-export const EMBEDDING_MODEL=process.env.OPENROUTER_EMBEDDING_MODEL!;
+export async function generateEmbedding(
+  text: string[],
+  batchSize: number = 16
+): Promise<number[][]> {
+  if (text.length === 0) return [];
 
-export async function generateEmbedding(text:string[],batchSize:number=20):Promise<number[][]>{
-    if(text.length===0)
-        return [];
-    // Collects the embedding results
-    const allEmbeddings:number[][]=[]
+  const allEmbeddings: number[][] = [];
 
-    for(let i=0;i<text.length;i+=batchSize){
-        const batch = text.slice(i, i + batchSize); // Processes text in batches
-        const response=await openRouter.embeddings.generate({
-            requestBody:{
-                model:EMBEDDING_MODEL,
-                input:batch,
-                encodingFormat:'float' // requests vectors in a floating point no.
-            }
-        })
-        if(typeof response === "string" || !response.data){
-            throw new Error("Failed to receive results from the embedding model")
-        }
-        // Sort them by index
-         const sorted = response.data.sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+  for (let i = 0; i < text.length; i += batchSize) {
+    const batch = text.slice(i, i + batchSize);
 
-         for(const item of sorted){
-            allEmbeddings.push(item.embedding as number[])
-         }
+    const res = await fetch(CF_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: batch }),
+    });
+
+    const json = await res.json().catch(() => null);
+
+    if (!res.ok || !json?.success || !Array.isArray(json.result?.data)) {
+      throw new Error(
+        `Workers AI embedding failed (${res.status}): ${JSON.stringify(json?.errors ?? json)}`
+      );
     }
-    return allEmbeddings
 
+    const vectors: number[][] = json.result.data;
+
+    if (vectors.length !== batch.length) {
+      throw new Error(`Expected ${batch.length} embeddings, got ${vectors.length}`);
+    }
+    if (vectors[0].length !== EXPECTED_DIMS) {
+      throw new Error(`Expected ${EXPECTED_DIMS} dims, got ${vectors[0].length}`);
+    }
+
+    allEmbeddings.push(...vectors);
+  }
+
+  return allEmbeddings;
 }
