@@ -8,12 +8,31 @@ export const initialDocuments: DocumentItem[] = [
     business_id: "biz-1",
     storage_path: "policies/shipping_and_delivery_policy_2026.pdf",
     markdown_path: "parsed/shipping_and_delivery_policy_2026.md",
-    mime_type: "application/pdf",
+    mime_type: "pdf",
     doc_status: "indexed",
     stats: {
       total_chunks: 4,
       total_tokens: 933,
       file_size: 1420500,
+    },
+    performance: {
+      times_cited_30d: 142,
+      times_cited_7d: 38,
+      satisfaction_rate: 97,
+      thumbs_down_count: 2,
+      top_queries_helped: [
+        { query: "What are the delivery fees inside Cairo?", count: 64 },
+        { query: "How long does standard shipping take?", count: 48 },
+        { query: "Can I change my delivery address after dispatch?", count: 30 },
+      ],
+      suggested_questions: [
+        "كم تبلغ تكلفة الشحن للمحافظات؟",
+        "What is the estimated delivery time for express orders?",
+        "Do you offer free shipping above 500 EGP?",
+        "What happens if I miss the courier delivery?",
+        "How do I track my shipment status?",
+        "هل يوجد دفع عند الاستلام لجميع المدن؟",
+      ],
     },
     created_at: "2 hours ago",
   },
@@ -22,12 +41,29 @@ export const initialDocuments: DocumentItem[] = [
     business_id: "biz-1",
     storage_path: "knowledge/store_faqs_and_ramadan_hours.md",
     markdown_path: "parsed/store_faqs_and_ramadan_hours.md",
-    mime_type: "text/markdown",
+    mime_type: "markdown",
     doc_status: "indexed",
     stats: {
       total_chunks: 3,
       total_tokens: 615,
       file_size: 48200,
+    },
+    performance: {
+      times_cited_30d: 89,
+      times_cited_7d: 21,
+      satisfaction_rate: 94,
+      thumbs_down_count: 3,
+      top_queries_helped: [
+        { query: "ما هي مواعيد العمل في رمضان؟", count: 52 },
+        { query: "Where is the nearest branch located in New Cairo?", count: 37 },
+      ],
+      suggested_questions: [
+        "ما هي أوقات العمل في فرع التجمع الخامس؟",
+        "Are branches open after Iftar during Ramadan?",
+        "Is Friday work schedule different?",
+        "كيف يمكنني حجز موعد استشارة مسبق؟",
+        "What are the official holidays when clinic is closed?",
+      ],
     },
     created_at: "5 hours ago",
   },
@@ -35,7 +71,7 @@ export const initialDocuments: DocumentItem[] = [
     id: "doc-3",
     business_id: "biz-1",
     storage_path: "legal/damaged_goods_workflow.pdf",
-    mime_type: "application/pdf",
+    mime_type: "pdf",
     doc_status: "failed",
     stats: {
       total_chunks: 0,
@@ -43,19 +79,46 @@ export const initialDocuments: DocumentItem[] = [
       file_size: 820100,
     },
     error_message: "Text extraction failed: PDF contains scanned raster pages with no embedded OCR text layer.",
+    performance: {
+      times_cited_30d: 0,
+      times_cited_7d: 0,
+      satisfaction_rate: 0,
+      thumbs_down_count: 0,
+      top_queries_helped: [],
+      suggested_questions: [],
+    },
     created_at: "1 day ago",
   },
   {
     id: "doc-4",
     business_id: "biz-1",
-    storage_path: "catalogs/product_catalog_and_price_list_v4.csv",
+    storage_path: "catalogs/product_catalog_and_price_list_v4.docx",
     markdown_path: "parsed/product_catalog_and_price_list_v4.md",
-    mime_type: "text/csv",
+    mime_type: "docx",
     doc_status: "indexed",
     stats: {
       total_chunks: 6,
       total_tokens: 1840,
       file_size: 2450000,
+    },
+    performance: {
+      times_cited_30d: 312,
+      times_cited_7d: 84,
+      satisfaction_rate: 98,
+      thumbs_down_count: 1,
+      top_queries_helped: [
+        { query: "كم سعر تنظيف الأسنان وإزالة الجير؟", count: 118 },
+        { query: "What is the cost of Root Canal retreatment?", count: 94 },
+        { query: "Do you accept AXA Egypt insurance for veneers?", count: 62 },
+        { query: "What is the warranty period for composite fillings?", count: 38 },
+      ],
+      suggested_questions: [
+        "كم سعر كحت الجير العميق للجيوب اللثوية؟",
+        "What is included in the Standard Consultation fee?",
+        "Does the clinic offer installments with ValU or Sympl?",
+        "What is the price of Philips Zoom 4 in-office bleaching?",
+        "هل يشمل الفينير ضمان 5 سنوات معتمد؟",
+      ],
     },
     created_at: "3 days ago",
   },
@@ -64,12 +127,23 @@ export const initialDocuments: DocumentItem[] = [
     business_id: "biz-1",
     storage_path: "notes/customer_onboarding_terms.txt",
     markdown_path: "parsed/customer_onboarding_terms.md",
-    mime_type: "text/plain",
+    mime_type: "txt",
     doc_status: "indexed",
     stats: {
       total_chunks: 2,
       total_tokens: 420,
       file_size: 18500,
+    },
+    performance: {
+      times_cited_30d: 0,
+      times_cited_7d: 0,
+      satisfaction_rate: 0,
+      thumbs_down_count: 0,
+      top_queries_helped: [],
+      suggested_questions: [
+        "What personal info is needed to create a patient profile?",
+        "Can a guardian register on behalf of a minor?",
+      ],
     },
     created_at: "1 week ago",
   },
@@ -234,13 +308,13 @@ export function getFileName(path: string): string {
 
 export function getFileIcon(mime: MimeType) {
   switch (mime) {
-    case "application/pdf":
+    case "pdf":
       return <FileText className="size-4 text-destructive" />
-    case "text/markdown":
+    case "markdown":
       return <FileCode className="size-4 text-primary" />
-    case "text/csv":
-      return <FileSpreadsheet className="size-4 text-success" />
-    case "text/plain":
+    case "docx":
+      return <FileText className="size-4 text-primary" />
+    case "txt":
     default:
       return <File className="size-4 text-highlight" />
   }
@@ -248,13 +322,13 @@ export function getFileIcon(mime: MimeType) {
 
 export function getFormatBadge(mime: MimeType): string {
   switch (mime) {
-    case "application/pdf":
+    case "pdf":
       return "PDF"
-    case "text/markdown":
+    case "markdown":
       return "MD"
-    case "text/csv":
-      return "CSV"
-    case "text/plain":
+    case "docx":
+      return "DOCX"
+    case "txt":
     default:
       return "TXT"
   }

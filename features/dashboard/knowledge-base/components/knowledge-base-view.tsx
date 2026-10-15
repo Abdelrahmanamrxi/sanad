@@ -14,7 +14,8 @@ import {
   mockChunksByDocId as defaultMockChunks,
 } from "../mock-data"
 import type { DocumentItem, ChunkItem, MimeType } from "../types"
-
+import DocumentLibrarySectionError from "./errors/document-library-error"
+import DocumentInspectorSectionError from "./errors/document-inspector-error"
 interface KnowledgeBaseViewProps {
   initialDocuments?: DocumentItem[]
   initialChunks?: Record<string, ChunkItem[]>
@@ -185,6 +186,8 @@ export function KnowledgeBaseView({
 
       {/* ── Master-Detail Two-Pane Workspace ── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+        <DocumentLibrarySectionError>
+
         {/* Left Pane: Document Library */}
         <DocumentLibrary
           documents={documents}
@@ -200,13 +203,16 @@ export function KnowledgeBaseView({
           onDeleteSingle={handleDeleteSingle}
           onOpenBulkDelete={() => setIsBulkDeleteOpen(true)}
         />
+        </DocumentLibrarySectionError>
 
         {/* Right Pane: Deep Inspector */}
-        <DocumentInspector
-          selectedDoc={selectedDoc}
-          chunks={currentChunks}
-          onDeleteSingle={handleDeleteSingle}
-        />
+        <DocumentInspectorSectionError>
+          <DocumentInspector
+            selectedDoc={selectedDoc}
+            chunks={currentChunks}
+            onDeleteSingle={handleDeleteSingle}
+          />
+        </DocumentInspectorSectionError>
       </div>
 
       {/* ── Modals ── */}

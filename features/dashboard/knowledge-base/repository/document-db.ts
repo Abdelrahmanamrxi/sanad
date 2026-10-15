@@ -31,7 +31,8 @@ export async function insertDocument(
       name: file.name,
       mime_type: toDbMimeType(file),
       doc_status: "queued",
-      storage_path:path
+      storage_path:path,
+      file_size:file.size
     })
     .select("id")
     .single();

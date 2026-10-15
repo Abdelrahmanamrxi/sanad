@@ -1,4 +1,6 @@
-export type DbMimeType = "pdf" | "text" | "docx" | "markdown";
+import type { MimeType } from "./types";
+
+export type DbMimeType = MimeType;
 
 export function toDbMimeType(file: File): DbMimeType {
   const type = file.type.toLowerCase();
@@ -16,5 +18,5 @@ export function toDbMimeType(file: File): DbMimeType {
   ) {
     return "docx";
   }
-  return "text";
+  return "txt";
 }

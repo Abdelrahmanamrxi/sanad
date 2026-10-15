@@ -1,9 +1,13 @@
 "use client"
 
 import React from "react"
-import { Search, Trash2, AlertCircle } from "lucide-react"
+
+import { Search, Trash2, AlertCircle, Loader2, Clock, Check } from "lucide-react"
+
 import type { DocumentItem, MimeType } from "../types"
 import { formatBytes, getFileName, getFileIcon, getFormatBadge } from "../mock-data"
+import { useQuery } from "@tanstack/react-query"
+import { fetchDocuments } from "../actions"
 
 interface DocumentLibraryProps {
   documents: DocumentItem[]
@@ -34,14 +38,20 @@ export function DocumentLibrary({
   onDeleteSingle,
   onOpenBulkDelete,
 }: DocumentLibraryProps) {
+
+  const{data,isError}=useQuery({
+    queryKey:['documents',{typeFilter,searchQuery}],
+    queryFn:()=>fetchDocuments({mimeType:typeFilter,name:searchQuery})
+  })
+  console.log(data)
   // Filtered documents
-  const filteredDocs = documents.filter((doc) => {
+  const filteredDocs = data ? data.filter((doc) => {
     const matchesSearch = doc.storage_path
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
     const matchesType = typeFilter === "all" || doc.mime_type === typeFilter
-    return matchesSearch && matchesType
-  })
+    return matchesSearch && matchesType 
+  }) : []
 
   return (
     <div className="border border-border bg-card p-4 lg:col-span-5 flex flex-col rounded-none">
@@ -74,9 +84,9 @@ export function DocumentLibrary({
           </button>
           <button
             type="button"
-            onClick={() => onTypeFilterChange("application/pdf")}
+            onClick={() => onTypeFilterChange("pdf")}
             className={`px-2 py-0.5 transition-colors rounded-none ${
-              typeFilter === "application/pdf"
+              typeFilter === "pdf"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
@@ -85,36 +95,36 @@ export function DocumentLibrary({
           </button>
           <button
             type="button"
-            onClick={() => onTypeFilterChange("text/markdown")}
+            onClick={() => onTypeFilterChange("docx")}
             className={`px-2 py-0.5 transition-colors rounded-none ${
-              typeFilter === "text/markdown"
+              typeFilter === "docx"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            MD
+            DOCX
           </button>
           <button
             type="button"
-            onClick={() => onTypeFilterChange("text/csv")}
+            onClick={() => onTypeFilterChange("txt")}
             className={`px-2 py-0.5 transition-colors rounded-none ${
-              typeFilter === "text/csv"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
-            CSV
-          </button>
-          <button
-            type="button"
-            onClick={() => onTypeFilterChange("text/plain")}
-            className={`px-2 py-0.5 transition-colors rounded-none ${
-              typeFilter === "text/plain"
+              typeFilter === "txt"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             TXT
+          </button>
+          <button
+            type="button"
+            onClick={() => onTypeFilterChange("markdown")}
+            className={`px-2 py-0.5 transition-colors rounded-none ${
+              typeFilter === "markdown"
+                ? "bg-primary text-primary-foreground font-semibold"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            MD
           </button>
         </div>
 
@@ -216,22 +226,34 @@ export function DocumentLibrary({
                       {getFormatBadge(doc.mime_type)}
                     </span>
                     <span className="text-muted-foreground">
-                      {formatBytes(doc.stats.file_size)}
+                      {formatBytes(doc?.file_size ?? 0)}
                     </span>
                     <span className="text-border">|</span>
                     <span className="text-muted-foreground">
-                      {doc.stats.total_chunks} chunks
+                      {doc.stats?.total_chunks ?? 0} chunks
                     </span>
                   </div>
 
                   <div>
-                    {isFailed ? (
-                      <span className="border border-destructive/40 bg-destructive/10 px-1.5 py-px font-semibold text-destructive uppercase rounded-none">
-                        Failed
+                    {doc.doc_status === "failed" ? (
+                      <span className="inline-flex items-center gap-1 border border-destructive/40 bg-destructive/10 px-1.5 py-px font-semibold text-destructive uppercase rounded-none">
+                        <AlertCircle className="size-2.5 shrink-0" />
+                        <span>Failed</span>
+                      </span>
+                    ) : doc.doc_status === "processing" ? (
+                      <span className="inline-flex items-center gap-1.5 border border-primary/50 bg-primary/20 text-primary px-2 py-0.5 font-bold uppercase tracking-wider rounded-none shadow-xs">
+                        <Loader2 className="size-3 animate-spin shrink-0 text-primary" />
+                        <span>Processing</span>
+                      </span>
+                    ) : doc.doc_status === "queued" ? (
+                      <span className="inline-flex items-center gap-1 border border-highlight/40 bg-highlight/10 text-highlight-foreground dark:text-highlight px-1.5 py-px font-semibold uppercase rounded-none">
+                        <Clock className="size-2.5 shrink-0" />
+                        <span>Queued</span>
                       </span>
                     ) : (
-                      <span className="border border-success/40 bg-success/10 px-1.5 py-px font-semibold text-success uppercase rounded-none">
-                        Indexed
+                      <span className="inline-flex items-center gap-1 border border-success/40 bg-success/10 px-1.5 py-px font-semibold text-success uppercase rounded-none">
+                        <Check className="size-2.5 shrink-0" />
+                        <span>{doc.doc_status === "ready" ? "Ready" : "Indexed"}</span>
                       </span>
                     )}
                   </div>
