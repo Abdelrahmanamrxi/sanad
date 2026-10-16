@@ -17,23 +17,29 @@ import {
   AlertCircle,
   HelpCircle,
   CheckCircle2,
+  Loader2,
+  FileSearch,
+  ArrowRight,
 } from "lucide-react";
 import type { DocumentItem, ChunkItem } from "../types";
 import { formatBytes, getFileName, getFormatBadge } from "../mock-data";
 import { ChunkCard } from "./chunk-card";
 import { Button } from "@/components/ui/button";
-
+import DocumentInspectorSkeleton from "./loading/document-inspector-skeleton";
 interface DocumentInspectorProps {
   selectedDoc: DocumentItem | null;
   chunks: ChunkItem[];
   onDeleteSingle: (doc: DocumentItem) => void;
+  isPending: boolean;
 }
 
 export function DocumentInspector({
   selectedDoc,
   chunks,
   onDeleteSingle,
+  isPending
 }: DocumentInspectorProps) {
+  console.log(chunks)
   const [activeTab, setActiveTab] = useState<"performance" | "content" | "chunks">(
     "performance"
   );
@@ -48,11 +54,60 @@ export function DocumentInspector({
 
   if (!selectedDoc) {
     return (
-      <div className="border border-border bg-card p-12 text-center text-xs text-muted-foreground lg:col-span-7 rounded-none">
-        Select a document from the left library to inspect performance and content.
+      <div className="border border-border bg-card p-6 lg:col-span-7 flex flex-col justify-between rounded-none min-h-[520px] select-none">
+        {/* Top Header Bar matching active inspector */}
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-2">
+            <Layers className="size-4 text-muted-foreground" />
+            <h2 className="text-sm font-semibold tracking-tight text-foreground font-sans">
+              Document Inspector
+            </h2>
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 border border-border bg-muted/50 text-[10px] font-mono uppercase tracking-wider text-muted-foreground rounded-none">
+            <span className="size-1.5 bg-muted-foreground/50 shrink-0" />
+            Idle
+          </span>
+        </div>
+
+        {/* Centered Graphic & Helper Prompt */}
+        <div className="flex flex-col items-center justify-center text-center py-16 px-6 my-auto">
+          <div className="relative mb-4">
+            <div className="size-12 border border-border bg-background flex items-center justify-center rounded-none shadow-xs text-muted-foreground">
+              <FileSearch className="size-6 stroke-[1.5]" />
+            </div>
+            <div className="absolute -bottom-1 -end-1 size-4 border border-primary bg-primary text-primary-foreground flex items-center justify-center rounded-none">
+              <ArrowRight className="size-2.5 stroke-[2]" />
+            </div>
+          </div>
+
+          <h3 className="text-sm font-bold text-foreground tracking-tight font-sans">
+            No Document Selected
+          </h3>
+
+          <p className="text-xs text-muted-foreground mt-1.5 max-w-sm leading-relaxed font-sans">
+            Select a document from the left library to inspect its vector partitions,
+            token metrics, full content tree, and query citation performance.
+          </p>
+
+          <div className="mt-5 flex items-center gap-2 text-[11px] font-mono text-muted-foreground border border-dashed border-border/80 bg-background/50 px-3 py-1.5 rounded-none">
+            <span className="size-1.5 bg-primary shrink-0" />
+            <span>Click any item in the library to inspect</span>
+          </div>
+        </div>
+
+        {/* Bottom subtle bar */}
+        <div className="border-t border-border pt-2 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
+          <span>Workspace / Inspector</span>
+          <span>Awaiting Selection</span>
+        </div>
       </div>
     );
   }
+
+    if (isPending) {
+    return <DocumentInspectorSkeleton />;
+  }
+ 
 
   const perf = selectedDoc.performance ?? {
     times_cited_30d: 0,
@@ -161,19 +216,10 @@ export function DocumentInspector({
 
           <div className="border border-border bg-background p-2 rounded-none">
             <span className="block text-[9px] uppercase text-muted-foreground">
-              Tokens Indexed
-            </span>
-            <span className="text-xs font-bold text-primary">
-              {selectedDoc.stats.total_tokens.toLocaleString()}
-            </span>
-          </div>
-
-          <div className="border border-border bg-background p-2 rounded-none">
-            <span className="block text-[9px] uppercase text-muted-foreground">
               File Size
             </span>
             <span className="text-xs font-bold text-foreground">
-              {formatBytes(selectedDoc.stats.file_size)}
+              {formatBytes(Number(selectedDoc && selectedDoc.file_size))}
             </span>
           </div>
         </div>
@@ -218,7 +264,8 @@ export function DocumentInspector({
             }`}
           >
             <Layers className="size-3.5" />
-            <span>Raw Chunks ({chunks.length})</span>
+            <span>Raw Chunks {isPending ? "(...)" : `(${chunks.length})`}</span>
+            {isPending && <Loader2 className="size-3 animate-spin text-primary" />}
           </button>
         </div>
 
@@ -398,41 +445,93 @@ export function DocumentInspector({
       {/* ── TAB 2: Document Content & Outline ── */}
       {activeTab === "content" && (
         <div className="mt-4 flex flex-col gap-4 max-h-[calc(100vh-380px)] overflow-y-auto pe-1">
-          {/* Detected Headings Outline */}
-          {detectedHeadings.length > 0 && (
-            <div className="border border-border bg-background p-3.5 rounded-none">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-2">
-                Detected Section Outline
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {detectedHeadings.map((heading, i) => (
-                  <span
-                    key={i}
-                    className="border border-border bg-card px-2 py-0.5 font-mono text-[10px] text-foreground rounded-none"
-                  >
-                    {heading}
-                  </span>
-                ))}
+          {isPending ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2 border border-primary/20 bg-primary/5 p-2.5 text-xs text-primary rounded-none font-mono">
+                <Loader2 className="size-3.5 animate-spin shrink-0" />
+                <span>Loading parsed document content & section tree...</span>
+              </div>
+              <div className="border border-border bg-background p-4 rounded-none animate-pulse space-y-3">
+                <div className="h-3.5 w-36 bg-muted rounded-none" />
+                <div className="flex gap-2 pt-1">
+                  <div className="h-5 w-24 bg-muted/70 rounded-none" />
+                  <div className="h-5 w-28 bg-muted/70 rounded-none" />
+                  <div className="h-5 w-20 bg-muted/70 rounded-none" />
+                </div>
+                <div className="space-y-2 pt-3 border-t border-border/40">
+                  <div className="h-3 w-full bg-muted/50 rounded-none" />
+                  <div className="h-3 w-11/12 bg-muted/50 rounded-none" />
+                  <div className="h-3 w-4/5 bg-muted/50 rounded-none" />
+                  <div className="h-3 w-5/6 bg-muted/50 rounded-none" />
+                </div>
               </div>
             </div>
-          )}
+          ) : (
+            <>
+              {/* Detected Headings Outline */}
+              {detectedHeadings.length > 0 && (
+                <div className="border border-border bg-background p-3.5 rounded-none">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-2">
+                    Detected Section Outline
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detectedHeadings.map((heading, i) => (
+                      <span
+                        key={i}
+                        className="border border-border bg-card px-2 py-0.5 font-mono text-[10px] text-foreground rounded-none"
+                      >
+                        {heading}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Rendered Document Text */}
-          <div className="border border-border bg-background p-4 rounded-none">
-            <pre className="font-mono text-xs text-foreground leading-relaxed whitespace-pre-wrap select-text">
-              {`# ${getFileName(selectedDoc.storage_path)}
+              {/* Rendered Document Text */}
+              <div className="border border-border bg-background p-4 rounded-none">
+                <pre className="font-mono text-xs text-foreground leading-relaxed whitespace-pre-wrap select-text">
+                  {`# ${getFileName(selectedDoc.storage_path)}
 
 ${chunks.map((c) => `### ${c.heading_path || `Partition ${c.chunk_index + 1}`}\n${c.content}`).join("\n\n---\n\n")}
 `}
-            </pre>
-          </div>
+                </pre>
+              </div>
+            </>
+          )}
         </div>
       )}
 
       {/* ── TAB 3: Raw Vector Chunks (Advanced) ── */}
       {activeTab === "chunks" && (
         <div className="mt-4 flex flex-col gap-3 max-h-[calc(100vh-380px)] overflow-y-auto pe-1">
-          {selectedDoc.doc_status === "failed" ? (
+          {isPending ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2 border border-primary/20 bg-primary/5 p-2.5 text-xs text-primary rounded-none font-mono">
+                <Loader2 className="size-3.5 animate-spin shrink-0" />
+                <span>Fetching vector partitions & chunk embeddings...</span>
+              </div>
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="border border-border bg-background p-4 rounded-none animate-pulse space-y-3"
+                  style={{ animationDelay: `${idx * 120}ms` }}
+                >
+                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-12 bg-muted rounded-none" />
+                      <div className="h-3.5 w-28 bg-muted/60 rounded-none" />
+                    </div>
+                    <div className="h-4 w-16 bg-muted/80 rounded-none" />
+                  </div>
+                  <div className="space-y-1.5 pt-1">
+                    <div className="h-3 w-full bg-muted/60 rounded-none" />
+                    <div className="h-3 w-11/12 bg-muted/60 rounded-none" />
+                    <div className="h-3 w-3/4 bg-muted/60 rounded-none" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : selectedDoc.doc_status === "failed" ? (
             <div className="border border-destructive/40 bg-destructive/5 p-4 text-xs text-destructive rounded-none">
               <div className="flex items-center gap-2 font-semibold">
                 <AlertCircle className="size-4 shrink-0" />

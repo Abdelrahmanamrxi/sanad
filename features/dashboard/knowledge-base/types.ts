@@ -34,8 +34,8 @@ export interface DocumentItem {
   stats: DocumentStats
   performance?: DocumentPerformance
   error_message?: string
-  created_at: string,
-  file_size:number
+  created_at: string
+  file_size?: number
 }
 
 

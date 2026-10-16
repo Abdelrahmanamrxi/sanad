@@ -1,5 +1,5 @@
 "use server";
-import { DocumentItem } from "./types";
+import { type ChunkItem, DocumentItem } from "./types";
 import { getAuthContext } from "@/lib/auth";
 import { MimeType } from "./types";
 import { FetchDocumentsParams } from "./types";
@@ -31,3 +31,33 @@ export async function fetchDocuments(
 
   return (data as DocumentItem[]) ?? [];
 }
+export async function fetchDocumentDetails(id: string): Promise<ChunkItem[]> {
+  const { supabase, businessId } = await getAuthContext();
+
+  const { data, error } = await supabase
+    .from("chunks")
+    .select("*")
+    .eq("document_id", id)
+    .eq("business_id", businessId);
+
+  if (error) {
+    throw new Error("Failed to load document details.");
+  }
+
+  return (data as ChunkItem[]) ?? [];
+}
+
+export async function deleteDocument(id: string) {
+  const { supabase, businessId } = await getAuthContext();
+  const { error } = await supabase
+    .from("documents")
+    .delete()
+    .eq("business_id", businessId)
+    .eq("id", id);
+
+  if(error){
+    throw new Error("Failed to delete documents")
+  }
+  return true
+}
+

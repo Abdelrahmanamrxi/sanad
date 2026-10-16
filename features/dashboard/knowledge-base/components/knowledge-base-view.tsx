@@ -1,114 +1,89 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { Plus } from "lucide-react"
+import React, { useState } from "react";
+import { Plus } from "lucide-react";
 import {
   DocumentLibrary,
   DocumentInspector,
   AddDocumentModal,
   DeleteSingleModal,
-  BulkDeleteModal,
-} from "./"
+} from "./";
 import {
   initialDocuments as defaultInitialDocuments,
   mockChunksByDocId as defaultMockChunks,
-} from "../mock-data"
-import type { DocumentItem, ChunkItem, MimeType } from "../types"
-import DocumentLibrarySectionError from "./errors/document-library-error"
-import DocumentInspectorSectionError from "./errors/document-inspector-error"
+} from "../mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDocumentDetails, fetchDocuments } from "../actions";
+import useDebounce from "@/hooks/use-debounce";
+import type { DocumentItem, ChunkItem, MimeType } from "../types";
+import DocumentLibrarySectionError from "./errors/document-library-error";
+import DocumentInspectorSectionError from "./errors/document-inspector-error";
 interface KnowledgeBaseViewProps {
-  initialDocuments?: DocumentItem[]
-  initialChunks?: Record<string, ChunkItem[]>
+  initialDocuments?: DocumentItem[];
+  initialChunks?: Record<string, ChunkItem[]>;
 }
 
 export function KnowledgeBaseView({
   initialDocuments = defaultInitialDocuments,
   initialChunks = defaultMockChunks,
 }: KnowledgeBaseViewProps) {
-  const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments)
-  const [chunksByDoc, setChunksByDoc] = useState<Record<string, ChunkItem[]>>(initialChunks)
-  const [selectedDocId, setSelectedDocId] = useState<string>(
-    initialDocuments[0]?.id || "doc-1"
-  )
-  const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set())
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [chunksByDoc, setChunksByDoc] = useState<Record<string, ChunkItem[]>>(initialChunks);
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+
 
   // Search & filter state
-  const [searchQuery, setSearchQuery] = useState("")
-  const [typeFilter, setTypeFilter] = useState<"all" | MimeType>("all")
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"all" | MimeType>("all");
 
   // Modal states
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<DocumentItem | null>(null)
-  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<DocumentItem | null>(
+    null,
+  );
 
+  const debouncedQuery = useDebounce(searchQuery, 500);
+
+  const { data, isPending: isDocumentLibraryPending } = useQuery({
+    queryKey: ["documents", { typeFilter, searchQuery }],
+    queryFn: () =>
+      fetchDocuments({ mimeType: typeFilter, name: debouncedQuery }),
+  });
   // Selected document & chunks
+  const docsList = data ?? documents;
   const selectedDoc =
-    documents.find((d) => d.id === selectedDocId) || documents[0] || null
-  const currentChunks = selectedDoc ? chunksByDoc[selectedDoc.id] || [] : []
+    docsList.find((d) => d.id === selectedDocId) ?? docsList[0] ?? null;
 
-  /* ── Selection handlers ── */
-  const handleToggleSelectDoc = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    const next = new Set(selectedDocIds)
-    if (next.has(id)) {
-      next.delete(id)
-    } else {
-      next.add(id)
-    }
-    setSelectedDocIds(next)
-  }
+  const activeDocId = selectedDoc?.id;
 
-  const handleToggleSelectAll = () => {
-    const filteredDocs = documents.filter((doc) => {
-      const matchesSearch = doc.storage_path
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-      const matchesType = typeFilter === "all" || doc.mime_type === typeFilter
-      return matchesSearch && matchesType
-    })
 
-    if (selectedDocIds.size === filteredDocs.length) {
-      setSelectedDocIds(new Set())
-    } else {
-      setSelectedDocIds(new Set(filteredDocs.map((d) => d.id)))
-    }
-  }
+
+  const{data:currentChunks,isPending:isDocumentDetailsPending}=useQuery({
+    queryKey:['chunks',activeDocId],
+    queryFn:()=>fetchDocumentDetails(activeDocId!),
+    enabled:!!activeDocId // runs when an active document exists
+  })
+
+
 
   /* ── Delete Handlers ── */
   const handleDeleteSingle = (doc: DocumentItem) => {
-    setDeleteConfirmDoc(doc)
-  }
+    setDeleteConfirmDoc(doc);
+  };
 
   const confirmDeleteSingle = () => {
-    if (!deleteConfirmDoc) return
-    const idToDelete = deleteConfirmDoc.id
-    setDocuments((prev) => prev.filter((d) => d.id !== idToDelete))
-    setSelectedDocIds((prev) => {
-      const next = new Set(prev)
-      next.delete(idToDelete)
-      return next
-    })
+    if (!deleteConfirmDoc) return;
+    const idToDelete = deleteConfirmDoc.id;
+    setDocuments((prev) => prev.filter((d) => d.id !== idToDelete));
 
     if (selectedDocId === idToDelete) {
-      const remaining = documents.filter((d) => d.id !== idToDelete)
+      const remaining = documents.filter((d) => d.id !== idToDelete);
       if (remaining.length > 0) {
-        setSelectedDocId(remaining[0].id)
+        setSelectedDocId(remaining[0].id);
       }
     }
-    setDeleteConfirmDoc(null)
-  }
-
-  const confirmBulkDelete = () => {
-    setDocuments((prev) => prev.filter((d) => !selectedDocIds.has(d.id)))
-    if (selectedDocIds.has(selectedDocId)) {
-      const remaining = documents.filter((d) => !selectedDocIds.has(d.id))
-      if (remaining.length > 0) {
-        setSelectedDocId(remaining[0].id)
-      }
-    }
-    setSelectedDocIds(new Set())
-    setIsBulkDeleteOpen(false)
-  }
+    setDeleteConfirmDoc(null);
+  };
 
   /* ── Add Document Ingest Handler ── */
   const handleAddDocument = ({
@@ -116,11 +91,11 @@ export function KnowledgeBaseView({
     mimeType,
     rawText,
   }: {
-    fileName: string
-    mimeType: MimeType
-    rawText: string
+    fileName: string;
+    mimeType: MimeType;
+    rawText: string;
   }) => {
-    const newDocId = `doc-${Date.now()}`
+    const newDocId = `doc-${Date.now()}`;
     const newDoc: DocumentItem = {
       id: newDocId,
       business_id: "biz-1",
@@ -134,7 +109,8 @@ export function KnowledgeBaseView({
         file_size: 345000,
       },
       created_at: "Just now",
-    }
+      file_size: 3000,
+    };
 
     setChunksByDoc((prev) => ({
       ...prev,
@@ -153,11 +129,11 @@ export function KnowledgeBaseView({
           created_at: new Date().toISOString(),
         },
       ],
-    }))
+    }));
 
-    setDocuments((prev) => [newDoc, ...prev])
-    setSelectedDocId(newDocId)
-  }
+    setDocuments((prev) => [newDoc, ...prev]);
+    setSelectedDocId(newDocId);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -168,7 +144,8 @@ export function KnowledgeBaseView({
             Knowledge Base
           </h1>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Manage vector embeddings, inspect chunk partitions, and purge obsolete documentation
+            Manage vector embeddings, inspect chunk partitions, and purge
+            obsolete documentation
           </p>
         </div>
 
@@ -187,30 +164,27 @@ export function KnowledgeBaseView({
       {/* ── Master-Detail Two-Pane Workspace ── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
         <DocumentLibrarySectionError>
-
-        {/* Left Pane: Document Library */}
-        <DocumentLibrary
-          documents={documents}
-          selectedDocId={selectedDocId}
-          selectedDocIds={selectedDocIds}
-          searchQuery={searchQuery}
-          typeFilter={typeFilter}
-          onSearchChange={setSearchQuery}
-          onTypeFilterChange={setTypeFilter}
-          onSelectDoc={setSelectedDocId}
-          onToggleSelectDoc={handleToggleSelectDoc}
-          onToggleSelectAll={handleToggleSelectAll}
-          onDeleteSingle={handleDeleteSingle}
-          onOpenBulkDelete={() => setIsBulkDeleteOpen(true)}
-        />
+          {/* Left Pane: Document Library */}
+          <DocumentLibrary
+            documents={data ? data : []}
+            isPending={isDocumentLibraryPending}
+            searchQuery={searchQuery}
+            typeFilter={typeFilter}
+            onSearchChange={setSearchQuery}
+            onTypeFilterChange={setTypeFilter}
+            onDeleteSingle={handleDeleteSingle}
+            selectedDocId={activeDocId}
+            onSelectDoc={setSelectedDocId}
+          />
         </DocumentLibrarySectionError>
 
         {/* Right Pane: Deep Inspector */}
         <DocumentInspectorSectionError>
           <DocumentInspector
             selectedDoc={selectedDoc}
-            chunks={currentChunks}
+            chunks={currentChunks ? currentChunks : []}
             onDeleteSingle={handleDeleteSingle}
+            isPending={isDocumentLibraryPending || isDocumentDetailsPending}
           />
         </DocumentInspectorSectionError>
       </div>
@@ -227,13 +201,6 @@ export function KnowledgeBaseView({
         onClose={() => setDeleteConfirmDoc(null)}
         onConfirm={confirmDeleteSingle}
       />
-
-      <BulkDeleteModal
-        isOpen={isBulkDeleteOpen}
-        count={selectedDocIds.size}
-        onClose={() => setIsBulkDeleteOpen(false)}
-        onConfirm={confirmBulkDelete}
-      />
     </div>
-  )
+  );
 }
