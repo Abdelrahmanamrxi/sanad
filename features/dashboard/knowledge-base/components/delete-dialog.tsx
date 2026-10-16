@@ -9,12 +9,14 @@ interface DeleteSingleModalProps {
   document: DocumentItem | null
   onClose: () => void
   onConfirm: () => void
+  isDeleting?: boolean
 }
 
 export function DeleteSingleModal({
   document,
   onClose,
   onConfirm,
+  isDeleting = false,
 }: DeleteSingleModalProps) {
   if (!document) return null
 
@@ -38,7 +40,7 @@ export function DeleteSingleModal({
 
         <div className="border border-destructive/20 bg-destructive/5 p-3 text-[11px] text-destructive leading-tight font-mono rounded-none">
           Warning: This will immediately delete the storage object and cascade
-          delete all {document.stats.total_chunks} indexed vector chunks from
+          delete all {document.stats?.total_chunks ?? 0} indexed vector chunks from
           your AI retrieval database.
         </div>
 
@@ -46,16 +48,18 @@ export function DeleteSingleModal({
           <button
             type="button"
             onClick={onClose}
-            className="border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted rounded-none"
+            disabled={isDeleting}
+            className="border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted rounded-none cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="border border-destructive bg-destructive px-3.5 py-1.5 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90 rounded-none"
+            disabled={isDeleting}
+            className="border border-destructive bg-destructive px-3.5 py-1.5 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90 rounded-none cursor-pointer disabled:opacity-50"
           >
-            Delete Permanently
+            {isDeleting ? "Deleting..." : "Delete Permanently"}
           </button>
         </div>
       </div>

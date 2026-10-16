@@ -72,7 +72,7 @@ export function ChunkCard({
       {/* Vector metadata footer */}
       <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground pt-0.5">
         <span>Model: {chunk.embedding_model} (1536 dim)</span>
-        <span>Indexed: {documentCreatedAt}</span>
+        <span>Indexed: {chunk.created_at ? chunk.created_at.split("T")[0] : documentCreatedAt}</span>
       </div>
     </div>
   )

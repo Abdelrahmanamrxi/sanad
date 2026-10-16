@@ -23,8 +23,10 @@ import {
 } from "lucide-react";
 import type { DocumentItem, ChunkItem } from "../types";
 import { formatBytes, getFileName, getFormatBadge } from "../mock-data";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChunkCard } from "./chunk-card";
 import { Button } from "@/components/ui/button";
+import { resyncDocument } from "../actions";
 import DocumentInspectorSkeleton from "./loading/document-inspector-skeleton";
 interface DocumentInspectorProps {
   selectedDoc: DocumentItem | null;
@@ -37,12 +39,26 @@ export function DocumentInspector({
   selectedDoc,
   chunks,
   onDeleteSingle,
-  isPending
+  isPending,
 }: DocumentInspectorProps) {
-  console.log(chunks)
-  const [activeTab, setActiveTab] = useState<"performance" | "content" | "chunks">(
-    "performance"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "performance" | "content" | "chunks"
+  >("performance");
+  const queryClient = useQueryClient();
+
+  const { mutate: resyncMutate, isPending: isResyncPending } = useMutation({
+    mutationFn: async () => {
+      if (!selectedDoc) throw new Error("No Document Selected");
+
+      return resyncDocument(selectedDoc.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"], exact:false });
+      if (selectedDoc)
+        queryClient.invalidateQueries({ queryKey: ["chunks", selectedDoc.id] ,exact:false});
+    },
+  });
+
   const [chunkSearch, setChunkSearch] = useState("");
   const [copiedChunkId, setCopiedChunkId] = useState<string | null>(null);
 
@@ -85,8 +101,9 @@ export function DocumentInspector({
           </h3>
 
           <p className="text-xs text-muted-foreground mt-1.5 max-w-sm leading-relaxed font-sans">
-            Select a document from the left library to inspect its vector partitions,
-            token metrics, full content tree, and query citation performance.
+            Select a document from the left library to inspect its vector
+            partitions, token metrics, full content tree, and query citation
+            performance.
           </p>
 
           <div className="mt-5 flex items-center gap-2 text-[11px] font-mono text-muted-foreground border border-dashed border-border/80 bg-background/50 px-3 py-1.5 rounded-none">
@@ -104,10 +121,9 @@ export function DocumentInspector({
     );
   }
 
-    if (isPending) {
+  if (isPending) {
     return <DocumentInspectorSkeleton />;
   }
- 
 
   const perf = selectedDoc.performance ?? {
     times_cited_30d: 0,
@@ -118,7 +134,8 @@ export function DocumentInspector({
     suggested_questions: [],
   };
 
-  const isColdDoc = perf.times_cited_30d === 0 && selectedDoc.doc_status === "indexed";
+  const isColdDoc =
+    perf.times_cited_30d === 0 && selectedDoc.doc_status === "indexed";
 
   // Filtered chunks in raw inspector tab
   const filteredChunks = chunks.filter((chunk) => {
@@ -132,9 +149,8 @@ export function DocumentInspector({
 
   // Extract unique detected headings
   const detectedHeadings = Array.from(
-    new Set(chunks.map((c) => c.heading_path).filter(Boolean))
+    new Set(chunks.map((c) => c.heading_path).filter(Boolean)),
   ) as string[];
-  
 
   return (
     <div className="border border-border bg-card p-5 lg:col-span-7 flex flex-col rounded-none select-none">
@@ -166,14 +182,19 @@ export function DocumentInspector({
               <Download className="size-3 me-1" />
               Download
             </Button>
-
             <Button
               variant="outline"
               size="xs"
+              disabled={
+                isResyncPending || selectedDoc.doc_status === "processing"
+              }
+              onClick={() => resyncMutate()}
               className="font-mono text-xs cursor-pointer"
             >
-              <RefreshCw className="size-3 me-1" />
-              Re-sync
+              <RefreshCw
+                className={`size-3 me-1 ${isResyncPending ? "animate-spin" : ""}`}
+              />
+              {isResyncPending ? "Re-syncing..." : "Re-sync"}
             </Button>
 
             <Button
@@ -265,7 +286,9 @@ export function DocumentInspector({
           >
             <Layers className="size-3.5" />
             <span>Raw Chunks {isPending ? "(...)" : `(${chunks.length})`}</span>
-            {isPending && <Loader2 className="size-3 animate-spin text-primary" />}
+            {isPending && (
+              <Loader2 className="size-3 animate-spin text-primary" />
+            )}
           </button>
         </div>
 
@@ -319,10 +342,14 @@ export function DocumentInspector({
               </div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-2xl font-bold font-mono text-foreground">
-                  {perf.times_cited_30d > 0 ? `${perf.satisfaction_rate}%` : "N/A"}
+                  {perf.times_cited_30d > 0
+                    ? `${perf.satisfaction_rate}%`
+                    : "N/A"}
                 </span>
                 {perf.times_cited_30d > 0 && (
-                  <span className="text-[11px] font-mono text-success">Positive</span>
+                  <span className="text-[11px] font-mono text-success">
+                    Positive
+                  </span>
                 )}
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
@@ -341,7 +368,9 @@ export function DocumentInspector({
               <div className="mt-2 flex items-baseline gap-2">
                 <span
                   className={`text-2xl font-bold font-mono ${
-                    perf.thumbs_down_count > 0 ? "text-destructive" : "text-foreground"
+                    perf.thumbs_down_count > 0
+                      ? "text-destructive"
+                      : "text-foreground"
                   }`}
                 >
                   {perf.thumbs_down_count}
@@ -365,9 +394,9 @@ export function DocumentInspector({
                   Never retrieved in the last 30 days
                 </span>
                 <p className="text-muted-foreground mt-0.5 leading-relaxed font-sans">
-                  This document has not been cited in any customer responses. It may
-                  contain obsolete terms or lack specific headings that match frequent
-                  customer inquiries.
+                  This document has not been cited in any customer responses. It
+                  may contain obsolete terms or lack specific headings that
+                  match frequent customer inquiries.
                 </p>
               </div>
             </div>
@@ -388,8 +417,8 @@ export function DocumentInspector({
             </div>
 
             <p className="text-xs text-muted-foreground mb-3 leading-relaxed font-sans">
-              Click any question below to test retrieval and prompt answers live in the
-              Playground:
+              Click any question below to test retrieval and prompt answers live
+              in the Playground:
             </p>
 
             {perf.suggested_questions.length === 0 ? (

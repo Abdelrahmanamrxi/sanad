@@ -12,8 +12,8 @@ import {
   initialDocuments as defaultInitialDocuments,
   mockChunksByDocId as defaultMockChunks,
 } from "../mock-data";
-import { useQuery } from "@tanstack/react-query";
-import { fetchDocumentDetails, fetchDocuments } from "../actions";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchDocumentDetails, fetchDocuments, deleteDocument } from "../actions";
 import useDebounce from "@/hooks/use-debounce";
 import type { DocumentItem, ChunkItem, MimeType } from "../types";
 import DocumentLibrarySectionError from "./errors/document-library-error";
@@ -45,9 +45,16 @@ export function KnowledgeBaseView({
   const debouncedQuery = useDebounce(searchQuery, 500);
 
   const { data, isPending: isDocumentLibraryPending } = useQuery({
-    queryKey: ["documents", { typeFilter, searchQuery }],
+    queryKey: ["documents", { typeFilter, debouncedQuery }],
     queryFn: () =>
       fetchDocuments({ mimeType: typeFilter, name: debouncedQuery }),
+    refetchInterval: (query) => {
+      const docs = query.state.data;
+      const isProcessing = docs?.some(
+        (d) => d.doc_status === "processing" || d.doc_status === "queued"
+      );
+      return isProcessing ? 2000 : false;
+    },
   });
   // Selected document & chunks
   const docsList = data ?? documents;
@@ -56,15 +63,38 @@ export function KnowledgeBaseView({
 
   const activeDocId = selectedDoc?.id;
 
+  const { data: currentChunks, isPending: isDocumentDetailsPending } = useQuery({
+    queryKey: ["chunks", activeDocId],
+    queryFn: () => fetchDocumentDetails(activeDocId!),
+    enabled: !!activeDocId,
+    refetchInterval: () => {
+      return selectedDoc?.doc_status === "processing" ||
+        selectedDoc?.doc_status === "queued"
+        ? 2000
+        : false;
+    },
+  });
 
 
-  const{data:currentChunks,isPending:isDocumentDetailsPending}=useQuery({
-    queryKey:['chunks',activeDocId],
-    queryFn:()=>fetchDocumentDetails(activeDocId!),
-    enabled:!!activeDocId // runs when an active document exists
-  })
 
+  const queryClient = useQueryClient();
 
+  /* ── Delete Mutation ── */
+  const { mutate: executeDelete, isPending: isDeleting } = useMutation({
+    mutationFn: (id: string) => deleteDocument(id),
+    onSuccess: (_, deletedId) => {
+      queryClient.invalidateQueries({ queryKey: ["documents"], exact: false });
+      queryClient.removeQueries({ queryKey: ["chunks", deletedId] });
+      if (selectedDocId === deletedId) {
+        setSelectedDocId(null);
+      }
+      setDeleteConfirmDoc(null);
+    },
+    onError: (err) => {
+      console.error("Delete failed:", err);
+      alert(err instanceof Error ? err.message : "Failed to delete document");
+    },
+  });
 
   /* ── Delete Handlers ── */
   const handleDeleteSingle = (doc: DocumentItem) => {
@@ -73,16 +103,7 @@ export function KnowledgeBaseView({
 
   const confirmDeleteSingle = () => {
     if (!deleteConfirmDoc) return;
-    const idToDelete = deleteConfirmDoc.id;
-    setDocuments((prev) => prev.filter((d) => d.id !== idToDelete));
-
-    if (selectedDocId === idToDelete) {
-      const remaining = documents.filter((d) => d.id !== idToDelete);
-      if (remaining.length > 0) {
-        setSelectedDocId(remaining[0].id);
-      }
-    }
-    setDeleteConfirmDoc(null);
+    executeDelete(deleteConfirmDoc.id);
   };
 
   /* ── Add Document Ingest Handler ── */
@@ -200,6 +221,7 @@ export function KnowledgeBaseView({
         document={deleteConfirmDoc}
         onClose={() => setDeleteConfirmDoc(null)}
         onConfirm={confirmDeleteSingle}
+        isDeleting={isDeleting}
       />
     </div>
   );
