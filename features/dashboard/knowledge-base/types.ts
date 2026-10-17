@@ -37,6 +37,7 @@ export interface DocumentItem {
   error_message?: string
   created_at: string
   file_size?: number
+  suggested_questions?: string[]
 }
 
 

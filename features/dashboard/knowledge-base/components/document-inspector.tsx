@@ -421,13 +421,13 @@ export function DocumentInspector({
               in the Playground:
             </p>
 
-            {selectedDoc.suggested_questions.length === 0 ? (
+            {(selectedDoc.suggested_questions ?? []).length === 0 ? (
               <p className="text-xs text-muted-foreground font-mono py-2">
                 No suggested questions generated for this document.
               </p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {selectedDoc.suggested_questions.map((question, i) => (
+                {(selectedDoc.suggested_questions ?? []).map((question, i) => (
                   <Link
                     key={i}
                     href={`/dashboard/playground?q=${encodeURIComponent(question)}`}
