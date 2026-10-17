@@ -27,6 +27,7 @@ export interface DocumentPerformance {
 export interface DocumentItem {
   id: string
   business_id: string
+  name?: string
   storage_path: string
   markdown_path?: string
   mime_type: MimeType

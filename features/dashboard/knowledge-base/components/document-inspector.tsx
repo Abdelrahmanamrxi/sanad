@@ -163,7 +163,7 @@ export function DocumentInspector({
                 {getFormatBadge(selectedDoc.mime_type)}
               </span>
               <h2 className="truncate text-base font-bold text-foreground font-sans">
-                {getFileName(selectedDoc.storage_path)}
+                {selectedDoc.name || getFileName(selectedDoc.storage_path)}
               </h2>
             </div>
             <p className="mt-1 font-mono text-xs text-muted-foreground truncate">
@@ -421,13 +421,13 @@ export function DocumentInspector({
               in the Playground:
             </p>
 
-            {perf.suggested_questions.length === 0 ? (
+            {selectedDoc.suggested_questions.length === 0 ? (
               <p className="text-xs text-muted-foreground font-mono py-2">
                 No suggested questions generated for this document.
               </p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {perf.suggested_questions.map((question, i) => (
+                {selectedDoc.suggested_questions.map((question, i) => (
                   <Link
                     key={i}
                     href={`/dashboard/playground?q=${encodeURIComponent(question)}`}
@@ -519,7 +519,7 @@ export function DocumentInspector({
               {/* Rendered Document Text */}
               <div className="border border-border bg-background p-4 rounded-none">
                 <pre className="font-mono text-xs text-foreground leading-relaxed whitespace-pre-wrap select-text">
-                  {`# ${getFileName(selectedDoc.storage_path)}
+                  {`# ${selectedDoc.name || getFileName(selectedDoc.storage_path)}
 
 ${chunks.map((c) => `### ${c.heading_path || `Partition ${c.chunk_index + 1}`}\n${c.content}`).join("\n\n---\n\n")}
 `}

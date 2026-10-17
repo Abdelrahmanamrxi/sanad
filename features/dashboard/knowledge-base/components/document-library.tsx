@@ -142,7 +142,7 @@ export function DocumentLibrary({
             filteredDocs.map((doc) => {
               const isSelected = doc.id === selectedDocId ;
            
-              const fileName = getFileName(doc.storage_path);
+              const fileName = doc.name || getFileName(doc.storage_path);
               const isFailed = doc.doc_status === "failed";
 
               return (
@@ -158,11 +158,7 @@ export function DocumentLibrary({
                   {/* Top row: Checkbox, Icon, Name, Format Badge, Delete Button */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                      <input
-                        type="checkbox"
-                        onChange={() => {}}
-                        className="mt-0.5 size-3.5 accent-[#3FB3A6] shrink-0 cursor-pointer rounded-none"
-                      />
+                     
                       <div className="mt-0.5 shrink-0">
                         {getFileIcon(doc.mime_type)}
                       </div>

@@ -4,9 +4,15 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const BUCKET = process.env.SUPABASE_BUCKET_STORAGE || "sanad-file-storage";
 
-export const buildStoragePath = (businessId: string, documentId: string, fileName: string) => {
-  const sanitized = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
-  return `${businessId}/${documentId}/${sanitized}`;
+export const buildStoragePath = (
+  businessId: string,
+  documentId: string,
+  fileName: string,
+) => {
+  const ext = fileName.includes(".")
+    ? fileName.slice(fileName.lastIndexOf(".")).toLowerCase()
+    : "";
+  return `${businessId}/${documentId}/source${ext}`;
 };
 
 // returns the new row's id, or null on failure

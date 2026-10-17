@@ -33,7 +33,7 @@ export function DeleteSingleModal({
         <p className="text-xs text-muted-foreground leading-relaxed">
           Are you sure you want to permanently delete{" "}
           <strong className="text-foreground font-mono">
-            {getFileName(document.storage_path)}
+            {document.name || getFileName(document.storage_path)}
           </strong>
           ?
         </p>

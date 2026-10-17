@@ -6,6 +6,7 @@ import {
   EMBEDDING_MODEL,
   generateEmbedding,
 } from "../services/embedding/generate-embedding";
+import { generateSuggestions } from "../services/generate-suggestions";
 import { NonRetriableError } from "inngest";
 export const processDocument = inngest.createFunction(
   {
@@ -75,6 +76,11 @@ export const processDocument = inngest.createFunction(
       }
       return result
     });
+    
+    const suggestedQuestions=await step.run('generate-questions',async()=>{
+       const samples=chunks.slice(0,2).map((c)=>c.content).join('\n\n')
+       return await generateSuggestions(samples)
+    })
 
     const indexVersion = await step.run("create-index-version", async () => {
       return crypto.randomUUID();
@@ -122,6 +128,7 @@ export const processDocument = inngest.createFunction(
         .update({
           doc_status: "ready",
           error_message: null,
+          suggested_questions:suggestedQuestions,
           current_index_version: indexVersion,
           stats: {
             total_chunks: chunks.length,
