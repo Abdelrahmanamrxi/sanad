@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import type { PlaygroundMessage, PlaygroundChunk } from "../types";
 import { CATEGORIZED_STARTERS, calibrateSimilarity } from "../constants";
 
@@ -281,6 +283,7 @@ export function PlaygroundChatView({
                 <div className="text-sm text-foreground leading-relaxed font-sans" dir="auto">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw, rehypeSanitize]}
                     components={{
                       p: ({ children }) => (
                         <p className="whitespace-pre-wrap leading-relaxed mb-3 last:mb-0">
