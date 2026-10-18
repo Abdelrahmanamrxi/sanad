@@ -13,11 +13,11 @@ export interface PlaygroundChunk {
 
 export interface PlaygroundMetrics {
   latencyMs: number;
-  retrievalMs: number;
-  generationMs: number;
-  promptTokens: number;
-  completionTokens: number;
-  totalTokens: number;
+  retrievalMs?: number;
+  generationMs?: number;
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
   model: string;
 }
 

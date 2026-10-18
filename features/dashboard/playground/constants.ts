@@ -14,32 +14,28 @@ export const AVAILABLE_MODELS: ModelOption[] = [
     name: "Sanad Standard",
     badge: "Recommended",
     speed: "Fast",
-    description:
-      "Best for everyday customer inquiries. Delivers fast, direct, and factually grounded answers.",
+    description: "Best for everyday customer inquiries. Delivers fast, direct, and factually grounded answers.",
   },
   {
     id: "allam-2-7b",
     name: "Sanad Arabic Specialist (Allam)",
     badge: "Native Arabic",
     speed: "Ultra-Fast",
-    description:
-      "Specially crafted for fluent Arabic customer conversations, Saudi business terms, and formal replies.",
+    description: "Specially crafted for fluent Arabic customer conversations, Saudi business terms, and formal replies.",
   },
   {
     id: "openai/gpt-oss-120b",
     name: "Sanad Advanced (High Reasoning)",
     badge: "Complex Inquiries",
     speed: "Deep Analysis",
-    description:
-      "Best for multi-part customer questions that require step-by-step reasoning and deep policy review.",
+    description: "Best for multi-part customer questions that require step-by-step reasoning and deep policy review.",
   },
   {
     id: "qwen/qwen3.8-27b",
     name: "Sanad Multilingual",
     badge: "Bilingual",
     speed: "Balanced",
-    description:
-      "Smoothly switches between Arabic and English, ideal for diverse customer bases.",
+    description: "Smoothly switches between Arabic and English, ideal for diverse customer bases.",
   },
 ];
 
@@ -48,8 +44,7 @@ export const SYSTEM_PRESETS: SystemPreset[] = [
     id: "strict-support",
     name: "Customer Support (Strict Grounding)",
     nameAr: "خدمة العملاء (التزام صارم بالمعلومات)",
-    description:
-      "Answers solely using your verified documents. Politely informs customers if details aren't available.",
+    description: "Answers solely using your verified documents. Politely informs customers if details aren't available.",
     temperature: 0.2,
     strictGrounding: true,
     systemPrompt: `You are Sanad AI, a verified customer support specialist.
@@ -65,8 +60,7 @@ Guidelines:
     id: "arabic-advisor",
     name: "Arabic Business Advisor (مستشار الأعمال)",
     nameAr: "مستشار الأعمال الذكي",
-    description:
-      "Fluent Arabic business assistant trained on corporate policies, SLAs, and customer journey.",
+    description: "Fluent Arabic business assistant trained on corporate policies, SLAs, and customer journey.",
     temperature: 0.25,
     strictGrounding: true,
     systemPrompt: `أنت "سند"، المساعد المؤسسي الذكي المعتمد لمنظومة الأعمال.
@@ -82,8 +76,7 @@ Guidelines:
     id: "technical-explainer",
     name: "Technical Q&A & Developer Guide",
     nameAr: "الدليل التقني والبرمجي",
-    description:
-      "Explains technical steps, configuration settings, and guides clearly.",
+    description: "Explains technical steps, configuration settings, and guides clearly.",
     temperature: 0.1,
     strictGrounding: false,
     systemPrompt: `You are Sanad Technical Support Agent.
@@ -98,8 +91,7 @@ Formatting guidelines:
     id: "concise-summarizer",
     name: "Executive Brief & Fast Q&A",
     nameAr: "الملخص التنفيذي السريع",
-    description:
-      "High-density answers with bullet points, zero fluff, and immediate action items.",
+    description: "High-density answers with bullet points, zero fluff, and immediate action items.",
     temperature: 0.2,
     strictGrounding: true,
     systemPrompt: `You are an executive knowledge assistant.
@@ -114,6 +106,8 @@ export const DEFAULT_CONFIG: PlaygroundConfig = {
   temperature: 0.2,
   strictGrounding: true,
 };
+
+
 
 export interface CategorizedStarter {
   category: string;
@@ -144,3 +138,24 @@ export const CATEGORIZED_STARTERS: CategorizedStarter[] = [
       "What is the maximum file upload size and supported document formats?",
   },
 ];
+
+/**
+ * Calibrates dense vector cosine similarity (typically 0.35 - 0.70 in RAG models like BGE-M3)
+ * into a human-intuitive relevance score percentage (50% - 98%).
+ */
+export function calibrateSimilarity(rawScore: number): number {
+  if (typeof rawScore !== "number" || isNaN(rawScore)) return 0;
+
+  const raw = rawScore > 1 ? rawScore / 100 : rawScore;
+
+  if (raw <= 0.3) {
+    return Math.max(10, Math.round(raw * 100));
+  }
+
+  // Maps range [0.32, 0.66] smoothly to [50%, 97%]
+  const minRaw = 0.32;
+  const maxRaw = 0.66;
+  const normalized = 50 + ((raw - minRaw) / (maxRaw - minRaw)) * 47;
+
+  return Math.min(99, Math.max(25, Math.round(normalized)));
+}

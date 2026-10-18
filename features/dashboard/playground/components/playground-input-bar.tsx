@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import { Send, CornerDownLeft, Loader2, X } from "lucide-react";
+import { Send, CornerDownLeft, Loader2, X, Sparkles } from "lucide-react";
 
 interface PlaygroundInputBarProps {
   input: string;
@@ -26,7 +26,7 @@ export function PlaygroundInputBar({
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${Math.min(
         textareaRef.current.scrollHeight,
-        200,
+        180,
       )}px`;
     }
   }, [input]);
@@ -41,62 +41,67 @@ export function PlaygroundInputBar({
   };
 
   return (
-    <div className="border-t border-border bg-card p-4 transition-colors">
-      <div className="flex flex-col border border-border bg-background focus-within:border-primary transition-colors">
-        {/* Text Input */}
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          dir="auto"
-          placeholder="Type a customer question or test inquiry... (e.g. ما هي سياسة الاسترجاع المعتمدة؟)"
-          rows={2}
-          disabled={isRunning}
-          className="w-full resize-none bg-transparent p-3 text-sm text-foreground placeholder:text-muted-foreground outline-none font-sans disabled:opacity-50"
-        />
+    <div className="border-t border-border bg-card p-3 sm:p-4 transition-colors">
+      <div className="mx-auto max-w-4xl">
+        <div className="flex flex-col border border-border bg-background focus-within:border-primary transition-all shadow-xs">
+          {/* Main Textarea */}
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            dir="auto"
+            placeholder="Type a customer question or test inquiry... (e.g. ما هي شروط استرجاع المنتجات المعتمدة؟)"
+            rows={2}
+            disabled={isRunning}
+            className="w-full resize-none bg-transparent p-3.5 text-sm text-foreground placeholder:text-muted-foreground outline-none font-sans disabled:opacity-50 leading-relaxed"
+          />
 
-        {/* Action Toolbar */}
-        <div className="flex items-center justify-between border-t border-border/50 px-3 py-2 bg-muted/20">
-          <div className="flex items-center gap-3 text-[11px] font-sans text-muted-foreground">
-            <span className="hidden sm:inline-flex items-center gap-1">
-              <CornerDownLeft className="size-3 text-muted-foreground" />
-              <span>Press Enter to send</span>
-            </span>
-            <span>•</span>
-            <span className="text-primary font-medium">{modelName}</span>
-          </div>
+          {/* Action Toolbar */}
+          <div className="flex items-center justify-between border-t border-border/50 px-3.5 py-2 bg-muted/20">
+            <div className="flex items-center gap-3 text-[11px] font-sans text-muted-foreground">
+              <span className="hidden sm:inline-flex items-center gap-1 font-mono text-[10px]">
+                <CornerDownLeft className="size-3 text-muted-foreground" />
+                <span>Enter to send</span>
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1.5 text-primary font-medium">
+                <Sparkles className="size-3" />
+                <span>{modelName}</span>
+              </span>
+            </div>
 
-          <div className="flex items-center gap-2">
-            {input.trim().length > 0 && !isRunning && (
+            <div className="flex items-center gap-2">
+              {input.trim().length > 0 && !isRunning && (
+                <button
+                  type="button"
+                  onClick={() => setInput("")}
+                  className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                  title="Clear input"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+
               <button
                 type="button"
-                onClick={() => setInput("")}
-                className="p-1 text-muted-foreground hover:text-foreground transition-colors"
-                title="Clear input"
+                onClick={() => onSubmit()}
+                disabled={!input.trim() || isRunning}
+                className="flex items-center gap-1.5 border border-primary bg-primary px-4 py-1.5 font-sans text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-40 disabled:pointer-events-none rounded-none shadow-2xs"
               >
-                <X className="size-3.5" />
+                {isRunning ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin" />
+                    <span>Thinking...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Send Inquiry</span>
+                    <Send className="size-3" />
+                  </>
+                )}
               </button>
-            )}
-
-            <button
-              type="button"
-              onClick={onSubmit}
-              disabled={!input.trim() || isRunning}
-              className="flex items-center gap-1.5 border border-primary bg-primary px-3.5 py-1.5 font-sans text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40 disabled:pointer-events-none rounded-none"
-            >
-              {isRunning ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin" />
-                  <span>Thinking...</span>
-                </>
-              ) : (
-                <>
-                  <span>Send</span>
-                  <Send className="size-3" />
-                </>
-              )}
-            </button>
+            </div>
           </div>
         </div>
       </div>
