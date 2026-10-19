@@ -26,12 +26,16 @@ const chatRequestSchema = z.object({
     )
     .optional()
     .default([]),
-  systemPresets: z.object({
-    model: z.string().default("llama-3.3-70b-versatile"),
-    systemPrompt: z.string().default("You are Sanad AI, a verified customer support specialist."),
-    temperature: z.number().min(0).max(1).default(0.2),
-    strictGrounding: z.boolean().default(true),
-  }).default(defaultSystemPresets)
+  systemPresets: z
+    .object({
+      model: z.string().default("llama-3.3-70b-versatile"),
+      systemPrompt: z
+        .string()
+        .default("You are Sanad AI, a verified customer support specialist."),
+      temperature: z.number().min(0).max(1).default(0.2),
+      strictGrounding: z.boolean().default(true),
+    })
+    .default(defaultSystemPresets),
 });
 
 export const POST = handle(async (req) => {

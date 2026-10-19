@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PlaygroundView } from "@/features/dashboard/playground/components";
 
 export const metadata: Metadata = {
-  title: "RAG Playground | Sanad",
+  title: "Playground",
   description:
     "Interactive evaluation sandbox for hybrid retrieval, prompt engineering, and grounded response generation",
 };
