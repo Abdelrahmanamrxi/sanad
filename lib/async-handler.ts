@@ -2,6 +2,8 @@ import { NextResponse, NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import AppError from "./error";
 import { logger } from "./logger";
+import { ZodError } from "zod";
+
 type Handler<C> = (req: NextRequest, ctx: C) => Promise<Response>;
 
 export const handle = <C = unknown>(fn: Handler<C>) => {
@@ -27,9 +29,9 @@ export const handle = <C = unknown>(fn: Handler<C>) => {
       );
       return response;
     } catch (err) {
-     const durationMs = Math.round(performance.now() - start);
+      const durationMs = Math.round(performance.now() - start);
       if (err instanceof AppError) {
-           logger.warn(
+        logger.warn(
           {
             requestId,
             method,
@@ -39,7 +41,7 @@ export const handle = <C = unknown>(fn: Handler<C>) => {
             message: err.message,
             cause: err.cause,
           },
-          "Client error"
+          "Client error",
         );
         return NextResponse.json(
           { error: err.message },
@@ -47,20 +49,44 @@ export const handle = <C = unknown>(fn: Handler<C>) => {
         );
       }
 
-      logger.error({
-        requestId,
-        method,
-        status:500,
-        durationMs,
-        err
-      },
-      "Unhandled Server Error"
-    )
-    
-    Sentry.captureException(err,{
-        extra:{requestId,method,path}
-    })
-  
+      if (err instanceof ZodError) {
+        logger.warn(
+          {
+            requestId,
+            method,
+            path,
+            status: 400,
+            durationMs,
+            message: err.message,
+            cause: err.cause,
+          },
+          "Validation Error",
+        );
+        return NextResponse.json({
+          error:"Validation Error",
+          details:err.flatten().fieldErrors ?? err.issues[0].message
+        },
+        {
+          status:400
+        }
+      )
+      }
+
+      logger.error(
+        {
+          requestId,
+          method,
+          status: 500,
+          durationMs,
+          err,
+        },
+        "Unhandled Server Error",
+      );
+
+      Sentry.captureException(err, {
+        extra: { requestId, method, path },
+      });
+
       return NextResponse.json(
         { error: "Internal Server Error" },
         { status: 500 },

@@ -17,18 +17,11 @@ export const AVAILABLE_MODELS: ModelOption[] = [
     description: "Best for everyday customer inquiries. Delivers fast, direct, and factually grounded answers.",
   },
   {
-    id: "allam-2-7b",
-    name: "Sanad Arabic Specialist (Allam)",
-    badge: "Native Arabic",
-    speed: "Ultra-Fast",
-    description: "Specially crafted for fluent Arabic customer conversations, Saudi business terms, and formal replies.",
-  },
-  {
     id: "openai/gpt-oss-120b",
-    name: "Sanad Advanced (High Reasoning)",
-    badge: "Complex Inquiries",
-    speed: "Deep Analysis",
-    description: "Best for multi-part customer questions that require step-by-step reasoning and deep policy review.",
+    name: "Sanad Advanced",
+    badge: "Complex Actions",
+    speed: "Slower",
+    description: "Best for multi-part customer questions that require step-by-step reasoning and actions.",
   },
   {
     id: "qwen/qwen3.8-27b",
@@ -58,7 +51,7 @@ Guidelines:
   },
   {
     id: "arabic-advisor",
-    name: "Arabic Business Advisor (مستشار الأعمال)",
+    name: "Business Advisor (مستشار الأعمال)",
     nameAr: "مستشار الأعمال الذكي",
     description: "Fluent Arabic business assistant trained on corporate policies, SLAs, and customer journey.",
     temperature: 0.25,

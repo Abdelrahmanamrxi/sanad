@@ -73,8 +73,7 @@ export default function usePlaygroundChat(config: PlaygroundConfig) {
           {
             query: query.trim(),
             messages: historyPayload,
-            modelId: config.model,
-            temperature: config.temperature,
+            systemPresets:config,
           },
           {
             adapter: "fetch",

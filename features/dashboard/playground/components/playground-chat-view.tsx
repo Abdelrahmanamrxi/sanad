@@ -415,36 +415,7 @@ export function PlaygroundChatView({
                   </div>
 
                   {/* Accuracy Feedback Buttons */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-muted-foreground">Accurate?</span>
-                    <button
-                      type="button"
-                      onClick={() => handleFeedback(msg.id, "positive")}
-                      className={`flex items-center gap-1 border px-2 py-1 transition-colors rounded-none shadow-2xs cursor-pointer ${
-                        currentFeedback === "positive"
-                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
-                          : "border-border bg-background text-muted-foreground hover:text-foreground"
-                      }`}
-                      title="Mark answer as accurate and helpful"
-                    >
-                      <ThumbsUp className="size-3" />
-                      <span>Yes</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleFeedback(msg.id, "negative")}
-                      className={`flex items-center gap-1 border px-2 py-1 transition-colors rounded-none shadow-2xs cursor-pointer ${
-                        currentFeedback === "negative"
-                          ? "border-destructive bg-destructive/10 text-destructive font-medium"
-                          : "border-border bg-background text-muted-foreground hover:text-foreground"
-                      }`}
-                      title="Mark answer as needing review"
-                    >
-                      <ThumbsDown className="size-3" />
-                      <span>No</span>
-                    </button>
-                  </div>
+                 
                 </div>
               </div>
             </div>

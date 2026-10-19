@@ -37,7 +37,8 @@ export function PlaygroundHeader({
   const currentModel = AVAILABLE_MODELS.find((m) => m.id === config.model) || AVAILABLE_MODELS[0];
 
   const handlePresetSelect = (presetId: string) => {
-    const preset = SYSTEM_PRESETS.find((p) => p.id === presetId);
+      const preset = SYSTEM_PRESETS.find((p) => p.id === presetId)
+   
     if (!preset) return;
     onConfigChange({
       ...config,
@@ -46,7 +47,7 @@ export function PlaygroundHeader({
       strictGrounding: preset.strictGrounding,
     });
   };
-
+  console.log(config)
   return (
     <div className="relative flex flex-col gap-3 border-b border-border bg-card p-4 transition-colors">
       {/* Corner crosshair accents for architectural craft */}
@@ -64,7 +65,7 @@ export function PlaygroundHeader({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-heading text-sm sm:text-base font-semibold tracking-tight text-foreground font-sans">
-                Customer Assistant Simulator
+                Sanad AI Simulator
               </h1>
               <span className="hidden sm:inline-flex items-center gap-1 border border-border bg-muted/60 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                 <CheckCircle2 className="size-2.5 text-emerald-500" />
