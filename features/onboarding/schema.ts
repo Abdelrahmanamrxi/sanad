@@ -53,11 +53,23 @@ export const onboardingSchema = z.object({
   secondaryColor: hexColor,
   chatBgColor: hexColor,
 
+  botName: z
+    .string()
+    .trim()
+    .min(2, "Assistant name must be at least 2 characters")
+    .max(40, "Assistant name is too long (max 40 characters)"),
+
   borderRadius: z
-    .number({ message: "Border radius must be a number" })
-    .int("Border radius must be a whole number")
-    .min(0, "Border radius can't be negative")
-    .max(32, "Border radius can't exceed 32px"),
+    .number({ message: "Border thickness must be a number" })
+    .int("Border thickness must be a whole number")
+    .min(0, "Border thickness can't be negative")
+    .max(8, "Border thickness can't exceed 8px"),
+
+  cornerRadius: z
+    .number({ message: "Corner radius must be a number" })
+    .int("Corner radius must be a whole number")
+    .min(0, "Corner radius can't be negative")
+    .max(32, "Corner radius can't exceed 32px"),
 });
 
 export type OnboardingType=z.infer<typeof onboardingSchema>

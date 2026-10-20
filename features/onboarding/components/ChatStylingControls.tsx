@@ -12,17 +12,22 @@ import {
   Sliders,
   Square,
   CircleDot,
+  Bot,
 } from "lucide-react";
 
 interface ChatStylingControlsProps {
+  botName: string;
   primaryColor: string;
   secondaryColor: string;
   chatBgColor: string;
-  borderRadius: number;
+  borderRadius: number; // Border thickness (stroke width in px)
+  cornerRadius: number; // Corner roundness (curvature in px)
+  onChangeBotName: (name: string) => void;
   onChangePrimary: (color: string) => void;
   onChangeSecondary: (color: string) => void;
   onChangeChatBg: (color: string) => void;
-  onChangeBorderRadius: (radius: number) => void;
+  onChangeBorderRadius: (thickness: number) => void;
+  onChangeCornerRadius: (radius: number) => void;
   onApplyPreset: (preset: ColorPreset) => void;
 }
 
@@ -33,7 +38,7 @@ const BG_PRESETS = [
   { name: "Deep Card", hex: "#132322" },
 ];
 
-const RADIUS_PRESETS = [
+const CORNER_PRESETS = [
   { label: "Sharp", value: 0, sub: "0px · Monolith" },
   { label: "Subtle", value: 6, sub: "6px · Soft" },
   { label: "Medium", value: 12, sub: "12px · Modern" },
@@ -41,15 +46,27 @@ const RADIUS_PRESETS = [
   { label: "Fluid", value: 24, sub: "24px · Rounded" },
 ];
 
+const THICKNESS_PRESETS = [
+  { label: "None", value: 0, sub: "0px" },
+  { label: "Hairline", value: 1, sub: "1px" },
+  { label: "Regular", value: 2, sub: "2px" },
+  { label: "Medium", value: 3, sub: "3px" },
+  { label: "Bold", value: 4, sub: "4px" },
+];
+
 export function ChatStylingControls({
+  botName,
   primaryColor,
   secondaryColor,
   chatBgColor,
   borderRadius,
+  cornerRadius,
+  onChangeBotName,
   onChangePrimary,
   onChangeSecondary,
   onChangeChatBg,
   onChangeBorderRadius,
+  onChangeCornerRadius,
   onApplyPreset,
 }: ChatStylingControlsProps) {
   const activePreset = COLOR_PRESETS.find(
@@ -60,6 +77,32 @@ export function ChatStylingControls({
 
   return (
     <div className="space-y-6">
+      {/* 0. Assistant / Bot Persona Name */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Bot className="size-3 text-primary" />
+            <span>AI Assistant / Bot Persona Name</span>
+          </label>
+          <span className="text-[10px] font-mono text-muted-foreground font-medium">
+            {botName.length} / 40
+          </span>
+        </div>
+        <div className="relative">
+          <input
+            type="text"
+            maxLength={40}
+            value={botName}
+            onChange={(e) => onChangeBotName(e.target.value)}
+            placeholder="e.g. Sanad AI Support, Sara, Nile Assistant"
+            className="w-full bg-background border border-border h-9 px-3 text-xs font-sans text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none rounded-none shadow-2xs"
+          />
+        </div>
+        <p className="mt-1 text-[11px] text-muted-foreground font-sans">
+          The public persona name customers see in the chat header and responses (separate from your business name).
+        </p>
+      </div>
+
       {/* 1. Curated Palette Presets */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -282,28 +325,28 @@ export function ChatStylingControls({
         </div>
       </div>
 
-      {/* 4. Chat Border Roundness (Corner Radius) */}
+      {/* 4. Chat Corner Roundness (Corner Radius) */}
       <div className="pt-4 border-t border-border/60">
         <div className="flex items-center justify-between mb-2.5">
           <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Sliders className="size-3 text-primary" />
-            <span>Chat Border Roundness (Corner Curvature)</span>
+            <span>Chat Corner Roundness (Corner Radius)</span>
           </label>
           <span className="text-xs font-mono font-bold text-primary px-2 py-0.5 border border-primary/30 bg-primary/10">
-            {borderRadius}px
+            {cornerRadius}px
           </span>
         </div>
 
         <div className="border border-border bg-card p-3.5 space-y-4 rounded-none">
           {/* Preset Buttons */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-            {RADIUS_PRESETS.map((preset) => {
-              const isSelected = borderRadius === preset.value;
+            {CORNER_PRESETS.map((preset) => {
+              const isSelected = cornerRadius === preset.value;
               return (
                 <button
                   key={preset.value}
                   type="button"
-                  onClick={() => onChangeBorderRadius(preset.value)}
+                  onClick={() => onChangeCornerRadius(preset.value)}
                   className={cn(
                     "p-2 border text-center transition-all cursor-pointer rounded-none flex flex-col items-center justify-center gap-1",
                     isSelected
@@ -311,7 +354,6 @@ export function ChatStylingControls({
                       : "border-border bg-background hover:border-foreground/30 text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {/* Dynamic mini preview box showing actual roundness */}
                   <div
                     className={cn(
                       "size-5 border-2 transition-all",
@@ -339,6 +381,70 @@ export function ChatStylingControls({
               min="0"
               max="24"
               step="2"
+              value={cornerRadius}
+              onChange={(e) => onChangeCornerRadius(Number(e.target.value))}
+              className="w-full accent-primary cursor-pointer h-1.5 bg-muted rounded-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Chat Border Thickness (Stroke Width) */}
+      <div className="pt-4 border-t border-border/60">
+        <div className="flex items-center justify-between mb-2.5">
+          <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Square className="size-3 text-primary" />
+            <span>Chat Border Thickness (Stroke Width)</span>
+          </label>
+          <span className="text-xs font-mono font-bold text-primary px-2 py-0.5 border border-primary/30 bg-primary/10">
+            {borderRadius}px
+          </span>
+        </div>
+
+        <div className="border border-border bg-card p-3.5 space-y-4 rounded-none">
+          {/* Preset Buttons */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {THICKNESS_PRESETS.map((preset) => {
+              const isSelected = borderRadius === preset.value;
+              return (
+                <button
+                  key={preset.value}
+                  type="button"
+                  onClick={() => onChangeBorderRadius(preset.value)}
+                  className={cn(
+                    "p-2 border text-center transition-all cursor-pointer rounded-none flex flex-col items-center justify-center gap-1",
+                    isSelected
+                      ? "border-primary bg-primary/[0.08] ring-1 ring-primary text-primary"
+                      : "border-border bg-background hover:border-foreground/30 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "size-5 border-primary/40 transition-all",
+                      preset.value === 0 ? "border-dashed border" : "border-solid"
+                    )}
+                    style={{ borderWidth: `${Math.max(1, preset.value)}px` }}
+                  />
+                  <span className="text-xs font-semibold">{preset.label}</span>
+                  <span className="text-[9px] font-mono opacity-70">{preset.value}px</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Interactive Range Slider */}
+          <div className="pt-2 border-t border-border/40 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground">
+              <span>0px (None)</span>
+              <span>2px (Regular)</span>
+              <span>6px (Heavy)</span>
+            </div>
+
+            <input
+              type="range"
+              min="0"
+              max="6"
+              step="1"
               value={borderRadius}
               onChange={(e) => onChangeBorderRadius(Number(e.target.value))}
               className="w-full accent-primary cursor-pointer h-1.5 bg-muted rounded-none"

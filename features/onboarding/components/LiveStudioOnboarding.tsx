@@ -119,7 +119,9 @@ export function LiveStudioOnboarding() {
       primaryColor: "#0F5C55",
       secondaryColor: "#E8A33D",
       chatBgColor: "#FFFFFF",
-      borderRadius: 0,
+      botName: "Sanad AI Support",
+      borderRadius: 1,
+      cornerRadius: 0,
     },
     mode: "onTouched",
   });
@@ -635,10 +637,15 @@ export function LiveStudioOnboarding() {
                     transition={{ duration: 0.15 }}
                   >
                     <ChatStylingControls
+                      botName={formValues.botName}
                       primaryColor={formValues.primaryColor}
                       secondaryColor={formValues.secondaryColor}
                       chatBgColor={formValues.chatBgColor}
                       borderRadius={formValues.borderRadius}
+                      cornerRadius={formValues.cornerRadius}
+                      onChangeBotName={(n) =>
+                        setValue("botName", n, { shouldValidate: true })
+                      }
                       onChangePrimary={(c) =>
                         setValue("primaryColor", c, { shouldValidate: true })
                       }
@@ -651,6 +658,9 @@ export function LiveStudioOnboarding() {
                       onChangeBorderRadius={(r) =>
                         setValue("borderRadius", r, { shouldValidate: true })
                       }
+                      onChangeCornerRadius={(r) =>
+                        setValue("cornerRadius", r, { shouldValidate: true })
+                      }
                       onApplyPreset={(p) => {
                         setValue("primaryColor", p.primary, {
                           shouldValidate: true,
@@ -661,11 +671,16 @@ export function LiveStudioOnboarding() {
                       }}
                     />
 
-                    {(errors.primaryColor ||
+                    {(errors.botName ||
+                      errors.primaryColor ||
                       errors.secondaryColor ||
                       errors.chatBgColor ||
-                      errors.borderRadius) && (
+                      errors.borderRadius ||
+                      errors.cornerRadius) && (
                       <div className="border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive space-y-1">
+                        {errors.botName?.message && (
+                          <p>{errors.botName.message}</p>
+                        )}
                         {errors.primaryColor?.message && (
                           <p>{errors.primaryColor.message}</p>
                         )}
@@ -677,6 +692,9 @@ export function LiveStudioOnboarding() {
                         )}
                         {errors.borderRadius?.message && (
                           <p>{errors.borderRadius.message}</p>
+                        )}
+                        {errors.cornerRadius?.message && (
+                          <p>{errors.cornerRadius.message}</p>
                         )}
                       </div>
                     )}
@@ -750,6 +768,7 @@ export function LiveStudioOnboarding() {
           <LiveStudioChatPreview
             businessNameEn={formValues.businessNameEn}
             businessNameAr={formValues.businessNameAr}
+            botName={formValues.botName}
             businessType={formValues.businessType}
             city={formValues.city}
             district={formValues.district}
@@ -757,6 +776,7 @@ export function LiveStudioOnboarding() {
             secondaryColor={formValues.secondaryColor}
             chatBgColor={formValues.chatBgColor}
             borderRadius={formValues.borderRadius}
+            cornerRadius={formValues.cornerRadius}
           />
         </div>
       </div>

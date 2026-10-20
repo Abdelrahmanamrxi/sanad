@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 interface LiveStudioChatPreviewProps {
   businessNameEn: string;
   businessNameAr: string;
+  botName?: string;
   businessType: BusinessType;
   city: string;
   district?: string;
@@ -30,6 +31,7 @@ interface LiveStudioChatPreviewProps {
   secondaryColor: string;
   chatBgColor: string;
   borderRadius: number;
+  cornerRadius: number;
 }
 
 // Function to calculate readable text color based on background hex
@@ -121,6 +123,7 @@ const SECTOR_CHAT_DATA = {
 export function LiveStudioChatPreview({
   businessNameEn,
   businessNameAr,
+  botName,
   businessType,
   city,
   district,
@@ -128,6 +131,7 @@ export function LiveStudioChatPreview({
   secondaryColor,
   chatBgColor,
   borderRadius,
+  cornerRadius,
 }: LiveStudioChatPreviewProps) {
   const [activeLang, setActiveLang] = useState<"EN" | "AR">("EN");
 
@@ -136,18 +140,19 @@ export function LiveStudioChatPreview({
 
   const displayNameEn = businessNameEn.trim() || "Your Business";
   const displayNameAr = businessNameAr.trim() || "منشأتك";
+  const displayBotName = botName?.trim() || "Sanad AI Support";
   const displayCity = city || "Cairo";
   const locationLabel = `${displayCity}, Egypt${district ? ` · ${district}` : ""}`;
 
   const primaryText = getContrastTextColor(primaryColor);
   const secondaryText = getContrastTextColor(secondaryColor);
 
-  // Scaled radii for child elements based on main container roundness
-  const bubbleRadius = `${Math.min(borderRadius, 14)}px`;
-  const chipRadius = `${Math.min(borderRadius, 8)}px`;
-  const inputRadius = `${Math.min(borderRadius, 10)}px`;
-  const buttonRadius = `${Math.min(borderRadius, 8)}px`;
-  const avatarRadius = `${Math.min(borderRadius, 10)}px`;
+  // Scaled radii for child elements based on main container roundness (cornerRadius)
+  const bubbleRadius = `${Math.min(cornerRadius, 14)}px`;
+  const chipRadius = `${Math.min(cornerRadius, 8)}px`;
+  const inputRadius = `${Math.min(cornerRadius, 10)}px`;
+  const buttonRadius = `${Math.min(cornerRadius, 8)}px`;
+  const avatarRadius = `${Math.min(cornerRadius, 10)}px`;
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between p-3 sm:p-5 lg:p-7 overflow-hidden select-none">
@@ -205,17 +210,20 @@ export function LiveStudioChatPreview({
           layout
           style={{
             backgroundColor: chatBgColor,
-            borderRadius: `${borderRadius}px`,
+            borderRadius: `${cornerRadius}px`,
+            borderWidth: `${borderRadius}px`,
+            borderStyle: borderRadius > 0 ? "solid" : "none",
+            borderColor: borderRadius > 0 ? "var(--border)" : "transparent",
           }}
-          className="w-full max-w-lg shadow-2xl border border-border transition-all duration-200 flex flex-col h-[520px] max-h-[75vh] overflow-hidden"
+          className="w-full max-w-lg shadow-2xl transition-all duration-200 flex flex-col h-[520px] max-h-[75vh] overflow-hidden"
         >
           {/* ==================================================== */}
           {/* CHAT HEADER */}
           {/* ==================================================== */}
           <div
             style={{
-              borderTopLeftRadius: `${Math.max(0, borderRadius - 1)}px`,
-              borderTopRightRadius: `${Math.max(0, borderRadius - 1)}px`,
+              borderTopLeftRadius: `${Math.max(0, cornerRadius - borderRadius)}px`,
+              borderTopRightRadius: `${Math.max(0, cornerRadius - borderRadius)}px`,
             }}
             className="p-3.5 border-b border-border/70 flex items-center justify-between bg-card/70 backdrop-blur-sm shrink-0"
           >
@@ -236,7 +244,7 @@ export function LiveStudioChatPreview({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="font-heading font-bold text-sm text-foreground truncate">
-                    {activeLang === "EN" ? displayNameEn : displayNameAr}
+                    {displayBotName}
                   </h3>
                   <span
                     className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.2 shrink-0 font-medium"
@@ -256,6 +264,10 @@ export function LiveStudioChatPreview({
                     <span className="font-mono text-[10px]">
                       {activeLang === "EN" ? "Online Now" : "متصل الآن"}
                     </span>
+                  </span>
+                  <span>·</span>
+                  <span className="font-sans text-[10px] text-muted-foreground truncate max-w-[130px]">
+                    {activeLang === "EN" ? displayNameEn : displayNameAr}
                   </span>
                   <span>·</span>
                   <span className="flex items-center gap-1 truncate text-[10px]">
@@ -422,8 +434,8 @@ export function LiveStudioChatPreview({
           {/* ==================================================== */}
           <div
             style={{
-              borderBottomLeftRadius: `${Math.max(0, borderRadius - 1)}px`,
-              borderBottomRightRadius: `${Math.max(0, borderRadius - 1)}px`,
+              borderBottomLeftRadius: `${Math.max(0, cornerRadius - borderRadius)}px`,
+              borderBottomRightRadius: `${Math.max(0, cornerRadius - borderRadius)}px`,
             }}
             className="p-3 border-t border-border/70 bg-card/60 backdrop-blur-sm shrink-0"
           >
@@ -501,8 +513,9 @@ export function LiveStudioChatPreview({
           </div>
         </div>
 
-        <div className="text-[10px] font-mono text-muted-foreground">
-          BORDER RADIUS: <span className="text-primary font-bold">{borderRadius}PX</span>
+        <div className="flex items-center gap-3 text-[10px] font-mono text-muted-foreground">
+          <span>BORDER: <span className="text-primary font-bold">{borderRadius}PX</span></span>
+          <span>CORNER: <span className="text-primary font-bold">{cornerRadius}PX</span></span>
         </div>
       </div>
     </div>

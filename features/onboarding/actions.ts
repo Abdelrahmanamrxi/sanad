@@ -34,8 +34,8 @@ export async function createBusiness(formValues:OnboardingType):Promise<Onboardi
         secondary_color: formValues.secondaryColor,
         background_color: formValues.chatBgColor,
         border_radius: formValues.borderRadius,
-        corner_radius: 0,
-        bot_name: formValues.businessNameEn ? `${formValues.businessNameEn} Support` : "Sanad AI Support",
+        corner_radius: formValues.cornerRadius,
+        bot_name: formValues.botName?.trim() || (formValues.businessNameEn ? `${formValues.businessNameEn} Support` : "Sanad AI Support"),
     });
 
     if (widgetError) {
