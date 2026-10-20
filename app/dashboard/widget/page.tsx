@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { WidgetStudioView } from "@/features/dashboard/widget/components";
 import { getAuthContext } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import AppError from "@/lib/error";
+import { toWidgetConfig,WidgetConfig,WidgetSettingsDBRow
 
+ } from "@/features/dashboard/widget/types";
 export const metadata: Metadata = {
   title: "Widget Studio | Sanad",
   description:
@@ -9,13 +13,39 @@ export const metadata: Metadata = {
 };
 
 export default async function WidgetPage() {
-  let businessId = "workspace-live";
+  let authContext;
   try {
-    const auth = await getAuthContext();
-    businessId = auth.businessId;
-  } catch {
-    // Fallback if session is in development or testing mode
+    authContext = await getAuthContext();
+  } catch (error) {
+    if (error instanceof AppError) {
+      if (error.status === 401) {
+        redirect("/signin");
+      }
+      if (error.status === 404) {
+        redirect("/onboarding");
+      }
+    }
+    throw error;
   }
 
-  return <WidgetStudioView businessId={businessId} />;
+  const { businessId, supabase } = authContext;
+
+  const { data, error } = await supabase
+    .from("widget_settings")
+    .select("*")
+    .eq("business_id", businessId)
+    .single<WidgetSettingsDBRow>();
+
+  if (!data || error) {
+    redirect("/onboarding");
+  }
+
+  const widgetSettings = toWidgetConfig(data);
+
+  return (
+    <WidgetStudioView
+      businessId={businessId}
+      initialConfig={widgetSettings}
+    />
+  );
 }

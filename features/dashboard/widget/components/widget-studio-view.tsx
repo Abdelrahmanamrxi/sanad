@@ -18,13 +18,19 @@ import WidgetEditPanel from "./widget-edit-panel";
 import WidgetViewPanel from "./widget-view-panel";
 
 interface WidgetStudioViewProps {
-  businessId?: string;
+  businessId: string;
+  initialConfig?: WidgetConfig;
+  widgetSettings?: WidgetConfig;
 }
 
 export default function WidgetStudioView({
   businessId = "workspace-live",
+  initialConfig,
+  widgetSettings,
 }: WidgetStudioViewProps) {
-  const [config, setConfig] = useState<WidgetConfig>(DEFAULT_WIDGET_CONFIG);
+  const [config, setConfig] = useState<WidgetConfig>(
+    widgetSettings || initialConfig || DEFAULT_WIDGET_CONFIG
+  );
   const [activeTab, setActiveTab] = useState<EditTab>("identity");
   const [isSaved, setIsSaved] = useState(false);
   const [isCopiedCode, setIsCopiedCode] = useState(false);
