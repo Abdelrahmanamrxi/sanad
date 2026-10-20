@@ -50,10 +50,10 @@ export function PlaygroundInspectorPanel({
   };
 
   const getTemperatureLabel = (temp: number) => {
-    if (temp <= 0.15) return { title: "Strict & Factual", titleAr: "دقيق ومطابق تماماً للمستندات", badge: "0.0 – 0.15" };
-    if (temp <= 0.35) return { title: "Balanced & Direct", titleAr: "متوازن ومباشر (مستحسن للشركات)", badge: "0.2 – 0.35" };
-    if (temp <= 0.6) return { title: "Friendly & Conversational", titleAr: "مرن وودود مع العملاء", badge: "0.4 – 0.6" };
-    return { title: "Expressive & Creative", titleAr: "تعبيري وابتكاري", badge: "0.65 – 1.0" };
+    if (temp <= 0.15) return { title: "Strict & Factual", desc: "Precise and strictly grounded in source documents", badge: "0.0 – 0.15" };
+    if (temp <= 0.35) return { title: "Balanced & Direct", desc: "Balanced and concise, optimal for business support", badge: "0.2 – 0.35" };
+    if (temp <= 0.6) return { title: "Friendly & Conversational", desc: "Engaging and polite with natural conversational flow", badge: "0.4 – 0.6" };
+    return { title: "Expressive & Creative", desc: "Creative responses with broader phrasing latitude", badge: "0.65 – 1.0" };
   };
 
   const tempInfo = getTemperatureLabel(config.temperature);
@@ -321,8 +321,8 @@ export function PlaygroundInspectorPanel({
                     {tempInfo.badge}
                   </span>
                 </div>
-                <span className="font-sans text-[11px] text-muted-foreground mt-0.5 block" dir="auto">
-                  {tempInfo.titleAr}
+                <span className="font-sans text-[11px] text-muted-foreground mt-0.5 block">
+                  {tempInfo.desc}
                 </span>
               </div>
 

@@ -57,8 +57,8 @@ export function PlaygroundHeader({
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         {/* Left: Studio Identity & Knowledge Status */}
         <div className="flex items-center gap-3">
-          <div className="relative flex size-9 items-center justify-center border border-primary/40 bg-primary/10 text-primary">
-            <Bot className="size-4" />
+          <div className="relative flex size-11 items-center justify-center border border-primary/40 bg-primary/10 text-primary">
+            <Bot className="size-5" />
             <span className="absolute -top-0.5 -right-0.5 size-1.5 bg-emerald-500 ring-2 ring-card" />
           </div>
 
@@ -81,15 +81,6 @@ export function PlaygroundHeader({
         {/* Right: Controls & Presets */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Active Model Indicator */}
-          <div className="flex items-center gap-2 border border-border bg-background px-2.5 py-1.5 font-sans text-xs text-foreground shadow-2xs">
-            <span className="size-2 bg-emerald-500 inline-block animate-pulse" />
-            <span className="text-muted-foreground text-[11px]">Engine:</span>
-            <span className="font-semibold text-foreground text-[11px]">{currentModel.name}</span>
-            <span className="border border-border bg-muted px-1.5 py-0.2 font-mono text-[9px] text-muted-foreground">
-              {currentModel.speed}
-            </span>
-          </div>
-
           {/* Assistant Role & Tone Preset */}
           <div className="relative">
             <select
@@ -114,7 +105,7 @@ export function PlaygroundHeader({
           <button
             type="button"
             onClick={onToggleExpand}
-            className={`flex items-center gap-1.5 border px-3 py-1.5 font-sans text-xs transition-colors rounded-none shadow-2xs ${
+            className={`flex items-center gap-1.5 border px-3 py-1.5 hover:border-primary font-sans text-xs transition-colors rounded-none shadow-2xs ${
               isExpanded
                 ? "border-primary bg-primary/10 text-primary font-medium"
                 : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-border"

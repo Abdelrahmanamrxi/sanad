@@ -41,7 +41,7 @@ export function PlaygroundInputBar({
   };
 
   return (
-    <div className="border-t border-border bg-card p-3 sm:p-4 transition-colors">
+    <div className="border-t border-border bg-card  p-3 sm:p-4 transition-colors">
       <div className="mx-auto max-w-4xl">
         <div className="flex flex-col border border-border bg-background focus-within:border-primary transition-all shadow-xs">
           {/* Main Textarea */}
@@ -51,7 +51,7 @@ export function PlaygroundInputBar({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             dir="auto"
-            placeholder="Type a customer question or test inquiry... (e.g. ما هي شروط استرجاع المنتجات المعتمدة؟)"
+            placeholder="Type a customer question or test inquiry... (e.g. What is the return and exchange policy?)"
             rows={2}
             disabled={isRunning}
             className="w-full resize-none bg-transparent p-3.5 text-sm text-foreground placeholder:text-muted-foreground outline-none font-sans disabled:opacity-50 leading-relaxed"
@@ -64,11 +64,8 @@ export function PlaygroundInputBar({
                 <CornerDownLeft className="size-3 text-muted-foreground" />
                 <span>Enter to send</span>
               </span>
-              <span>•</span>
-              <span className="inline-flex items-center gap-1.5 text-primary font-medium">
-                <Sparkles className="size-3" />
-                <span>{modelName}</span>
-              </span>
+              
+           
             </div>
 
             <div className="flex items-center gap-2">

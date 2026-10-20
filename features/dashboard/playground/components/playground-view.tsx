@@ -50,7 +50,7 @@ export function PlaygroundView({ initialQuery }: PlaygroundViewProps) {
 
   const currentModel =
     AVAILABLE_MODELS.find((m) => m.id === config.model) || AVAILABLE_MODELS[0];
-
+ 
   // Allow exiting fullscreen/expanded studio mode using Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

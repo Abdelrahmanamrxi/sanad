@@ -44,11 +44,11 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
           <h1 className="font-heading text-lg sm:text-xl font-bold tracking-tight text-foreground font-sans">
             Unable to Initialize AI Playground
           </h1>
-          <p className="font-sans text-xs text-muted-foreground leading-relaxed" dir="auto">
-            تعذر تشغيل بيئة محاكاة سند. حدث خطأ غير متوقع أثناء إعداد المساعد أو تحميل بيانات قاعدة المعرفة.
+          <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+            An unexpected error occurred while preparing the simulator session or loading knowledge base vectors.
           </p>
           <p className="font-sans text-xs text-muted-foreground/80 leading-relaxed">
-            An unexpected error occurred while preparing the simulator session. Our engineering team has been notified via automated telemetry.
+            Our engineering team has been notified via automated telemetry. Please try again or return to the dashboard.
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
             className="w-full sm:w-auto gap-2"
           >
             <RotateCcw className="size-3.5" />
-            <span>Try Again (إعادة المحاولة)</span>
+            <span>Try Again</span>
           </Button>
 
           <Link

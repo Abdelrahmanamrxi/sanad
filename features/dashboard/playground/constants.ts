@@ -51,9 +51,9 @@ Guidelines:
   },
   {
     id: "arabic-advisor",
-    name: "Business Advisor (مستشار الأعمال)",
-    nameAr: "مستشار الأعمال الذكي",
-    description: "Fluent Arabic business assistant trained on corporate policies, SLAs, and customer journey.",
+    name: "Business Advisor",
+    nameAr: "Business Advisor",
+    description: "Fluent business assistant trained on corporate policies, SLAs, and customer journey.",
     temperature: 0.25,
     strictGrounding: true,
     systemPrompt: `أنت "سند"، المساعد المؤسسي الذكي المعتمد لمنظومة الأعمال.
