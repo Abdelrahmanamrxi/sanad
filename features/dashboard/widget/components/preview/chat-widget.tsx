@@ -91,7 +91,6 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
     setTimeout(() => {
       let simulatedReply =
         "According to our verified store policies: Items can be returned or exchanged within 14 days of delivery. Free returns are available for eligible orders in original packaging.";
-   
 
       const lower = text.toLowerCase();
       if (
@@ -102,7 +101,6 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
       ) {
         simulatedReply =
           "Standard delivery takes 2 to 4 business days nationwide. Shipping is free for all orders over 200 SAR.";
-       
       } else if (
         lower.includes("payment") ||
         lower.includes("installment") ||
@@ -111,7 +109,6 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
       ) {
         simulatedReply =
           "We accept all major credit cards, Mada, Apple Pay, Tabby, and Tamara 4-installment plans with 0% interest.";
-       
       } else if (
         lower.includes("track") ||
         lower.includes("order") ||
@@ -120,7 +117,6 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
       ) {
         simulatedReply =
           "You can track your order in real-time by clicking the tracking link sent to your SMS or entering your order ID on our tracking page.";
-     
       }
 
       messageCounterRef.current += 1;
@@ -147,7 +143,9 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
 
   const isDarkBg = isDarkColor(backgroundColor);
   const bgText = isDarkBg ? "#F3F7F6" : "#10201F";
-  const bgMutedText = isDarkBg ? "rgba(243, 247, 246, 0.65)" : "rgba(16, 32, 31, 0.65)";
+  const bgMutedText = isDarkBg
+    ? "rgba(243, 247, 246, 0.65)"
+    : "rgba(16, 32, 31, 0.65)";
 
   const primaryText = getContrastTextColor(primaryColor);
   const secondaryText = getContrastTextColor(secondaryColor);
@@ -162,8 +160,8 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
   const inputBarBorder = isInputFocused
     ? primaryColor
     : isDarkBg
-    ? `${primaryColor}60`
-    : `${primaryColor}35`;
+      ? `${primaryColor}60`
+      : `${primaryColor}35`;
 
   return (
     <>
@@ -317,9 +315,19 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
                             borderRadius: `${Math.min(cornerRadius, 12)}px`,
                             backgroundColor: surfaceCardBg,
                             color: bgText,
-                            borderColor: isDarkBg ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.08)",
-                            borderLeftColor: isRtl ? (isDarkBg ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)") : primaryColor,
-                            borderRightColor: isRtl ? primaryColor : (isDarkBg ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"),
+                            borderColor: isDarkBg
+                              ? "rgba(255, 255, 255, 0.12)"
+                              : "rgba(0, 0, 0, 0.08)",
+                            borderLeftColor: isRtl
+                              ? isDarkBg
+                                ? "rgba(255,255,255,0.12)"
+                                : "rgba(0,0,0,0.08)"
+                              : primaryColor,
+                            borderRightColor: isRtl
+                              ? primaryColor
+                              : isDarkBg
+                                ? "rgba(255,255,255,0.12)"
+                                : "rgba(0,0,0,0.08)",
                             borderLeftWidth: isRtl ? "1px" : "3px",
                             borderRightWidth: isRtl ? "3px" : "1px",
                           }
@@ -335,7 +343,9 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
 
                     <span
                       className="block mt-1.5 font-mono text-[8px]"
-                      style={{ color: isBot ? bgMutedText : "rgba(255,255,255,0.85)" }}
+                      style={{
+                        color: isBot ? bgMutedText : "rgba(255,255,255,0.85)",
+                      }}
                     >
                       {msg.time}
                     </span>
@@ -359,7 +369,7 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
                   className="size-1.5 animate-ping inline-block"
                   style={{ backgroundColor: primaryColor }}
                 />
-                <span>Sanad is reviewing verified documentation...</span>
+                <span>{config.botName} is reviewing...</span>
               </div>
             )}
 
@@ -370,7 +380,10 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
                   className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider select-none"
                   style={{ color: bgMutedText }}
                 >
-                  <Sparkles className="size-3" style={{ color: primaryColor }} />
+                  <Sparkles
+                    className="size-3"
+                    style={{ color: primaryColor }}
+                  />
                   <span>Suggested Inquiries:</span>
                 </div>
 
@@ -382,7 +395,9 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
                       onClick={() => handleSendMessage(question)}
                       style={{
                         borderRadius: `${Math.min(cornerRadius, 8)}px`,
-                        borderColor: isDarkBg ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.08)",
+                        borderColor: isDarkBg
+                          ? "rgba(255, 255, 255, 0.12)"
+                          : "rgba(0, 0, 0, 0.08)",
                         backgroundColor: surfaceCardBg,
                         color: bgText,
                       }}
@@ -438,8 +453,8 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
                 boxShadow: isInputFocused
                   ? `0 0 0 2px ${primaryColor}30`
                   : isDarkBg
-                  ? "0 1px 3px rgba(0,0,0,0.3)"
-                  : "0 1px 3px rgba(0,0,0,0.05)",
+                    ? "0 1px 3px rgba(0,0,0,0.3)"
+                    : "0 1px 3px rgba(0,0,0,0.05)",
                 backgroundColor: inputBg,
               }}
               className="flex items-center gap-2 border transition-all p-1.5 shadow-2xs"

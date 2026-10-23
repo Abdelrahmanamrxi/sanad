@@ -20,6 +20,8 @@ export interface WidgetConfig {
   welcomeMessage: string;
   starterQuestions: string[];
   isActive?: boolean;
+  status?: "online" | "offline";
+  allowedDomains?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -69,8 +71,47 @@ export function toWidgetConfig(row: WidgetSettingsDBRow): WidgetConfig {
     cornerRadius: row.corner_radius,
     defaultLanguage: row.default_language,
     isActive: row.is_active,
+    status: row.status,
+    allowedDomains: row.allowed_domains || [],
     welcomeMessage: row.welcome_message,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+export type WidgetSettingsUpdate = Partial<
+  Omit<WidgetSettingsDBRow, "id" | "business_id" | "created_at">
+>;
+
+/**
+ * Converts a frontend WidgetConfig (camelCase) to a database WidgetSettingsDBRow representation (snake_case).
+ * Can be used for partial updates or full row inserts when combined with options (businessId, id).
+ */
+export function toWidgetSettingsDBRow(
+  config: Partial<WidgetConfig>,
+  options?: { businessId?: string; id?: string }
+): WidgetSettingsUpdate & { business_id?: string; id?: string } {
+  const update: WidgetSettingsUpdate & { business_id?: string; id?: string } = {};
+
+  if (options?.id !== undefined) update.id = options.id;
+  if (options?.businessId !== undefined) update.business_id = options.businessId;
+
+  if (config.botName !== undefined) update.bot_name = config.botName;
+  if (config.subtitle !== undefined) update.subtitle = config.subtitle;
+  if (config.primaryColor !== undefined) update.primary_color = config.primaryColor;
+  if (config.secondaryColor !== undefined) update.secondary_color = config.secondaryColor;
+  if (config.backgroundColor !== undefined) update.background_color = config.backgroundColor;
+  if (config.borderRadius !== undefined) update.border_radius = config.borderRadius;
+  if (config.cornerRadius !== undefined) update.corner_radius = config.cornerRadius;
+  if (config.position !== undefined) update.position = config.position;
+  if (config.launcherStyle !== undefined) update.launcher_style = config.launcherStyle;
+  if (config.launcherText !== undefined) update.launcher_text = config.launcherText;
+  if (config.welcomeMessage !== undefined) update.welcome_message = config.welcomeMessage;
+  if (config.starterQuestions !== undefined) update.starter_questions = config.starterQuestions;
+  if (config.defaultLanguage !== undefined) update.default_language = config.defaultLanguage;
+  if (config.isActive !== undefined) update.is_active = config.isActive;
+  if (config.status !== undefined) update.status = config.status;
+  if (config.allowedDomains !== undefined) update.allowed_domains = config.allowedDomains;
+
+  return update;
 }

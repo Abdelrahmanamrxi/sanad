@@ -9,10 +9,16 @@ import ChatWidget from "./preview/chat-widget";
 
 interface WidgetViewPanelProps {
   config: WidgetConfig;
+  isMobileModal?: boolean;
 }
 
-export default function WidgetViewPanel({ config }: WidgetViewPanelProps) {
-  const [device, setDevice] = useState<DevicePreview>("desktop");
+export default function WidgetViewPanel({
+  config,
+  isMobileModal = false,
+}: WidgetViewPanelProps) {
+  const [device, setDevice] = useState<DevicePreview>(
+    isMobileModal ? "mobile" : "desktop"
+  );
   const [storeTheme, setStoreTheme] = useState<StoreTheme>("light");
   const [chatKey, setChatKey] = useState(0);
 
@@ -31,19 +37,24 @@ export default function WidgetViewPanel({ config }: WidgetViewPanelProps) {
         storeTheme={storeTheme}
         onThemeChange={setStoreTheme}
         onResetChat={handleResetChat}
+        isMobileModal={isMobileModal}
       />
 
-      {/* ── 2. Studio Canvas with Subtle Grid Texture (No more black void!) ── */}
+      {/* ── 2. Studio Canvas with Subtle Grid Texture ── */}
       <div
         className={`relative flex-1 overflow-hidden transition-colors ${
-          device === "mobile"
+          isMobileModal
+            ? isDark
+              ? "bg-stone-900 text-stone-100"
+              : "bg-stone-100 text-stone-900"
+            : device === "mobile"
             ? "bg-muted/40 p-4 sm:p-8 flex justify-center items-center overflow-y-auto"
             : isDark
             ? "bg-stone-900 text-stone-100"
             : "bg-stone-100 text-stone-900"
         }`}
         style={
-          device === "mobile"
+          !isMobileModal && device === "mobile"
             ? {
                 backgroundImage:
                   "radial-gradient(circle, var(--border) 1px, transparent 1px)",
@@ -52,8 +63,14 @@ export default function WidgetViewPanel({ config }: WidgetViewPanelProps) {
             : undefined
         }
       >
-        {device === "mobile" ? (
-          /* Realistic Luxury Smartphone Frame */
+        {isMobileModal ? (
+          /* Fullscreen Mobile View on Real Devices */
+          <div className="relative h-full w-full flex flex-col overflow-hidden">
+            <StoreMockup storeTheme={storeTheme} />
+            <ChatWidget key={chatKey} config={config} device="mobile" />
+          </div>
+        ) : device === "mobile" ? (
+          /* Realistic Luxury Smartphone Frame on Desktop */
           <div className="relative flex flex-col w-[375px] max-w-full h-[700px] border-[10px] border-stone-850 dark:border-stone-700 bg-background shadow-2xl rounded-none shrink-0 overflow-hidden ring-1 ring-black/20">
             {/* Top Phone Status Bar */}
             <div className="bg-stone-900 text-white px-4 py-1.5 flex items-center justify-between text-[10px] font-mono shrink-0 select-none z-50">

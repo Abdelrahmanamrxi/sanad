@@ -3,9 +3,13 @@ import { WidgetStudioView } from "@/features/dashboard/widget/components";
 import { getAuthContext } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppError from "@/lib/error";
-import { toWidgetConfig,WidgetConfig,WidgetSettingsDBRow
+import {
+  toWidgetConfig,
+  WidgetConfig,
+  WidgetSettingsDBRow,
+} from "@/features/dashboard/widget/types";
+import { DEFAULT_WIDGET_CONFIG } from "@/features/dashboard/widget/constants";
 
- } from "@/features/dashboard/widget/types";
 export const metadata: Metadata = {
   title: "Widget Studio | Sanad",
   description:
@@ -30,17 +34,13 @@ export default async function WidgetPage() {
 
   const { businessId, supabase } = authContext;
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("widget_settings")
     .select("*")
     .eq("business_id", businessId)
-    .single<WidgetSettingsDBRow>();
+    .maybeSingle<WidgetSettingsDBRow>();
 
-  if (!data || error) {
-    redirect("/onboarding");
-  }
-
-  const widgetSettings = toWidgetConfig(data);
+  const widgetSettings = data ? toWidgetConfig(data) : DEFAULT_WIDGET_CONFIG;
 
   return (
     <WidgetStudioView

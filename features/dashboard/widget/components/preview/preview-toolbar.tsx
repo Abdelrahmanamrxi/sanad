@@ -10,6 +10,7 @@ interface PreviewToolbarProps {
   storeTheme: StoreTheme;
   onThemeChange: (theme: StoreTheme) => void;
   onResetChat: () => void;
+  isMobileModal?: boolean;
 }
 
 export default function PreviewToolbar({
@@ -18,6 +19,7 @@ export default function PreviewToolbar({
   storeTheme,
   onThemeChange,
   onResetChat,
+  isMobileModal = false,
 }: PreviewToolbarProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-background px-4 py-2.5 shrink-0">
@@ -35,33 +37,35 @@ export default function PreviewToolbar({
 
       {/* Device & Theme Controls */}
       <div className="flex items-center gap-1.5">
-        {/* Device toggle */}
-        <div className="flex border border-border bg-background p-0.5 rounded-none shadow-2xs">
-          <button
-            type="button"
-            onClick={() => onDeviceChange("desktop")}
-            className={`p-1.5 text-xs transition-colors rounded-none cursor-pointer ${
-              device === "desktop"
-                ? "bg-primary text-primary-foreground font-medium"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-            title="Desktop Storefront View"
-          >
-            <Monitor className="size-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onDeviceChange("mobile")}
-            className={`p-1.5 text-xs transition-colors rounded-none cursor-pointer ${
-              device === "mobile"
-                ? "bg-primary text-primary-foreground font-medium"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-            title="Mobile Device View"
-          >
-            <Smartphone className="size-3.5" />
-          </button>
-        </div>
+        {/* Device toggle (hidden when inside mobile modal since it's already full mobile) */}
+        {!isMobileModal && (
+          <div className="flex border border-border bg-background p-0.5 rounded-none shadow-2xs">
+            <button
+              type="button"
+              onClick={() => onDeviceChange("desktop")}
+              className={`p-1.5 text-xs transition-colors rounded-none cursor-pointer ${
+                device === "desktop"
+                  ? "bg-primary text-primary-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Desktop Storefront View"
+            >
+              <Monitor className="size-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onDeviceChange("mobile")}
+              className={`p-1.5 text-xs transition-colors rounded-none cursor-pointer ${
+                device === "mobile"
+                  ? "bg-primary text-primary-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Mobile Device View"
+            >
+              <Smartphone className="size-3.5" />
+            </button>
+          </div>
+        )}
 
         {/* Theme toggle */}
         <div className="flex border border-border bg-background p-0.5 rounded-none shadow-2xs">
