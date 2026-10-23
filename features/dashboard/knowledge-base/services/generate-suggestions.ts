@@ -1,4 +1,4 @@
-import { groq, GROQ_MODEL } from "@/lib/groq";
+import { groq, GROQ_MODEL } from "@/lib/ai/providers/groq";
 
 export async function generateSuggestions(chunk: string): Promise<string[]> {
   if (!chunk || !chunk.trim()) {

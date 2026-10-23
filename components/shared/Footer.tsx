@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import React from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { motion } from 'motion/react'
-import { Activity, ShieldCheck } from 'lucide-react'
-import { footerLinks } from '@/lib/navigation'
-import logo from '../../public/sanad_logo.png'
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "motion/react";
+import { Activity, ShieldCheck } from "lucide-react";
+import { footerLinks } from "@/features/marketing/lib/navigation";
+import logo from "../../public/sanad_logo.png";
 
 export default function Footer() {
   return (
     <motion.footer
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
+      viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="relative mt-auto w-full bg-secondary/80 text-secondary-foreground border-t border-border/70 py-12 sm:py-16 px-6 sm:px-10 lg:px-12 transition-colors overflow-hidden"
     >
@@ -25,7 +25,7 @@ export default function Footer() {
             linear-gradient(to right, var(--border) 1px, transparent 1px),
             linear-gradient(to bottom, var(--border) 1px, transparent 1px)
           `,
-          backgroundSize: '40px 40px',
+          backgroundSize: "40px 40px",
         }}
       />
 
@@ -37,7 +37,7 @@ export default function Footer() {
               <motion.div
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
               >
                 <Image
                   src={logo}
@@ -48,7 +48,8 @@ export default function Footer() {
               </motion.div>
             </Link>
             <p className="text-sm leading-relaxed text-foreground/75">
-              Structured, dependable AI conversational support built specifically for Egyptian &amp; MENA enterprises.
+              Structured, dependable AI conversational support built
+              specifically for Egyptian &amp; MENA enterprises.
             </p>
           </div>
 
@@ -58,7 +59,8 @@ export default function Footer() {
               <span>Cairo &amp; Riyadh Nodes: 100% Operational</span>
             </div>
             <p className="text-xs text-muted-foreground hidden sm:block">
-              &copy; 2026 Sanad Platform LLC. All rights reserved across Egypt and MENA.
+              &copy; 2026 Sanad Platform LLC. All rights reserved across Egypt
+              and MENA.
             </p>
           </div>
         </div>
@@ -73,7 +75,10 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
-                  <motion.div whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
+                  <motion.div
+                    whileHover={{ x: 3 }}
+                    transition={{ duration: 0.15 }}
+                  >
                     <Link
                       href={link.href}
                       className="text-sm text-foreground/75 hover:text-primary transition-colors"
@@ -94,7 +99,10 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <motion.div whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
+                  <motion.div
+                    whileHover={{ x: 3 }}
+                    transition={{ duration: 0.15 }}
+                  >
                     <Link
                       href={link.href}
                       className="text-sm text-foreground/75 hover:text-primary transition-colors"
@@ -110,9 +118,10 @@ export default function Footer() {
 
         {/* Mobile-only copyright */}
         <p className="text-xs text-muted-foreground block sm:hidden pt-4 border-t border-border/40">
-          &copy; 2026 Sanad Platform LLC. All rights reserved across Egypt and MENA.
+          &copy; 2026 Sanad Platform LLC. All rights reserved across Egypt and
+          MENA.
         </p>
       </div>
     </motion.footer>
-  )
+  );
 }

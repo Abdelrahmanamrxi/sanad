@@ -1,5 +1,5 @@
 import createClient from "./supabase/server";
-import AppError from "./error";
+import AppError from "../http/error";
 
 export async function getAuthContext() {
   const supabase = await createClient();
@@ -12,16 +12,14 @@ export async function getAuthContext() {
   if (!user || error) {
     throw new AppError("Unauthorized Access", 401);
   }
-  const { data: business, error:dbError } = await supabase
+  const { data: business, error: dbError } = await supabase
     .from("business")
     .select("id")
     .eq("owner_id", user.id)
     .single();
-  
 
-  if(!business?.id || dbError){
-    throw new AppError("No business workspace has been found",404)
+  if (!business?.id || dbError) {
+    throw new AppError("No business workspace has been found", 404);
   }
-  return {supabase,user,businessId:business.id as string}
-
+  return { supabase, user, businessId: business.id as string };
 }

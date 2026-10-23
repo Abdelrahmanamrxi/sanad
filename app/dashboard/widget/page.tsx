@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { WidgetStudioView } from "@/features/dashboard/widget/components";
 import { getAuthContext } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AppError from "@/lib/error";
+import AppError from "@/http/error";
 import {
   toWidgetConfig,
   WidgetConfig,
@@ -43,9 +43,6 @@ export default async function WidgetPage() {
   const widgetSettings = data ? toWidgetConfig(data) : DEFAULT_WIDGET_CONFIG;
 
   return (
-    <WidgetStudioView
-      businessId={businessId}
-      initialConfig={widgetSettings}
-    />
+    <WidgetStudioView businessId={businessId} initialConfig={widgetSettings} />
   );
 }

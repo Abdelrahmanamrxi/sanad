@@ -1,4 +1,4 @@
-import { handle } from "@/lib/async-handler";
+import { handle } from "@/http/async-handler";
 import { groq } from "@ai-sdk/groq";
 import { streamText, createTextStreamResponse } from "ai";
 import { getAuthContext } from "@/lib/auth";

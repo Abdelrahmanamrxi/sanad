@@ -3,7 +3,7 @@ import { type ChunkItem, DocumentItem } from "./types";
 import { getAuthContext } from "@/lib/auth";
 import { MimeType } from "./types";
 import { FetchDocumentsParams } from "./types";
-import { inngest } from "@/lib/inngest";
+import { inngest } from "@/lib/clients/connections/inngest";
 import { removeFromStorage } from "./repository/document-storage";
 
 export async function fetchDocuments(
@@ -114,7 +114,7 @@ export async function resyncDocument(documentId: string) {
       },
     });
   } catch {
-     await supabase
+    await supabase
       .from("documents")
       .update({
         doc_status: "failed",
@@ -122,7 +122,9 @@ export async function resyncDocument(documentId: string) {
       })
       .eq("id", documentId)
       .eq("business_id", businessId);
-  
-     throw new Error("Could not start background job. Please ensure the worker is running.");
-    }
+
+    throw new Error(
+      "Could not start background job. Please ensure the worker is running.",
+    );
+  }
 }

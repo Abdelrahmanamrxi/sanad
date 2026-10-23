@@ -1,5 +1,5 @@
 import { fileSchema } from "../schemas/file";
-import AppError from "@/lib/error";
+import AppError from "@/http/error";
 
 export async function parseUpload(request: Request): Promise<File> {
   let formData: FormData;

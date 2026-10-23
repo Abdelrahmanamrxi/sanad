@@ -1,4 +1,4 @@
-import { inngest } from "@/lib/inngest";
+import { inngest } from "@/lib/clients/connections/inngest";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { extractFileText } from "../services/chunking-process/extract-text";
 import { chunkMarkdown } from "../services/chunking-process/chunking";
@@ -70,25 +70,31 @@ export const processDocument = inngest.createFunction(
     });
 
     const chunks = await step.run("structure-and-chunk", async () => {
-      const result=await chunkMarkdown(text);
-      if(!result || result.length===0){
-        throw new NonRetriableError("No readable text or chunks could be extracted from this document")
+      const result = await chunkMarkdown(text);
+      if (!result || result.length === 0) {
+        throw new NonRetriableError(
+          "No readable text or chunks could be extracted from this document",
+        );
       }
-      return result
+      return result;
     });
-    
-    const suggestedQuestions=await step.run('generate-questions',async()=>{
-       const samples=chunks.slice(0,2).map((c)=>c.content).join('\n\n')
-       return await generateSuggestions(samples)
-    })
+
+    const suggestedQuestions = await step.run(
+      "generate-questions",
+      async () => {
+        const samples = chunks
+          .slice(0, 2)
+          .map((c) => c.content)
+          .join("\n\n");
+        return await generateSuggestions(samples);
+      },
+    );
 
     const indexVersion = await step.run("create-index-version", async () => {
       return crypto.randomUUID();
     });
 
     await step.run("generate-embeddings", async () => {
-      
-
       // Generate Embeddings
       const textToBeEmbedded = chunks.map((c) =>
         c.headingPath ? `${c.headingPath}\n\n${c.content}` : c.content,
@@ -128,7 +134,7 @@ export const processDocument = inngest.createFunction(
         .update({
           doc_status: "ready",
           error_message: null,
-          suggested_questions:suggestedQuestions,
+          suggested_questions: suggestedQuestions,
           current_index_version: indexVersion,
           stats: {
             total_chunks: chunks.length,

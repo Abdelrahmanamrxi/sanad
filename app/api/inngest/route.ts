@@ -1,8 +1,8 @@
-import { inngest } from "@/lib/inngest"
-import {serve} from "inngest/next"
-import { processDocument } from "@/features/dashboard/knowledge-base/inngest/process-document"
+import { inngest } from "@/lib/clients/connections/inngest";
+import { serve } from "inngest/next";
+import { processDocument } from "@/features/dashboard/knowledge-base/inngest/process-document";
 
-export const {GET,POST,PUT}=serve({
-    client:inngest,
-    functions:[processDocument]
-})
+export const { GET, POST, PUT } = serve({
+  client: inngest,
+  functions: [processDocument],
+});

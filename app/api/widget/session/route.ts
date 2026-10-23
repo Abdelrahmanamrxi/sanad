@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
-import { signWidgetSession } from "@/lib/widget-token";
-import { handle } from "@/lib/async-handler";
-import AppError from "@/lib/error";
+import { signWidgetSession } from "@/features/dashboard/widget/server/token";
+import { handle } from "@/http/async-handler";
+import AppError from "@/http/error";
 
 export const POST = handle(async (req) => {
   const { widgetKey, anonId } = await req.json();
