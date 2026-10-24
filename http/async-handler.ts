@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import AppError from "./error";
-import { logger } from "./logger";
+import {logger} from "@/lib/logger"
 import { ZodError } from "zod";
 
 type Handler<C> = (req: NextRequest, ctx: C) => Promise<Response>;

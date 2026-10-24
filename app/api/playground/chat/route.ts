@@ -1,5 +1,6 @@
 import { handle } from "@/http/async-handler";
 import { groq } from "@ai-sdk/groq";
+import { sovereign } from "@/lib/ai/providers/openai";
 import { streamText, createTextStreamResponse } from "ai";
 import { getAuthContext } from "@/lib/auth";
 import { z } from "zod";
@@ -9,7 +10,7 @@ import {
 } from "@/features/dashboard/knowledge-base/services/retrieval/retrieve-chunk";
 
 const defaultSystemPresets = {
-  model: "llama-3.3-70b-versatile",
+  model: "SovereignEG/Qwen3.8-27B-FP8",
   systemPrompt: "You are Sanad AI, a verified customer support specialist.",
   temperature: 0.2,
   strictGrounding: true,
@@ -80,7 +81,7 @@ export const POST = handle(async (req) => {
     : `Answer questions helpfully based on the context and general domain knowledge.`;
 
   const result = streamText({
-    model: groq(systemPresets.model || "openai/gpt-oss-120b"),
+    model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
     system: `${systemPresets.systemPrompt}
     ${groundingInstructions}
 === VERIFIED DOCUMENT CONTEXT ===
