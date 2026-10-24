@@ -2,10 +2,25 @@ import { NextResponse } from "next/server";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { signWidgetSession } from "@/features/dashboard/widget/server/token";
 import { handle } from "@/http/async-handler";
+import {z} from 'zod'
 import AppError from "@/http/error";
+import { getHostname } from "@/lib/utils";
+
+const sessionSchema=z.object({
+    widgetKey:z.uuid(),
+    anonId:z.uuid()
+})
+
+
 
 export const POST = handle(async (req) => {
-  const { widgetKey, anonId } = await req.json();
+  const parsedSession = sessionSchema.safeParse(await req.json()); 
+
+  if(!parsedSession.success){
+    throw new AppError("Invalid request",403)
+  }
+  
+  const{widgetKey,anonId}=parsedSession.data
 
   if (!widgetKey || !anonId) {
     throw new AppError("Missing Widget Key or Anon Id", 400);
@@ -18,36 +33,42 @@ export const POST = handle(async (req) => {
    */
   const { data: widgetConfig, error: widgetErr } = await supabaseAdminClient
     .from("widget_settings")
-    .select("*")
+    .select("id, business_id, is_active, allowed_domains")
     .eq("id", widgetKey)
-    .single();
-
-  const businessId = widgetConfig.businessId as string;
+    .maybeSingle();
 
   if (widgetErr || !widgetConfig || !widgetConfig.is_active) {
     throw new AppError("Widget is unavailable or inactive", 403);
   }
 
+  const businessId = widgetConfig.business_id as string;
+
   // 2) Check Allowed Domains
-  const origin = req.headers.get("origin") || req.headers.get("referer");
+  const allowedDomains: string[] = widgetConfig.allowed_domains || [];
 
-  if (
-    widgetConfig.allowed_domains &&
-    widgetConfig.allowed_domains.length > 0 &&
-    origin
-  ) {
-    const url = new URL(origin);
-    const isAllowed = widgetConfig.allowed_domains.some((domain: string) =>
-      url.hostname.endsWith(domain),
-    );
+  if (allowedDomains.length > 0) {
+    const callerDomain =
+      getHostname(req.headers.get("origin")) ||
+      getHostname(req.headers.get("referer"));
 
+    const isLocalhost =
+      process.env.NODE_ENV !== "production" &&
+      (callerDomain === "localhost" || callerDomain === "127.0.0.1");
+
+    const isAllowed =
+      isLocalhost ||
+      (callerDomain &&
+        allowedDomains.some((raw) => {
+          const d = raw.trim().toLowerCase();
+          const host = callerDomain.toLowerCase();
+          return host === d || host.endsWith("." + d);
+        }));
     if (!isAllowed) {
-      throw new AppError("Unauthorized access to widget", 403);
+      throw new AppError("Unauthorized domain for this widget", 403);
     }
   }
 
-  // Upsert Visitor in my visitors table
-
+  // 3) Upsert Visitor in visitors table
   let visitorId: string;
 
   const { data: existingVisitor } = await supabaseAdminClient
@@ -55,14 +76,14 @@ export const POST = handle(async (req) => {
     .select("id")
     .eq("business_id", businessId)
     .eq("anon_id", anonId)
-    .single();
+    .maybeSingle();
 
   if (existingVisitor) {
     visitorId = existingVisitor.id;
     await supabaseAdminClient
       .from("visitors")
       .update({ last_seen_at: new Date().toISOString() })
-      .eq("id", existingVisitor);
+      .eq("id", existingVisitor.id);
   } else {
     const { data: newVisitor, error: newVError } = await supabaseAdminClient
       .from("visitors")
@@ -126,9 +147,11 @@ export const POST = handle(async (req) => {
     conversationId,
   });
 
+  const { business_id, allowed_domains, ...publicConfig } = widgetConfig;
+
   return NextResponse.json({
     sessionToken,
-    config: widgetConfig,
+    config: publicConfig,
     conversationId,
     history: history ?? [],
   });
