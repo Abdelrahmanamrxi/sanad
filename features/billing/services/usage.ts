@@ -12,16 +12,30 @@ export interface QuotaCheckResult {
 }
 
 export async function getActiveSubscription(businessId: string) {
-  const { data, error: subscriptionError } = await supabaseAdminClient
+  let { data: sub } = await supabaseAdminClient
     .from("subscriptions")
     .select("*")
     .eq("business_id", businessId)
-    .single();
+    .maybeSingle();
 
-  if (subscriptionError)
-    throw new AppError("Error while retrieving active subscription",500);
+  // If no subscription row exists yet, auto-provision default free tier
+  if (!sub) {
+    const { data: newSub, error: insertError } = await supabaseAdminClient
+      .from("subscriptions")
+      .insert({
+        business_id: businessId,
+        plan_tier: "free",
+      })
+      .select("*")
+      .single();
 
-  let sub = data;
+    if (insertError || !newSub) {
+      console.error("[Usage] Failed to provision default subscription:", insertError);
+      throw new AppError("Error while retrieving active subscription", 500);
+    }
+    sub = newSub;
+  }
+
   // Auto Advance the 30 day billing if billing's expired
   const now = new Date();
   if (new Date(sub.current_period_end) < now) {
@@ -30,7 +44,7 @@ export async function getActiveSubscription(businessId: string) {
       now.getTime() + 30 * 24 * 60 * 60 * 1000,
     ).toISOString();
 
-    const { data: refresedSub, error: updateError } = await supabaseAdminClient
+    const { data: refreshedSub, error: updateError } = await supabaseAdminClient
       .from("subscriptions")
       .update({
         current_period_start: newStart,
@@ -40,8 +54,8 @@ export async function getActiveSubscription(businessId: string) {
       .select()
       .single();
 
-    if (!updateError && !refresedSub) {
-      sub = refresedSub;
+    if (!updateError && refreshedSub) {
+      sub = refreshedSub;
     }
   }
   return sub;
@@ -58,29 +72,28 @@ export async function checkUsageLimit(
   const tier = sub.plan_tier as PlanTier;
   const plan = PLANS[tier];
 
-  // Fetch current cycle usage record
+  // Fetch current cycle usage record (if none exists yet, 0 messages used so far)
+  const { data: cycle, error: cycleError } = await supabaseAdminClient
+    .from("usage_cycles")
+    .select("messages_count")
+    .eq("business_id", businessId)
+    .eq("period_start", sub.current_period_start)
+    .maybeSingle();
 
-  const { data: cycle } = await supabaseAdminClient
-  .from("usage_cycles")
-  .select('messages_count')
-  .eq("business_id",businessId)
-  .eq("period_start",sub.current_period_start)
-  .single()
-
-  if(!cycle){
-    throw new AppError("Loading usage cycle failed",500)
+  if (cycleError) {
+    console.error("[Usage] Error fetching cycle record:", cycleError);
   }
 
-  const messagesUsed=cycle?.messages_count ?? 0
-  const overLimit= isOverLimit(tier,messagesUsed)
+  const messagesUsed = cycle?.messages_count ?? 0;
+  const overLimit = isOverLimit(tier, messagesUsed);
 
   return {
-    allowed:!overLimit,
+    allowed: !overLimit,
     tier,
     messagesUsed,
-    messageLimit:plan.messages,
-    periodEnd:sub.current_period_end
-  }
+    messageLimit: plan.messages,
+    periodEnd: sub.current_period_end,
+  };
 }
 
 

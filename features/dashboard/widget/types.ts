@@ -56,6 +56,7 @@ export interface WidgetSettingsDBRow {
   updated_at: string;
 }
 
+
 export function toWidgetConfig(row: WidgetSettingsDBRow): WidgetConfig {
   return {
     botName: row.bot_name,
