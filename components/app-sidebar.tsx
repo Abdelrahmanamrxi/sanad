@@ -24,9 +24,7 @@ import {
   BotIcon,
   BookOpenIcon,
   Settings2Icon,
-  FrameIcon,
-  PieChartIcon,
-  MapIcon,
+  Building2,
 } from "lucide-react";
 
 // This is sample data.
@@ -88,14 +86,60 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  businessName?: string;
+  user?: {
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+}
+
+export function AppSidebar({ businessName, user, ...props }: AppSidebarProps) {
+  const currentUser = {
+    name: user?.name || "User",
+    email: user?.email || "",
+    avatar: user?.avatar || "",
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader className="border-b border-sidebar-border p-3">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="flex size-9 shrink-0 items-center justify-center bg-primary text-primary-foreground border border-primary/20 rounded-none shadow-xs"
+            title={businessName || "Business Workspace"}
+          >
+            <Building2 className="size-4.5" />
+          </div>
+          <div className="flex flex-col min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+            <div className="flex items-center gap-1.5 leading-none mb-0.5">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-primary">
+                Business
+              </span>
+              <span className="text-muted-foreground/30 text-[9px] font-mono">/</span>
+              <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-tight">
+                Workspace
+              </span>
+            </div>
+            <span
+              className="font-heading font-bold text-sm text-sidebar-foreground truncate tracking-tight"
+              title={businessName}
+            >
+              {businessName || "My Business"}
+            </span>
+            <span className="text-[11px] text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
+              <span className="size-1.5 bg-emerald-500 rounded-none shrink-0" />
+              Welcome back
+            </span>
+          </div>
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={currentUser} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

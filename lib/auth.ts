@@ -14,12 +14,17 @@ export async function getAuthContext() {
   }
   const { data: business, error: dbError } = await supabase
     .from("business")
-    .select("id")
+    .select("id, name, name_arabic")
     .eq("owner_id", user.id)
     .single();
 
   if (!business?.id || dbError) {
     throw new AppError("No business workspace has been found", 404);
   }
-  return { supabase, user, businessId: business.id as string };
+  return {
+    supabase,
+    user,
+    businessId: business.id as string,
+    businessName: (business.name || business.name_arabic || "My Business") as string,
+  };
 }

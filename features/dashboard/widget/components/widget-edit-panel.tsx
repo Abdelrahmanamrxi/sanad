@@ -14,6 +14,7 @@ interface WidgetEditPanelProps {
   activeTab: EditTab;
   onTabChange: (tab: EditTab) => void;
   businessId?: string;
+  domainError?: string | null;
 }
 
 export default function WidgetEditPanel({
@@ -22,6 +23,7 @@ export default function WidgetEditPanel({
   activeTab,
   onTabChange,
   businessId = "workspace-live",
+  domainError,
 }: WidgetEditPanelProps) {
   const tabs = [
     {
@@ -87,7 +89,11 @@ export default function WidgetEditPanel({
       {/* ── Scrollable Tab Content ── */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-5">
         {activeTab === "identity" && (
-          <TabIdentity config={config} onChange={onChange} />
+          <TabIdentity
+            config={config}
+            onChange={onChange}
+            domainError={domainError}
+          />
         )}
         {activeTab === "appearance" && (
           <TabAppearance config={config} onChange={onChange} />
@@ -96,7 +102,12 @@ export default function WidgetEditPanel({
           <TabMessages config={config} onChange={onChange} />
         )}
         {activeTab === "embed" && (
-          <TabEmbed businessId={businessId} />
+          <TabEmbed
+            businessId={businessId}
+            config={config}
+            onChange={onChange}
+            domainError={domainError}
+          />
         )}
       </div>
     </div>

@@ -42,10 +42,24 @@ export default function WidgetStudioView({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isCopiedCode, setIsCopiedCode] = useState(false);
   const [showMobilePreview, setShowMobilePreview] = useState(false);
-
-  const embedScript = `<script src="https://cdn.sanad.app/widget.js" data-business-id="${businessId}" defer></script>`;
+  const appOrigin =
+    typeof window !== "undefined" && window.location.origin
+      ? window.location.origin
+      : "https://sanad.app";
+  const embedScript = `<script src="${appOrigin}/widget.js" data-business-id="${businessId}" defer></script>`;
 
   const handleSave = async () => {
+    // Client-side validation: allowedDomains must NOT be empty
+    const cleanDomains = (config.allowedDomains || [])
+      .map((d) => d.trim())
+      .filter(Boolean);
+
+    if (cleanDomains.length === 0) {
+      setSaveError("At least one allowed domain is required (e.g. yourstore.com or store.salla.sa)");
+      setTimeout(() => setSaveError(null), 6000);
+      return;
+    }
+
     try {
       setIsSaving(true);
       setSaveError(null);
@@ -56,7 +70,7 @@ export default function WidgetStudioView({
       const message = err instanceof Error ? err.message : "Failed to save settings";
       console.error("Failed to save widget settings:", message);
       setSaveError(message);
-      setTimeout(() => setSaveError(null), 4000);
+      setTimeout(() => setSaveError(null), 6000);
     } finally {
       setIsSaving(false);
     }
@@ -184,16 +198,40 @@ export default function WidgetStudioView({
         </div>
       </div>
 
+      {/* Save Error Notification Banner */}
+      {saveError && (
+        <div className="flex items-center justify-between gap-3 border-b border-destructive/40 bg-destructive/15 px-4 py-2.5 text-xs text-destructive rounded-none shrink-0 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-4 shrink-0" />
+            <span className="font-medium">{saveError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveError(null)}
+            className="p-1 hover:bg-destructive/20 text-destructive cursor-pointer rounded-none"
+            aria-label="Dismiss error"
+          >
+            <X className="size-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* ── Two-Column Studio Workspace (Desktop: side-by-side, Mobile: single editor column) ── */}
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 overflow-hidden bg-background">
         {/* Left Column: Configuration Panels (Full width on mobile, 4 cols on xl, 5 cols on lg) */}
         <div className="flex flex-col lg:border-e border-border lg:col-span-5 xl:col-span-4 h-full overflow-hidden">
           <WidgetEditPanel
             config={config}
-            onChange={setConfig}
+            onChange={(newConfig) => {
+              setConfig(newConfig);
+              if (saveError && newConfig.allowedDomains && newConfig.allowedDomains.length > 0) {
+                setSaveError(null);
+              }
+            }}
             activeTab={activeTab}
             onTabChange={setActiveTab}
             businessId={businessId}
+            domainError={saveError}
           />
         </div>
 

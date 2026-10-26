@@ -16,6 +16,7 @@ export interface EmbedChatWidgetProps {
   initialOpen?: boolean;
   showBranding?: boolean;
   planTier?: string;
+  hostDomain?: string;
 }
 
 
@@ -25,6 +26,8 @@ export interface ChatMessage {
   text: string;
   time?: string;
   isStreaming?: boolean;
+  error?: boolean;
+  retryText?: string;
 }
 
 

@@ -14,6 +14,7 @@ import {
 const widgetSessionSchema = z.object({
   widgetKey: z.string().uuid({ message: "Invalid widget key format" }),
   anonId: z.string().uuid({ message: "Invalid anonymous visitor ID format" }),
+  hostDomain: z.string().optional(),
 });
 
 export const POST = handle(async (req) => {
@@ -31,7 +32,7 @@ export const POST = handle(async (req) => {
     );
   }
 
-  const { widgetKey, anonId } = parseResult.data;
+  const { widgetKey, anonId, hostDomain } = parseResult.data;
 
   // 2. Verify widget existence, status, and domain authorization
   const originOrReferer =
@@ -40,6 +41,7 @@ export const POST = handle(async (req) => {
   const { widgetConfig, businessId } = await validateWidgetAccess(
     widgetKey,
     originOrReferer,
+    hostDomain,
   );
 
   // 3. Atomically register or update the visitor

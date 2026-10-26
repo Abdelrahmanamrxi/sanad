@@ -2,7 +2,7 @@ import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  devIndicators: false,
 };
 
 export default withSentryConfig(nextConfig, {
@@ -40,5 +40,5 @@ export default withSentryConfig(nextConfig, {
       // Automatically tree-shake Sentry logger statements to reduce bundle size
       removeDebugLogging: true,
     },
-  }
+  },
 });

@@ -17,8 +17,10 @@ export default async function EmbedPage({
   params: Promise<{ widgetKey: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { widgetKey } = await params;
+  const { widgetKey: rawWidgetKey } = await params;
+  const widgetKey = (rawWidgetKey || "").trim();
   const search = await searchParams;
+  const hostParam = typeof search.host === "string" ? search.host : "";
 
   // 1. Validate widgetKey format (must be a valid UUID to avoid PostgreSQL syntax errors)
   const isValidUuid = uuidSchema.safeParse(widgetKey).success;
@@ -64,6 +66,7 @@ export default async function EmbedPage({
         initialOpen={initialOpen}
         showBranding={showBranding}
         planTier={planTier}
+        hostDomain={hostParam}
       />
     </main>
   );

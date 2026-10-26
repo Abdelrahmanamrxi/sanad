@@ -4,12 +4,15 @@ import React from "react";
 import { Globe, Bot } from "lucide-react";
 import type { WidgetConfig, WidgetLanguage } from "../../types";
 
+import AllowedDomainsInput from "./allowed-domains-input";
+
 interface TabIdentityProps {
   config: WidgetConfig;
   onChange: (config: WidgetConfig) => void;
+  domainError?: string | null;
 }
 
-export default function TabIdentity({ config, onChange }: TabIdentityProps) {
+export default function TabIdentity({ config, onChange, domainError }: TabIdentityProps) {
   const languageOptions = [
     {
       id: "auto",
@@ -125,6 +128,15 @@ export default function TabIdentity({ config, onChange }: TabIdentityProps) {
             );
           })}
         </div>
+      </div>
+
+      {/* Authorized Domains Whitelist */}
+      <div className="border-t border-border pt-4">
+        <AllowedDomainsInput
+          domains={config.allowedDomains || []}
+          onChange={(domains) => onChange({ ...config, allowedDomains: domains })}
+          error={domainError}
+        />
       </div>
     </div>
   );

@@ -150,3 +150,12 @@
   }
 }
 
+/* ── Embed Widget Full Transparency ── */
+html:has([data-sanad-embed]),
+body:has([data-sanad-embed]),
+[data-sanad-embed] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+

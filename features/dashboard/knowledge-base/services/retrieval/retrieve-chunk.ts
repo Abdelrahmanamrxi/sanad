@@ -1,5 +1,6 @@
 import createClient from "@/lib/supabase/server";
 import { generateEmbedding } from "../embedding/generate-embedding";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Interface type for Retrieved Chunks
 
@@ -34,15 +35,17 @@ export interface RetrievalParams {
   query: string;
   businessId: string;
   matchCount?: number;
-  rrfK: number;
+  rrfK?: number;
+  supabaseClient?: SupabaseClient;
 }
 export async function RetrieveChunks({
   query,
   businessId,
   matchCount = 8,
   rrfK = 60,
+  supabaseClient,
 }: RetrievalParams): Promise<RetrievedChunk[]> {
-  const supabase = await createClient();
+  const supabase = supabaseClient ?? (await createClient());
 
   const [embeddings] = await generateEmbedding([query]);
   if (!embeddings) {

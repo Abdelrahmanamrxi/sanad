@@ -3,23 +3,39 @@
 import React, { useState } from "react";
 import { Copy, Check, ExternalLink, Code2 } from "lucide-react";
 import { PLATFORM_GUIDES } from "../../constants";
+import type { WidgetConfig } from "../../types";
+import AllowedDomainsInput from "./allowed-domains-input";
 
 interface TabEmbedProps {
   businessId: string;
+  config?: WidgetConfig;
+  onChange?: (config: WidgetConfig) => void;
+  domainError?: string | null;
 }
 
-export default function TabEmbed({ businessId }: TabEmbedProps) {
+export default function TabEmbed({
+  businessId,
+  config,
+  onChange,
+  domainError,
+}: TabEmbedProps) {
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [activePlatform, setActivePlatform] = useState<"salla" | "shopify" | "wordpress">("salla");
 
+  const appOrigin =
+    typeof window !== "undefined" && window.location.origin
+      ? window.location.origin
+      : "https://sanad.app";
+  const positionAttr = config?.position ? `\n  data-position="${config.position}"` : "";
+
   const embedScript = `<script 
-  src="https://cdn.sanad.app/widget.js" 
-  data-business-id="${businessId}" 
+  src="${appOrigin}/widget.js" 
+  data-business-id="${businessId}"${positionAttr} 
   defer>
 </script>`;
 
-  const directChatUrl = `https://sanad.app/chat/${businessId}`;
+  const directChatUrl = `${appOrigin}/chat/${businessId}`;
 
   const handleCopyCode = async () => {
     await navigator.clipboard.writeText(embedScript);
@@ -56,11 +72,22 @@ export default function TabEmbed({ businessId }: TabEmbedProps) {
       <div className="flex items-center gap-2.5 border border-teal-500/30 bg-teal-500/10 p-3 rounded-none">
         <Code2 className="size-4 text-teal-600 dark:text-teal-400 shrink-0" />
         <p className="text-xs font-sans text-teal-950 dark:text-teal-200 leading-relaxed">
-          Copy this single script tag and embed it in your online store to start resolving inquiries immediately.
+          Configure authorized domains and copy this single script tag to embed in your online store.
         </p>
       </div>
 
-      {/* 1. Universal HTML Embed Script */}
+      {/* 1. Authorized Domains Whitelist */}
+      {config && onChange && (
+        <div className="border border-border bg-card p-4 rounded-none shadow-2xs">
+          <AllowedDomainsInput
+            domains={config.allowedDomains || []}
+            onChange={(domains) => onChange({ ...config, allowedDomains: domains })}
+            error={domainError}
+          />
+        </div>
+      )}
+
+      {/* 2. Universal HTML Embed Script */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -94,10 +121,17 @@ export default function TabEmbed({ businessId }: TabEmbedProps) {
           <span className="text-teal-400">&lt;script</span>{" "}
           <br />
           &nbsp;&nbsp;<span className="text-amber-400">src</span>=
-          <span className="text-emerald-400">&quot;https://cdn.sanad.app/widget.js&quot;</span>
+          <span className="text-emerald-400">&quot;{appOrigin}/widget.js&quot;</span>
           <br />
           &nbsp;&nbsp;<span className="text-amber-400">data-business-id</span>=
           <span className="text-purple-300">&quot;{businessId}&quot;</span>
+          {config?.position && (
+            <>
+              <br />
+              &nbsp;&nbsp;<span className="text-amber-400">data-position</span>=
+              <span className="text-purple-300">&quot;{config.position}&quot;</span>
+            </>
+          )}
           <br />
           &nbsp;&nbsp;<span className="text-amber-400">defer</span>
           <br />

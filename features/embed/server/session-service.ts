@@ -42,7 +42,8 @@ function normalizeDomain(raw: string): string {
  */
 export async function validateWidgetAccess(
   widgetKey: string,
-  originOrReferer: string | null
+  originOrReferer: string | null,
+  candidateHost?: string | null
 ): Promise<VerifiedWidget> {
   // Query by either primary key (widget id) or business_id
   const { data: widgetConfig, error: widgetErr } = await supabaseAdminClient
@@ -65,16 +66,22 @@ export async function validateWidgetAccess(
   const businessId = widgetConfig.business_id as string;
   const allowedDomains: string[] = widgetConfig.allowed_domains || [];
 
-  if (allowedDomains.length > 0) {
-    const rawCaller = getHostname(originOrReferer) || "";
-    const callerDomain = normalizeDomain(rawCaller);
+  // Determine calling domain from candidateHost (e.g. host parameter / document.referrer) or headers
+  const rawCaller = candidateHost || getHostname(originOrReferer) || "";
+  const callerDomain = normalizeDomain(rawCaller);
 
+  // If merchant has configured specific allowed domains, enforce the whitelist
+  if (allowedDomains.length > 0) {
     const isLocalhost =
       process.env.NODE_ENV !== "production" &&
-      (callerDomain === "localhost" || callerDomain === "127.0.0.1");
+      (callerDomain === "localhost" || callerDomain === "127.0.0.1" || !callerDomain);
+
+    const isInternalApp =
+      callerDomain === "sanad.app" || callerDomain.endsWith(".sanad.app");
 
     const isAllowed =
       isLocalhost ||
+      isInternalApp ||
       (callerDomain.length > 0 &&
         allowedDomains.some((raw) => {
           const d = normalizeDomain(raw);
@@ -83,7 +90,10 @@ export async function validateWidgetAccess(
         }));
 
     if (!isAllowed) {
-      throw new AppError("Unauthorized domain for this widget", 403);
+      throw new AppError(
+        `Domain "${callerDomain || "unknown"}" is not authorized for this widget. Please add it to Allowed Domains in Widget Settings.`,
+        403
+      );
     }
   }
 

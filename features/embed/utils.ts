@@ -31,3 +31,61 @@ export function getOrCreateAnonId(): string {
     return crypto.randomUUID();
   }
 }
+
+
+export function getFriendlyErrorMessage(err: unknown, status?: number, isRtl = false): string {
+  if (status === 429) {
+    return isRtl
+      ? "عذراً، استهلك المساعد رصيد المحادثات الشهري. يرجى التواصل مع إدارة المتجر مباشرة."
+      : "This store assistant has reached its monthly message quota. Please contact store support.";
+  }
+
+  if (status === 401) {
+    return isRtl
+      ? "انتهت صلاحية جلسة المحادثة. يرجى إعادة المحاولة."
+      : "Your chat session has expired. Please retry.";
+  }
+
+  if (status === 400) {
+    return isRtl
+      ? "تعذر إرسال الرسالة. يرجى التأكد من كتابة استفسارك والمحاولة مجدداً."
+      : "Unable to send message. Please check your message and try again.";
+  }
+
+  if (status && status >= 500) {
+    return isRtl
+      ? "نواجه صعوبة مؤقتة في معالجة الرد. يرجى المحاولة بعد قليل."
+      : "We're experiencing a temporary issue. Please try again shortly.";
+  }
+
+  if (err instanceof Error) {
+    const raw = err.message.toLowerCase();
+    if (
+      raw.includes("failed to fetch") ||
+      raw.includes("network") ||
+      raw.includes("load failed") ||
+      raw.includes("offline") ||
+      err.name === "TypeError" ||
+      err.name === "AbortError"
+    ) {
+      return isRtl
+        ? "تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مجدداً."
+        : "Unable to connect to the server. Please check your internet connection and try again.";
+    }
+
+    if (
+      err.message.includes("عذراً") ||
+      err.message.includes("انتهت صلاحية") ||
+      err.message.includes("تعذر") ||
+      err.message.includes("نواجه صعوبة") ||
+      err.message.includes("quota") ||
+      err.message.includes("session")
+    ) {
+      return err.message;
+    }
+  }
+
+  return isRtl
+    ? "عذراً، حدث خطأ غير متوقع أثناء معالجة رسالتك. يرجى المحاولة مجدداً."
+    : "Something went wrong while processing your response. Please try again.";
+}

@@ -21,6 +21,7 @@ export const DEFAULT_WIDGET_CONFIG: WidgetConfig = {
     "How can I track my existing order status?",
     "What payment methods and installment options are available?",
   ],
+  allowedDomains: [],
 };
 
 export interface ColorPreset {

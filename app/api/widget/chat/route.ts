@@ -10,6 +10,7 @@ import {
   checkUsageLimit,
   recordMessageUsage,
 } from "@/features/billing/services/usage";
+import { PLANS, type PlanTier } from "@/features/billing/plans";
 import {
   RetrieveChunks,
   formatChunks,
@@ -95,13 +96,22 @@ export const POST = handle(async (req) => {
     : widgetSettings?.bot_name?.trim() || "Sanad AI";
 
   // 4. Contextualize RAG search using recent user conversation history
-  const lastUserQuestion = messages
+  // Separate prior conversation history from the current incoming message
+  const priorMessages =
+    messages.length > 0 &&
+    messages[messages.length - 1].content === message &&
+    messages[messages.length - 1].role === "user"
+      ? messages.slice(0, -1)
+      : messages;
+
+  const lastPriorUserQuestion = priorMessages
     .filter((m) => m.role === "user")
     .pop()?.content;
 
-  const retrievalQuery = lastUserQuestion
-    ? `${lastUserQuestion} - ${message}`
-    : message;
+  const retrievalQuery =
+    lastPriorUserQuestion && lastPriorUserQuestion !== message
+      ? `${lastPriorUserQuestion} - ${message}`
+      : message;
 
   // 5. Retrieve verified knowledge base chunks with graceful degradation
   let context = "";
@@ -112,7 +122,9 @@ export const POST = handle(async (req) => {
     const retrievedChunks = await RetrieveChunks({
       query: retrievalQuery,
       businessId,
+      matchCount: 4, // Optimized from default 8: cuts input tokens in half and speeds up prompt prefill
       rrfK: 60,
+      supabaseClient: supabaseAdminClient,
     });
 
     context = formatChunks(retrievedChunks);
@@ -130,7 +142,7 @@ export const POST = handle(async (req) => {
     model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
     system: `You are ${assistantName}, a professional customer support AI specialist for an online storefront.
 Base your responses strictly and directly on the verified store context below.
-Provide direct, concise, and helpful answers. Format your output cleanly with short paragraphs and bullet points where helpful.
+Provide direct, clear, and helpful answers. Avoid unnecessary filler or repetitive pleasantries, but always complete your thoughts, lists, and sentences fully.
 Never start your response with empty lines.
 Do not use emojis anywhere in your response. Maintain clean typography and professional language.
 If the requested information is not present in the context, politely clarify that it is not documented in the store's verified policies.
@@ -138,7 +150,7 @@ If the requested information is not present in the context, politely clarify tha
 === STORE VERIFIED CONTEXT ===
 ${context}`,
     messages: [
-      ...messages.slice(-5), // Maintain last 5 conversation context turns
+      ...priorMessages.slice(-4), // Maintain last 4 conversation context turns for token efficiency
       { role: "user", content: message },
     ],
     temperature: 0.2,

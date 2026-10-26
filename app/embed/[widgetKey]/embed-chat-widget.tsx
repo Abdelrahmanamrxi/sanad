@@ -11,17 +11,16 @@ import {
   AlertCircle,
   Loader2,
   RefreshCw,
-  Search,
-  ShieldCheck,
   CheckCircle2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { type SessionResponseData, type EmbedChatWidgetProps, type ChatMessage} from "@/features/embed/types";
-import type { WidgetConfig } from "@/features/dashboard/widget/types";
-import { isDarkColor, getContrastTextColor,getOrCreateAnonId } from "@/features/embed/utils";
+import { type SessionResponseData, type EmbedChatWidgetProps, type ChatMessage } from "@/features/embed/types";
+import { isDarkColor, getContrastTextColor, getOrCreateAnonId } from "@/features/embed/utils";
 import { ThinkingIndicator } from "@/features/embed/components/thinking-indicator";
+import { getFriendlyErrorMessage } from "@/features/embed/utils";
+
 
 
 export function EmbedChatWidget({
@@ -29,6 +28,7 @@ export function EmbedChatWidget({
   config,
   initialOpen = false,
   showBranding = true,
+  hostDomain,
 }: EmbedChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -51,9 +51,9 @@ export function EmbedChatWidget({
   const secondaryColor = config.secondaryColor || "#D3E6E2";
   const backgroundColor = config.backgroundColor || "#FFFFFF";
 
-  // Border & Corner Radius from user configuration
-  const cornerRadius = config.cornerRadius ?? 0;
-  const borderRadius = config.borderRadius ?? 1;
+  // Dynamic corner curvature and stroke thickness configured by merchant in Database
+  const cornerRadius = typeof config.cornerRadius === "number" ? config.cornerRadius : 0;
+  const borderRadius = typeof config.borderRadius === "number" ? config.borderRadius : 1;
 
   const primaryText = getContrastTextColor(primaryColor);
   const secondaryText = getContrastTextColor(secondaryColor);
@@ -85,7 +85,9 @@ export function EmbedChatWidget({
         text: config.welcomeMessage || "Hello! How can I assist you today?",
         time: isRtl ? "الآن" : "Just now",
       },
-      ...chatHistory,
+      ...chatHistory.filter(
+        (m) => m.role === "user" || Boolean(m.text && m.text.trim().length > 0) || m.isStreaming || m.error
+      ),
     ],
     [config.welcomeMessage, isRtl, chatHistory]
   );
@@ -102,10 +104,10 @@ export function EmbedChatWidget({
   const notifyParent = useCallback(
     (open: boolean) => {
       try {
-        if (window.parent && window.parent !== window) {
+        if (typeof window !== "undefined" && window.parent && window.parent !== window) {
           window.parent.postMessage(
             {
-              type: "sanad:toggle",
+              type: "sanad:resize",
               isOpen: open,
               position: config.position || "bottom-right",
               launcherStyle: config.launcherStyle || "badge",
@@ -129,21 +131,25 @@ export function EmbedChatWidget({
   const toggleOpen = useCallback(
     (action?: boolean | ((prev: boolean) => boolean)) => {
       setIsOpen((prev) => {
-        const next =
-          typeof action === "function"
-            ? action(prev)
-            : action !== undefined
-            ? action
-            : !prev;
-        notifyParent(next);
-        if (next) {
-          setTimeout(() => inputRef.current?.focus(), 150);
-        }
-        return next;
+        return typeof action === "function"
+          ? action(prev)
+          : action !== undefined
+          ? action
+          : !prev;
       });
     },
-    [notifyParent]
+    []
   );
+
+  // Automatically focus input when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   // Initialize session handshake (locked so multiple calls return the same single in-flight promise)
   const initSession = useCallback(async () => {
@@ -155,6 +161,14 @@ export function EmbedChatWidget({
     setSessionError(null);
 
     const anonId = getOrCreateAnonId();
+    let effectiveHost = hostDomain || "";
+    if (!effectiveHost && typeof document !== "undefined" && document.referrer) {
+      try {
+        effectiveHost = new URL(document.referrer).origin;
+      } catch {
+        effectiveHost = "";
+      }
+    }
 
     const promise = (async () => {
       try {
@@ -164,12 +178,16 @@ export function EmbedChatWidget({
           body: JSON.stringify({
             widgetKey,
             anonId,
+            hostDomain: effectiveHost || undefined,
           }),
         });
 
         if (!res.ok) {
-          const errJson = await res.json().catch(() => ({}));
-          throw new Error(errJson.error || errJson.message || "Failed to initialize session");
+          throw new Error(
+            isRtl
+              ? "تعذر الاتصال بالمساعد حالياً. يرجى إعادة المحاولة."
+              : "Unable to connect to assistant. Please try again."
+          );
         }
 
         const data = await res.json();
@@ -198,7 +216,9 @@ export function EmbedChatWidget({
         return data;
       } catch (err) {
         setSessionError(
-          err instanceof Error ? err.message : "Unable to connect to assistant"
+          isRtl
+            ? "تعذر الاتصال بالمساعد حالياً. يرجى إعادة المحاولة."
+            : "Unable to connect to assistant. Please try again."
         );
         throw err;
       } finally {
@@ -209,7 +229,7 @@ export function EmbedChatWidget({
 
     sessionPromiseRef.current = promise;
     return promise;
-  }, [widgetKey]);
+  }, [widgetKey, hostDomain, isRtl]);
 
   // 1. Initialize session ONCE on component mount
   useEffect(() => {
@@ -227,9 +247,17 @@ export function EmbedChatWidget({
   // 3. Listen for parent cross-window messages
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === "sanad:open") toggleOpen(true);
-      if (e.data?.type === "sanad:close") toggleOpen(false);
-      if (e.data?.type === "sanad:toggle") toggleOpen((prev) => !prev);
+      // Ignore messages dispatched by this iframe window itself
+      if (e.source === window) return;
+
+      // Handle only explicit commands from host
+      if (e.data?.type === "sanad:cmd_open" || e.data?.type === "sanad:open") {
+        toggleOpen(true);
+      } else if (e.data?.type === "sanad:cmd_close" || e.data?.type === "sanad:close") {
+        toggleOpen(false);
+      } else if (e.data?.type === "sanad:cmd_toggle") {
+        toggleOpen((prev) => !prev);
+      }
     };
 
     window.addEventListener("message", handleMessage);
@@ -238,7 +266,7 @@ export function EmbedChatWidget({
 
   // Handle message submission & streaming (wrapped in useCallback with pure sequential IDs to satisfy React Compiler)
   const handleSendMessage = useCallback(
-    async (textToSend?: string) => {
+    async (textToSend?: string, retryAssistantMsgId?: string) => {
       const text = (textToSend || inputText).trim();
       if (!text || isStreaming) return;
 
@@ -248,36 +276,67 @@ export function EmbedChatWidget({
           const sessionData = await initSession();
           activeToken = sessionData?.sessionToken || sessionTokenRef.current;
         } catch {
+          // If session initialization failed, display a friendly error bubble
+          const errorMsg = isRtl
+            ? "تعذر الاتصال بالمساعد. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة."
+            : "Could not connect to assistant. Please check your connection and retry.";
+
+          messageCounterRef.current += 1;
+          const userMsgId = `user-${messageCounterRef.current}`;
+          messageCounterRef.current += 1;
+          const errBotId = `bot-${messageCounterRef.current}`;
+
+          setChatHistory((prev) => [
+            ...prev,
+            { id: userMsgId, role: "user", text, time: isRtl ? "الآن" : "Just now" },
+            { id: errBotId, role: "assistant", text: errorMsg, time: isRtl ? "الآن" : "Just now", error: true, retryText: text },
+          ]);
+          setInputText("");
           return;
         }
       }
       if (!activeToken) return;
 
-      messageCounterRef.current += 1;
-      const userMsgId = `user-${messageCounterRef.current}`;
-      const userMsg: ChatMessage = {
-        id: userMsgId,
-        role: "user",
-        text,
-        time: isRtl ? "الآن" : "Just now",
-      };
+      let assistantMsgId: string;
+      let updatedHistory = chatHistory;
 
-      const updatedHistory = [...chatHistory, userMsg];
-      setChatHistory(updatedHistory);
-      setInputText("");
+      if (retryAssistantMsgId) {
+        assistantMsgId = retryAssistantMsgId;
+        setChatHistory((prev) =>
+          prev.map((m) =>
+            m.id === retryAssistantMsgId
+              ? { ...m, text: "", error: false, isStreaming: true, retryText: text }
+              : m
+          )
+        );
+      } else {
+        messageCounterRef.current += 1;
+        const userMsgId = `user-${messageCounterRef.current}`;
+        const userMsg: ChatMessage = {
+          id: userMsgId,
+          role: "user",
+          text,
+          time: isRtl ? "الآن" : "Just now",
+        };
+
+        updatedHistory = [...chatHistory, userMsg];
+
+        messageCounterRef.current += 1;
+        assistantMsgId = `bot-${messageCounterRef.current}`;
+        const initialAssistantMsg: ChatMessage = {
+          id: assistantMsgId,
+          role: "assistant",
+          text: "",
+          time: isRtl ? "الآن" : "Just now",
+          isStreaming: true,
+          retryText: text,
+        };
+
+        setChatHistory([...updatedHistory, initialAssistantMsg]);
+        setInputText("");
+      }
+
       setIsStreaming(true);
-
-      messageCounterRef.current += 1;
-      const assistantMsgId = `bot-${messageCounterRef.current}`;
-      const initialAssistantMsg: ChatMessage = {
-        id: assistantMsgId,
-        role: "assistant",
-        text: "",
-        time: isRtl ? "الآن" : "Just now",
-        isStreaming: true,
-      };
-
-      setChatHistory([...updatedHistory, initialAssistantMsg]);
 
       try {
         const recentContext = updatedHistory.slice(-5).map((m) => ({
@@ -298,37 +357,21 @@ export function EmbedChatWidget({
         });
 
         if (!res.ok) {
-          let errorMsg = "";
-          try {
-            const errData = await res.json();
-            errorMsg = errData.message || errData.error;
-          } catch {
-            // not json
+          if (res.status === 401) {
+            // Invalidate stale session token so next attempt re-authenticates
+            sessionTokenRef.current = null;
+            setSessionToken(null);
           }
-
-          if (!errorMsg) {
-            if (res.status === 429) {
-              errorMsg = isRtl
-                ? "عذراً، لقد استهلك المتجر رصيد المحادثات الشهري. يرجى التواصل مع إدارة المتجر."
-                : "This store assistant has reached its monthly message quota.";
-            } else if (res.status === 401) {
-              // Invalidate stale session token so next attempt re-authenticates
-              sessionTokenRef.current = null;
-              setSessionToken(null);
-              errorMsg = isRtl
-                ? "انتهت صلاحية الجلسة، يرجى إعادة المحاولة."
-                : "Session expired. Please retry.";
-            } else {
-              errorMsg = isRtl
-                ? "نعتذر، تعذر الرد حالياً. يرجى المحاولة لاحقاً."
-                : "Unable to process response. Please try again.";
-            }
-          }
+          const errorMsg = getFriendlyErrorMessage(null, res.status, isRtl);
           throw new Error(errorMsg);
         }
 
         if (!res.body) {
-          throw new Error("No response stream");
+          throw new Error(
+            isRtl
+              ? "تعذر استقبال رد المساعد. يرجى إعادة المحاولة."
+              : "Unable to receive assistant response. Please retry."
+          );
         }
 
         const reader = res.body.getReader();
@@ -346,7 +389,7 @@ export function EmbedChatWidget({
           setChatHistory((prev) =>
             prev.map((m) =>
               m.id === assistantMsgId
-                ? { ...m, text: currentText, isStreaming: true }
+                ? { ...m, text: currentText, isStreaming: true, error: false }
                 : m
             )
           );
@@ -355,20 +398,23 @@ export function EmbedChatWidget({
         const finalText = streamingContentRef.current.trim();
         streamingContentRef.current = "";
 
+        if (!finalText) {
+          throw new Error(
+            isRtl
+              ? "تعذر استقبال رد المساعد. يرجى إعادة المحاولة."
+              : "Unable to receive assistant response. Please retry."
+          );
+        }
+
         setChatHistory((prev) =>
           prev.map((m) =>
             m.id === assistantMsgId
-              ? { ...m, text: finalText, isStreaming: false }
+              ? { ...m, text: finalText, isStreaming: false, error: false }
               : m
           )
         );
       } catch (err) {
-        const errorMsg =
-          err instanceof Error
-            ? err.message
-            : isRtl
-            ? "تعذر إرسال الرسالة، يرجى إعادة المحاولة."
-            : "Failed to send message. Please retry.";
+        const errorMsg = getFriendlyErrorMessage(err, undefined, isRtl);
 
         setChatHistory((prev) =>
           prev.map((m) =>
@@ -377,6 +423,8 @@ export function EmbedChatWidget({
                   ...m,
                   text: errorMsg,
                   isStreaming: false,
+                  error: true,
+                  retryText: text,
                 }
               : m
           )
@@ -425,9 +473,7 @@ export function EmbedChatWidget({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.16, ease: "easeOut" }}
-            className={`fixed inset-0 sm:inset-auto z-50 flex flex-col shadow-2xl border sm:bottom-4 ${
-              config.position === "bottom-left" ? "sm:left-4" : "sm:right-4"
-            } sm:w-[400px] sm:h-[620px] overflow-hidden`}
+            className="fixed inset-0 z-50 flex flex-col shadow-2xl border overflow-hidden"
             style={{
               backgroundColor,
               color: bgText,
@@ -589,9 +635,41 @@ export function EmbedChatWidget({
                     </p>
                   </div>
                 </div>
+              ) : sessionError && !sessionToken && messages.length <= 1 ? (
+                /* Fallback Error View when widget session cannot connect */
+                <div className="flex flex-col items-center justify-center py-10 px-4 text-center space-y-3.5 my-auto">
+                  <div
+                    className="size-10 flex items-center justify-center border text-destructive bg-destructive/10 border-destructive/30"
+                    style={{ borderRadius: `${Math.min(cornerRadius, 6)}px` }}
+                  >
+                    <AlertCircle className="size-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-heading font-semibold text-xs" style={{ color: bgText }}>
+                      {isRtl ? "المساعد غير متوفر حالياً" : "Assistant Currently Unavailable"}
+                    </h3>
+                    <p className="text-[11px] leading-relaxed max-w-xs" style={{ color: bgMutedText }}>
+                      {sessionError}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={initSession}
+                    style={{
+                      backgroundColor: primaryColor,
+                      color: primaryText,
+                      borderRadius: `${Math.min(cornerRadius, 4)}px`,
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium cursor-pointer shadow-xs hover:opacity-90 transition-opacity"
+                  >
+                    <RefreshCw className="size-3" />
+                    <span>{isRtl ? "إعادة المحاولة" : "Try Again"}</span>
+                  </button>
+                </div>
               ) : (
                 messages.map((msg) => {
                   const isBot = msg.role === "assistant";
+                  const isError = Boolean(msg.error);
                   const hasContent = Boolean(msg.text && msg.text.trim().length > 0);
 
                   return (
@@ -603,15 +681,25 @@ export function EmbedChatWidget({
                     >
                       {isBot && (
                         <div
-                          className="size-7 shrink-0 flex items-center justify-center text-[10px] border shadow-xs mt-0.5"
+                          className={`size-7 shrink-0 flex items-center justify-center text-[10px] border shadow-xs mt-0.5 ${
+                            isError
+                              ? "bg-destructive/15 text-destructive border-destructive/40"
+                              : ""
+                          }`}
                           style={{
-                            backgroundColor: primaryColor,
-                            color: primaryText,
-                            borderColor: `${primaryColor}40`,
+                            ...(!isError && {
+                              backgroundColor: primaryColor,
+                              color: primaryText,
+                              borderColor: `${primaryColor}40`,
+                            }),
                             borderRadius: `${Math.min(cornerRadius, 6)}px`,
                           }}
                         >
-                          <Bot className="size-3.5" />
+                          {isError ? (
+                            <AlertCircle className="size-3.5" />
+                          ) : (
+                            <Bot className="size-3.5" />
+                          )}
                         </div>
                       )}
 
@@ -630,6 +718,49 @@ export function EmbedChatWidget({
                             isDarkBg={isDarkBg}
                             cornerRadius={cornerRadius}
                           />
+                        ) : isError ? (
+                          /* Dedicated Non-Tech Red Error Bubble */
+                          <div
+                            className="p-3 text-xs leading-relaxed border shadow-xs bg-destructive/10 text-destructive border-destructive/40"
+                            style={{
+                              borderRadius: `${Math.min(cornerRadius, 12)}px`,
+                              borderLeftWidth: isRtl ? "1px" : "3px",
+                              borderRightWidth: isRtl ? "3px" : "1px",
+                              borderLeftColor: isRtl
+                                ? "rgba(214, 69, 69, 0.3)"
+                                : "var(--color-destructive, #D64545)",
+                              borderRightColor: isRtl
+                                ? "var(--color-destructive, #D64545)"
+                                : "rgba(214, 69, 69, 0.3)",
+                            }}
+                            dir="auto"
+                          >
+                            <div className="space-y-2">
+                              <p className="font-medium text-xs leading-relaxed select-text">
+                                {msg.text.trim()}
+                              </p>
+                              {msg.retryText && (
+                                <button
+                                  type="button"
+                                  disabled={isStreaming}
+                                  onClick={() => handleSendMessage(msg.retryText, msg.id)}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium bg-destructive text-white hover:bg-destructive/90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                                  style={{
+                                    borderRadius: `${Math.min(cornerRadius, 4)}px`,
+                                  }}
+                                >
+                                  <RefreshCw className="size-3 shrink-0" />
+                                  <span>{isRtl ? "إعادة المحاولة" : "Try again"}</span>
+                                </button>
+                              )}
+                            </div>
+
+                            {msg.time && (
+                              <span className="block mt-1.5 font-mono text-[8px] select-none opacity-70">
+                                {msg.time}
+                              </span>
+                            )}
+                          </div>
                         ) : (
                           /* Formatted Message Bubble */
                           <div
@@ -930,6 +1061,8 @@ export function EmbedChatWidget({
                   borderTopColor: inputBorderBelow,
                   borderTopWidth: `${Math.max(1, borderRadius)}px`,
                   color: bgMutedText,
+                  borderBottomLeftRadius: `${cornerRadius}px`,
+                  borderBottomRightRadius: `${cornerRadius}px`,
                 }}
               >
                 <a
@@ -965,6 +1098,8 @@ export function EmbedChatWidget({
                   borderTopColor: inputBorderBelow,
                   borderTopWidth: `${Math.max(1, borderRadius)}px`,
                   color: bgMutedText,
+                  borderBottomLeftRadius: `${cornerRadius}px`,
+                  borderBottomRightRadius: `${cornerRadius}px`,
                 }}
               >
                 <span className="flex items-center gap-1.5">
@@ -995,7 +1130,7 @@ export function EmbedChatWidget({
               style={{
                 backgroundColor: primaryColor,
                 color: primaryText,
-                borderColor: `${primaryText}30`,
+                borderColor: `${primaryText}40`,
                 borderRadius: `${cornerRadius}px`,
                 borderWidth: `${Math.max(1, borderRadius)}px`,
               }}
@@ -1004,7 +1139,7 @@ export function EmbedChatWidget({
                 <Bot className="size-4 shrink-0" />
                 <span
                   className="absolute -top-1 -right-1 size-1.5 bg-emerald-400 animate-pulse"
-                  style={{ borderRadius: `${Math.min(cornerRadius, 2)}px` }}
+                  style={{ borderRadius: `${Math.min(cornerRadius, 4)}px` }}
                 />
               </div>
               <span className="tracking-wide">
@@ -1020,7 +1155,7 @@ export function EmbedChatWidget({
               style={{
                 backgroundColor: primaryColor,
                 color: primaryText,
-                borderColor: `${primaryText}30`,
+                borderColor: `${primaryText}40`,
                 borderRadius: `${cornerRadius}px`,
                 borderWidth: `${Math.max(1, borderRadius)}px`,
               }}
@@ -1032,7 +1167,7 @@ export function EmbedChatWidget({
                 <MessageSquare className="size-5 shrink-0" />
                 <span
                   className="absolute -top-1 -right-1 size-2 bg-emerald-400 ring-2 ring-black/30 animate-pulse"
-                  style={{ borderRadius: `${Math.min(cornerRadius, 2)}px` }}
+                  style={{ borderRadius: `${Math.min(cornerRadius, 4)}px` }}
                 />
               </div>
             </button>
