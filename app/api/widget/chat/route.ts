@@ -6,6 +6,7 @@ import AppError from "@/http/error";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { sovereign } from "@/lib/ai/providers/openai";
 import { verifyWidgetSession } from "@/features/embed/server/token";
+import { getConversationTitleAndSummary } from "@/features/embed/server/conversation-summary";
 import {
   checkUsageLimit,
   recordMessageUsage,
@@ -202,6 +203,14 @@ ${context}`,
           tokensIn: usage?.inputTokens ?? 0,
           tokensOut: usage?.outputTokens ?? 0,
         });
+
+        if (priorMessages.length === 0) {
+          await getConversationTitleAndSummary({
+            userMessage: message,
+            conversationId,
+            model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
+          });
+        }
       } catch (err) {
         console.error(
           "[Chat Route] Error during message persistence or usage recording:",

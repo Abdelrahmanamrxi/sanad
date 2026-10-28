@@ -67,10 +67,15 @@
   iframe.id = "sanad-chat-frame";
   iframe.title = "Sanad AI Assistant";
 
-  var embedUrl = sanadHost + "/embed/" + encodeURIComponent(widgetKey);
+  var pagePath = window.location.pathname || "/";
+  var embedUrl = sanadHost + "/embed/" + encodeURIComponent(widgetKey); 
+
+
   if (parentOrigin) {
     embedUrl += "?host=" + encodeURIComponent(parentOrigin);
   }
+  embedUrl += (embedUrl.indexOf("?") === -1 ? "?" : "&") + "page=" + encodeURIComponent(pagePath);
+  
   iframe.src = embedUrl;
   iframe.allow = "clipboard-write";
   iframe.setAttribute("allowtransparency", "true");

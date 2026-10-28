@@ -17,6 +17,7 @@ export interface EmbedChatWidgetProps {
   showBranding?: boolean;
   planTier?: string;
   hostDomain?: string;
+  originPage:string;
 }
 
 

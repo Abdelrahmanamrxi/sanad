@@ -89,3 +89,22 @@ export function getFriendlyErrorMessage(err: unknown, status?: number, isRtl = f
     ? "عذراً، حدث خطأ غير متوقع أثناء معالجة رسالتك. يرجى المحاولة مجدداً."
     : "Something went wrong while processing your response. Please try again.";
 }
+
+export function extractPath(urlStr?: string): string {
+  if (!urlStr) return "/";
+
+  try {
+    // If it doesn't start with http/https, prefix it so new URL() doesn't throw
+    const normalized = urlStr.startsWith("http") ? urlStr : `https://${urlStr}`;
+    const parsed = new URL(normalized);
+    
+    // pathname gives you "/summary", "/checkout", etc.
+    return parsed.pathname || "/";
+  } catch {
+    return "/";
+  }
+}
+
+// Example:
+// extractPath("https://store.com/summary") => "/summary"
+// extractPath("store.com/products/item-1") => "/products/item-1"

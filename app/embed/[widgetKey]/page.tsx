@@ -21,6 +21,7 @@ export default async function EmbedPage({
   const widgetKey = (rawWidgetKey || "").trim();
   const search = await searchParams;
   const hostParam = typeof search.host === "string" ? search.host : "";
+  const originPage= (search.page as string) || "/"
 
   // 1. Validate widgetKey format (must be a valid UUID to avoid PostgreSQL syntax errors)
   const isValidUuid = uuidSchema.safeParse(widgetKey).success;
@@ -67,6 +68,7 @@ export default async function EmbedPage({
         showBranding={showBranding}
         planTier={planTier}
         hostDomain={hostParam}
+        originPage={originPage}
       />
     </main>
   );

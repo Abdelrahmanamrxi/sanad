@@ -10,11 +10,13 @@ import {
   fetchConversationHistory,
   resolveWidgetBranding,
 } from "@/features/embed/server/session-service";
+import { extractPath } from "@/features/embed/utils";
 
 const widgetSessionSchema = z.object({
   widgetKey: z.string().uuid({ message: "Invalid widget key format" }),
   anonId: z.string().uuid({ message: "Invalid anonymous visitor ID format" }),
   hostDomain: z.string().optional(),
+  originPage:z.string().optional()
 });
 
 export const POST = handle(async (req) => {
@@ -32,7 +34,7 @@ export const POST = handle(async (req) => {
     );
   }
 
-  const { widgetKey, anonId, hostDomain } = parseResult.data;
+  const { widgetKey, anonId, hostDomain, originPage } = parseResult.data;
 
   // 2. Verify widget existence, status, and domain authorization
   const originOrReferer =
@@ -51,6 +53,7 @@ export const POST = handle(async (req) => {
   const conversationId = await getOrCreateWidgetConversation(
     businessId,
     visitorId,
+    originPage || "/"
   );
 
   // 5. Fetch previous message history and subscription branding in parallel

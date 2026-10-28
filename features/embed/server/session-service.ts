@@ -151,7 +151,10 @@ export async function upsertVisitor(
  */
 export async function getOrCreateWidgetConversation(
   businessId: string,
-  visitorId: string
+  visitorId: string,
+  originPage?:string,
+  title?:string,
+  summary?:string
 ): Promise<string> {
   const lockKey = `${businessId}:${visitorId}`;
 
@@ -184,6 +187,9 @@ export async function getOrCreateWidgetConversation(
           business_id: businessId,
           visitor_id: visitorId,
           channel: "widget",
+          origin_page:originPage,
+          title:title,
+          summary:summary
         })
         .select("id")
         .single();

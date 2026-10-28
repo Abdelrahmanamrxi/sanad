@@ -29,6 +29,7 @@ export function EmbedChatWidget({
   initialOpen = false,
   showBranding = true,
   hostDomain,
+  originPage
 }: EmbedChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -179,6 +180,7 @@ export function EmbedChatWidget({
             widgetKey,
             anonId,
             hostDomain: effectiveHost || undefined,
+            originPage: originPage || '/'
           }),
         });
 
