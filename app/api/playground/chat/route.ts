@@ -29,7 +29,7 @@ const chatRequestSchema = z.object({
     .default([]),
   systemPresets: z
     .object({
-      model: z.string().default("llama-3.3-70b-versatile"),
+      model: z.string().default("SovereignEG/Qwen3.8-27B-FP8"),
       systemPrompt: z
         .string()
         .default("You are Sanad AI, a verified customer support specialist."),

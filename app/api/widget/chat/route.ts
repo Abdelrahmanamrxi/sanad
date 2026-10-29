@@ -128,9 +128,9 @@ export const POST = handle(async (req) => {
       supabaseClient: supabaseAdminClient,
     });
 
-    context = formatChunks(retrievedChunks);
     chunkIds = retrievedChunks.map((c) => c.id).filter(Boolean);
     topScore = retrievedChunks[0]?.similarity ?? null;
+    context = retrievedChunks.length > 0 ? formatChunks(retrievedChunks) : "";
   } catch (retrievalErr) {
     console.error("[Chat Route] Knowledge retrieval error:", retrievalErr);
     context = "";
@@ -143,10 +143,11 @@ export const POST = handle(async (req) => {
     model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
     system: `You are ${assistantName}, a professional customer support AI specialist for an online storefront.
 Base your responses strictly and directly on the verified store context below.
-Provide direct, clear, and helpful answers. Avoid unnecessary filler or repetitive pleasantries, but always complete your thoughts, lists, and sentences fully.
+Provide direct, clear, and helpful answers. Avoid unnecessary filler.
 Never start your response with empty lines.
 Do not use emojis anywhere in your response. Maintain clean typography and professional language.
-If the requested information is not present in the context, politely clarify that it is not documented in the store's verified policies.
+If the requested information is not present in the context, politely clarify that it is not documented.
+If the customer asks for a quote, human agent, or unlisted pricing, or if the context does not answer their question, append [[SHOW_LEAD_FORM]] at the very end of your response.
 
 === STORE VERIFIED CONTEXT ===
 ${context}`,
@@ -191,10 +192,14 @@ ${context}`,
           );
         }
 
-        // Update conversation last_message_at timestamp
+        // Flag needs_attention if the AI triggered the lead/human form or if no docs were retrieved
+        const needsAttention = text.includes("[[SHOW_LEAD_FORM]]") || chunkIds.length === 0;
         await supabaseAdminClient
           .from("conversations")
-          .update({ last_message_at: new Date().toISOString() })
+          .update({
+            last_message_at: new Date().toISOString(),
+            ...(needsAttention ? { status: "needs_attention" } : {}),
+          })
           .eq("id", conversationId);
 
         // Record usage counters atomically
@@ -207,6 +212,7 @@ ${context}`,
         if (priorMessages.length === 0) {
           await getConversationTitleAndSummary({
             userMessage: message,
+            assistantResponse: text,
             conversationId,
             model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
           });

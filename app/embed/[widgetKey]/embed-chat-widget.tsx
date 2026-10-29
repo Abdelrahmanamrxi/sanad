@@ -1,27 +1,32 @@
- "use client";
+"use client";
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import {
-  Bot,
-  Send,
-  X,
-  Minus,
-  Sparkles,
-  MessageSquare,
-  AlertCircle,
-  Loader2,
-  RefreshCw,
-  CheckCircle2,
-} from "lucide-react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { type SessionResponseData, type EmbedChatWidgetProps, type ChatMessage } from "@/features/embed/types";
-import { isDarkColor, getContrastTextColor, getOrCreateAnonId } from "@/features/embed/utils";
-import { ThinkingIndicator } from "@/features/embed/components/thinking-indicator";
-import { getFriendlyErrorMessage } from "@/features/embed/utils";
+import {
+  type SessionResponseData,
+  type EmbedChatWidgetProps,
+  type ChatMessage,
+} from "@/features/embed/types";
+import {
+  isDarkColor,
+  getContrastTextColor,
+  getOrCreateAnonId,
+  getFriendlyErrorMessage,
+} from "@/features/embed/utils";
 
-
+import { WidgetHeader } from "@/features/embed/components/widget-header";
+import { WidgetMessageItem } from "@/features/embed/components/widget-message-item";
+import { WidgetStarterQuestions } from "@/features/embed/components/widget-starter-questions";
+import { WidgetInputBar } from "@/features/embed/components/widget-input-bar";
+import { WidgetFooter } from "@/features/embed/components/widget-footer";
+import { WidgetLauncher } from "@/features/embed/components/widget-launcher";
 
 export function EmbedChatWidget({
   widgetKey,
@@ -29,7 +34,7 @@ export function EmbedChatWidget({
   initialOpen = false,
   showBranding = true,
   hostDomain,
-  originPage
+  originPage,
 }: EmbedChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -53,8 +58,10 @@ export function EmbedChatWidget({
   const backgroundColor = config.backgroundColor || "#FFFFFF";
 
   // Dynamic corner curvature and stroke thickness configured by merchant in Database
-  const cornerRadius = typeof config.cornerRadius === "number" ? config.cornerRadius : 0;
-  const borderRadius = typeof config.borderRadius === "number" ? config.borderRadius : 1;
+  const cornerRadius =
+    typeof config.cornerRadius === "number" ? config.cornerRadius : 0;
+  const borderRadius =
+    typeof config.borderRadius === "number" ? config.borderRadius : 1;
 
   const primaryText = getContrastTextColor(primaryColor);
   const secondaryText = getContrastTextColor(secondaryColor);
@@ -64,7 +71,7 @@ export function EmbedChatWidget({
     ? "rgba(243, 247, 246, 0.65)"
     : "rgba(16, 32, 31, 0.65)";
 
-  // Surface and Input Colors (guarantees high contrast text input)
+  // Surface and Input Colors
   const surfaceCardBg = isDarkBg ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF";
   const inputBg = isDarkBg ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF";
   const inputTextColor = isDarkBg ? "#F3F7F6" : "#10201F";
@@ -77,7 +84,7 @@ export function EmbedChatWidget({
       ? `${primaryColor}60`
       : `${primaryColor}35`;
 
-  // Full message feed combining initial welcome message with conversation history (memoized to prevent cascading effect triggers)
+  // Full message feed combining initial welcome message with conversation history
   const messages: ChatMessage[] = useMemo(
     () => [
       {
@@ -87,10 +94,14 @@ export function EmbedChatWidget({
         time: isRtl ? "الآن" : "Just now",
       },
       ...chatHistory.filter(
-        (m) => m.role === "user" || Boolean(m.text && m.text.trim().length > 0) || m.isStreaming || m.error
+        (m) =>
+          m.role === "user" ||
+          Boolean(m.text && m.text.trim().length > 0) ||
+          m.isStreaming ||
+          m.error,
       ),
     ],
-    [config.welcomeMessage, isRtl, chatHistory]
+    [config.welcomeMessage, isRtl, chatHistory],
   );
 
   const scrollToBottom = useCallback(() => {
@@ -105,7 +116,11 @@ export function EmbedChatWidget({
   const notifyParent = useCallback(
     (open: boolean) => {
       try {
-        if (typeof window !== "undefined" && window.parent && window.parent !== window) {
+        if (
+          typeof window !== "undefined" &&
+          window.parent &&
+          window.parent !== window
+        ) {
           window.parent.postMessage(
             {
               type: "sanad:resize",
@@ -113,18 +128,20 @@ export function EmbedChatWidget({
               position: config.position || "bottom-right",
               launcherStyle: config.launcherStyle || "badge",
             },
-            "*"
+            "*",
           );
         }
       } catch {
         // Suppress cross-origin messaging error
       }
     },
-    [config.position, config.launcherStyle]
+    [config.position, config.launcherStyle],
   );
 
-  // In-flight promise lock and initialization guard to prevent duplicate concurrent session handshakes
-  const sessionPromiseRef = useRef<Promise<SessionResponseData | null> | null>(null);
+  // In-flight promise lock and initialization guard
+  const sessionPromiseRef = useRef<Promise<SessionResponseData | null> | null>(
+    null,
+  );
   const hasInitializedRef = useRef(false);
   const messageCounterRef = useRef(0);
   const streamingContentRef = useRef("");
@@ -135,24 +152,25 @@ export function EmbedChatWidget({
         return typeof action === "function"
           ? action(prev)
           : action !== undefined
-          ? action
-          : !prev;
+            ? action
+            : !prev;
       });
     },
-    []
+    [],
   );
 
   // Automatically focus input when drawer opens
   useEffect(() => {
+    notifyParent(isOpen);
     if (isOpen) {
       const timer = setTimeout(() => {
         inputRef.current?.focus();
-      }, 150);
+      }, 350);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, notifyParent]);
 
-  // Initialize session handshake (locked so multiple calls return the same single in-flight promise)
+  // Initialize session handshake
   const initSession = useCallback(async () => {
     if (sessionPromiseRef.current) {
       return sessionPromiseRef.current;
@@ -163,7 +181,11 @@ export function EmbedChatWidget({
 
     const anonId = getOrCreateAnonId();
     let effectiveHost = hostDomain || "";
-    if (!effectiveHost && typeof document !== "undefined" && document.referrer) {
+    if (
+      !effectiveHost &&
+      typeof document !== "undefined" &&
+      document.referrer
+    ) {
       try {
         effectiveHost = new URL(document.referrer).origin;
       } catch {
@@ -180,7 +202,7 @@ export function EmbedChatWidget({
             widgetKey,
             anonId,
             hostDomain: effectiveHost || undefined,
-            originPage: originPage || '/'
+            originPage: originPage || "/",
           }),
         });
 
@@ -188,7 +210,7 @@ export function EmbedChatWidget({
           throw new Error(
             isRtl
               ? "تعذر الاتصال بالمساعد حالياً. يرجى إعادة المحاولة."
-              : "Unable to connect to assistant. Please try again."
+              : "Unable to connect to assistant. Please try again.",
           );
         }
 
@@ -203,7 +225,12 @@ export function EmbedChatWidget({
         // If prior messages exist for this visitor, load them into state
         if (Array.isArray(data.history) && data.history.length > 0) {
           const loaded: ChatMessage[] = data.history.map(
-            (m: { id: string; role: "user" | "assistant"; content: string; created_at: string }) => ({
+            (m: {
+              id: string;
+              role: "user" | "assistant";
+              content: string;
+              created_at: string;
+            }) => ({
               id: m.id,
               role: m.role,
               text: m.content,
@@ -211,7 +238,7 @@ export function EmbedChatWidget({
                 hour: "2-digit",
                 minute: "2-digit",
               }),
-            })
+            }),
           );
           setChatHistory(loaded);
         }
@@ -220,7 +247,7 @@ export function EmbedChatWidget({
         setSessionError(
           isRtl
             ? "تعذر الاتصال بالمساعد حالياً. يرجى إعادة المحاولة."
-            : "Unable to connect to assistant. Please try again."
+            : "Unable to connect to assistant. Please try again.",
         );
         throw err;
       } finally {
@@ -231,9 +258,9 @@ export function EmbedChatWidget({
 
     sessionPromiseRef.current = promise;
     return promise;
-  }, [widgetKey, hostDomain, isRtl]);
+  }, [widgetKey, hostDomain, isRtl, originPage]);
 
-  // 1. Initialize session ONCE on component mount
+  // Trigger initialization once on component mount
   useEffect(() => {
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true;
@@ -241,21 +268,15 @@ export function EmbedChatWidget({
     }
   }, [initSession]);
 
-  // 2. Notify parent on isOpen change
-  useEffect(() => {
-    notifyParent(isOpen);
-  }, [isOpen, notifyParent]);
-
-  // 3. Listen for parent cross-window messages
+  // Listen to postMessage events from host page
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      // Ignore messages dispatched by this iframe window itself
-      if (e.source === window) return;
-
-      // Handle only explicit commands from host
       if (e.data?.type === "sanad:cmd_open" || e.data?.type === "sanad:open") {
         toggleOpen(true);
-      } else if (e.data?.type === "sanad:cmd_close" || e.data?.type === "sanad:close") {
+      } else if (
+        e.data?.type === "sanad:cmd_close" ||
+        e.data?.type === "sanad:close"
+      ) {
         toggleOpen(false);
       } else if (e.data?.type === "sanad:cmd_toggle") {
         toggleOpen((prev) => !prev);
@@ -266,91 +287,112 @@ export function EmbedChatWidget({
     return () => window.removeEventListener("message", handleMessage);
   }, [toggleOpen]);
 
-  // Handle message submission & streaming (wrapped in useCallback with pure sequential IDs to satisfy React Compiler)
+  // Main chat sending handler
   const handleSendMessage = useCallback(
     async (textToSend?: string, retryAssistantMsgId?: string) => {
-      const text = (textToSend || inputText).trim();
+      const text = (textToSend ?? inputText).trim();
       if (!text || isStreaming) return;
 
-      let activeToken = sessionTokenRef.current || sessionToken;
-      if (!activeToken) {
+      let currentToken = sessionTokenRef.current;
+      if (!currentToken) {
         try {
           const sessionData = await initSession();
-          activeToken = sessionData?.sessionToken || sessionTokenRef.current;
+          currentToken = sessionData?.sessionToken || null;
         } catch {
-          // If session initialization failed, display a friendly error bubble
-          const errorMsg = isRtl
-            ? "تعذر الاتصال بالمساعد. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة."
-            : "Could not connect to assistant. Please check your connection and retry.";
+          currentToken = null;
+        }
 
-          messageCounterRef.current += 1;
-          const userMsgId = `user-${messageCounterRef.current}`;
-          messageCounterRef.current += 1;
-          const errBotId = `bot-${messageCounterRef.current}`;
+        if (!currentToken) {
+          const errorMsg = isRtl
+            ? "تعذر الاتصال بالمساعد حالياً. يرجى إعادة المحاولة."
+            : "Unable to connect to assistant. Please retry.";
+
+          const userMsgId = `usr-${Date.now()}`;
+          const errBotId = `bot-${Date.now() + 1}`;
 
           setChatHistory((prev) => [
             ...prev,
-            { id: userMsgId, role: "user", text, time: isRtl ? "الآن" : "Just now" },
-            { id: errBotId, role: "assistant", text: errorMsg, time: isRtl ? "الآن" : "Just now", error: true, retryText: text },
+            {
+              id: userMsgId,
+              role: "user",
+              text,
+              time: isRtl ? "الآن" : "Just now",
+            },
+            {
+              id: errBotId,
+              role: "assistant",
+              text: errorMsg,
+              time: isRtl ? "الآن" : "Just now",
+              error: true,
+              retryText: text,
+            },
           ]);
           setInputText("");
           return;
         }
       }
-      if (!activeToken) return;
 
       let assistantMsgId: string;
-      let updatedHistory = chatHistory;
 
       if (retryAssistantMsgId) {
         assistantMsgId = retryAssistantMsgId;
         setChatHistory((prev) =>
           prev.map((m) =>
             m.id === retryAssistantMsgId
-              ? { ...m, text: "", error: false, isStreaming: true, retryText: text }
-              : m
-          )
+              ? {
+                  ...m,
+                  text: "",
+                  error: false,
+                  isStreaming: true,
+                  retryText: text,
+                }
+              : m,
+          ),
         );
       } else {
         messageCounterRef.current += 1;
-        const userMsgId = `user-${messageCounterRef.current}`;
-        const userMsg: ChatMessage = {
+        const userMsgId = `usr-${Date.now()}-${messageCounterRef.current}`;
+        assistantMsgId = `bot-${Date.now()}-${messageCounterRef.current}`;
+
+        const newUserMessage: ChatMessage = {
           id: userMsgId,
           role: "user",
           text,
           time: isRtl ? "الآن" : "Just now",
         };
 
-        updatedHistory = [...chatHistory, userMsg];
-
-        messageCounterRef.current += 1;
-        assistantMsgId = `bot-${messageCounterRef.current}`;
-        const initialAssistantMsg: ChatMessage = {
+        const initialAssistantMessage: ChatMessage = {
           id: assistantMsgId,
           role: "assistant",
           text: "",
           time: isRtl ? "الآن" : "Just now",
           isStreaming: true,
-          retryText: text,
         };
 
-        setChatHistory([...updatedHistory, initialAssistantMsg]);
+        setChatHistory((prev) => [
+          ...prev,
+          newUserMessage,
+          initialAssistantMessage,
+        ]);
         setInputText("");
       }
 
       setIsStreaming(true);
 
-      try {
-        const recentContext = updatedHistory.slice(-5).map((m) => ({
+      const recentContext = chatHistory
+        .filter((m) => m.text && !m.error && m.id !== retryAssistantMsgId)
+        .slice(-4)
+        .map((m) => ({
           role: m.role,
           content: m.text,
         }));
 
+      try {
         const res = await fetch("/api/widget/chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${activeToken}`,
+            Authorization: `Bearer ${currentToken}`,
           },
           body: JSON.stringify({
             message: text,
@@ -360,7 +402,6 @@ export function EmbedChatWidget({
 
         if (!res.ok) {
           if (res.status === 401) {
-            // Invalidate stale session token so next attempt re-authenticates
             sessionTokenRef.current = null;
             setSessionToken(null);
           }
@@ -372,7 +413,7 @@ export function EmbedChatWidget({
           throw new Error(
             isRtl
               ? "تعذر استقبال رد المساعد. يرجى إعادة المحاولة."
-              : "Unable to receive assistant response. Please retry."
+              : "Unable to receive assistant response. Please retry.",
           );
         }
 
@@ -392,8 +433,8 @@ export function EmbedChatWidget({
             prev.map((m) =>
               m.id === assistantMsgId
                 ? { ...m, text: currentText, isStreaming: true, error: false }
-                : m
-            )
+                : m,
+            ),
           );
         }
 
@@ -404,7 +445,7 @@ export function EmbedChatWidget({
           throw new Error(
             isRtl
               ? "تعذر استقبال رد المساعد. يرجى إعادة المحاولة."
-              : "Unable to receive assistant response. Please retry."
+              : "Unable to receive assistant response. Please retry.",
           );
         }
 
@@ -412,12 +453,11 @@ export function EmbedChatWidget({
           prev.map((m) =>
             m.id === assistantMsgId
               ? { ...m, text: finalText, isStreaming: false, error: false }
-              : m
-          )
+              : m,
+          ),
         );
       } catch (err) {
         const errorMsg = getFriendlyErrorMessage(err, undefined, isRtl);
-
         setChatHistory((prev) =>
           prev.map((m) =>
             m.id === assistantMsgId
@@ -428,15 +468,14 @@ export function EmbedChatWidget({
                   error: true,
                   retryText: text,
                 }
-              : m
-          )
+              : m,
+          ),
         );
       } finally {
         setIsStreaming(false);
-        setTimeout(() => inputRef.current?.focus(), 100);
       }
     },
-    [chatHistory, inputText, isRtl, isStreaming, sessionToken, initSession]
+    [chatHistory, inputText, isRtl, isStreaming, initSession],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -446,10 +485,54 @@ export function EmbedChatWidget({
     }
   };
 
+  const handleRequestHumanSupport = useCallback(() => {
+    const leadMsgId = `human-req-${Date.now()}`;
+    const promptText = isRtl
+      ? "مرحباً بك! يسعدنا تواصلك مع فريقنا مباشرة. يرجى تزويدنا ببيانات التواصل وسيتواصل معك أحد ممثلينا في أقرب وقت:"
+      : "Hello! We would be glad to connect you with our team. Please leave your contact details below and a specialist will reach out shortly:";
+
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        id: leadMsgId,
+        role: "assistant",
+        text: `${promptText}\n\n[[SHOW_LEAD_FORM]]`,
+        time: isRtl ? "الآن" : "Just now",
+      },
+    ]);
+
+    setTimeout(() => {
+      scrollToBottom();
+    }, 60);
+  }, [isRtl, scrollToBottom]);
+
+  const handleClearChat = useCallback(async () => {
+    if (isStreaming) return;
+
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("sanad_visitor_anon_id");
+      }
+    } catch {}
+
+    setChatHistory([]);
+    setInputText("");
+    sessionTokenRef.current = null;
+    setSessionToken(null);
+    hasInitializedRef.current = false;
+
+    try {
+      await initSession();
+    } catch (e) {
+      console.error("[Widget] Failed to reinitialize after clear:", e);
+    }
+  }, [isStreaming, initSession]);
+
   const starterQuestions = Array.isArray(config.starterQuestions)
     ? config.starterQuestions
     : [];
-  const showStarterQuestions = chatHistory.length === 0 && starterQuestions.length > 0;
+  const showStarterQuestions =
+    chatHistory.length === 0 && starterQuestions.length > 0;
 
   return (
     <div
@@ -462,20 +545,22 @@ export function EmbedChatWidget({
           100% { background-position: 200% 0; }
         }
         @keyframes cursorPulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
+          0%, 100% { opacity: 0.2; transform: scale(0.9); }
+          50% { opacity: 1; transform: scale(1.15); }
         }
       `}</style>
 
-      {/* ──────────────── 1. CHAT DRAWER / WINDOW ──────────────── */}
+      {/* ──────────────── 1. EXPANDABLE CHAT DRAWER ──────────────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: "easeOut" }}
-            className="fixed inset-0 z-50 flex flex-col shadow-2xl border overflow-hidden"
+            exit={{ opacity: 0, y: 14, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className={`fixed ${
+              config.position === "bottom-left" ? "left-4" : "right-4"
+            } bottom-4 z-50 flex flex-col w-[385px] max-w-[calc(100vw-32px)] h-[620px] max-h-[calc(100vh-32px)] shadow-2xl border overflow-hidden`}
             style={{
               backgroundColor,
               color: bgText,
@@ -484,106 +569,26 @@ export function EmbedChatWidget({
               borderWidth: `${Math.max(1, borderRadius)}px`,
             }}
           >
-            {/* ── Header ── */}
-            <div
-              className="flex items-center justify-between p-3.5 shrink-0 shadow-sm border-b select-none"
-              style={{
-                backgroundColor: primaryColor,
-                color: primaryText,
-                borderColor: `${primaryText}20`,
-                borderTopLeftRadius: `${cornerRadius}px`,
-                borderTopRightRadius: `${cornerRadius}px`,
-              }}
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className="relative flex size-9 items-center justify-center border shrink-0"
-                  style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.18)",
-                    borderColor: "rgba(255, 255, 255, 0.35)",
-                    color: primaryText,
-                    borderRadius: `${Math.min(cornerRadius, 8)}px`,
-                  }}
-                >
-                  <Bot className="size-4.5" />
-                  <span
-                    className="absolute -top-1 -right-1 size-2 bg-emerald-400 ring-2 ring-black/40 animate-pulse"
-                    style={{ borderRadius: `${Math.min(cornerRadius, 4)}px` }}
-                  />
-                </div>
+            {/* Header */}
+            <WidgetHeader
+              botName={config.botName}
+              subtitle={config.subtitle}
+              primaryColor={primaryColor}
+              primaryText={primaryText}
+              secondaryColor={secondaryColor}
+              secondaryText={secondaryText}
+              cornerRadius={cornerRadius}
+              isRtl={isRtl}
+              hasMessages={chatHistory.length > 0}
+              onRequestHumanSupport={handleRequestHumanSupport}
+              onClearChat={handleClearChat}
+              onMinimize={() => toggleOpen(false)}
+              onClose={() => toggleOpen(false)}
+            />
 
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className="font-heading text-xs font-bold tracking-tight leading-tight truncate"
-                      style={{ color: primaryText }}
-                    >
-                      {config.botName || "Sanad AI Support"}
-                    </span>
-                    <span
-                      className="px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider font-bold shrink-0 border"
-                      style={{
-                        backgroundColor: secondaryColor,
-                        color: secondaryText,
-                        borderColor: `${primaryText}30`,
-                        borderRadius: `${Math.min(cornerRadius, 4)}px`,
-                      }}
-                    >
-                      {isRtl ? "مساعد ذكي" : "AI AGENT"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span
-                      className="size-1.5 bg-emerald-400 inline-block shrink-0"
-                      style={{ borderRadius: `${Math.min(cornerRadius, 2)}px` }}
-                    />
-                    <p
-                      className="font-sans text-[10px] truncate max-w-[210px] leading-none opacity-90"
-                      style={{ color: primaryText }}
-                    >
-                      {config.subtitle ||
-                        (isRtl
-                          ? "إجابات فورية وموثقة من وثائق المتجر"
-                          : "Instant verified answers")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => toggleOpen(false)}
-                  style={{
-                    color: primaryText,
-                    borderRadius: `${Math.min(cornerRadius, 4)}px`,
-                  }}
-                  className="p-1 hover:bg-black/15 transition-colors cursor-pointer opacity-85 hover:opacity-100"
-                  title={isRtl ? "تصغير" : "Minimize"}
-                >
-                  <Minus className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toggleOpen(false)}
-                  style={{
-                    color: primaryText,
-                    borderRadius: `${Math.min(cornerRadius, 4)}px`,
-                  }}
-                  className="p-1 hover:bg-black/15 transition-colors cursor-pointer opacity-85 hover:opacity-100"
-                  title={isRtl ? "إغلاق" : "Close"}
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* ── Error Banner (if any) ── */}
-            {sessionError && (
-              <div
-                className="flex items-center justify-between gap-2 px-3 py-2 bg-destructive/10 text-destructive text-xs border-b border-destructive/20"
-              >
+            {/* Error Banner (if session error occurs while open) */}
+            {sessionError && sessionToken && (
+              <div className="flex items-center justify-between gap-2 px-3 py-2 bg-destructive/10 text-destructive text-xs border-b border-destructive/20">
                 <div className="flex items-center gap-1.5">
                   <AlertCircle className="size-3.5 shrink-0" />
                   <span className="truncate">{sessionError}</span>
@@ -600,37 +605,41 @@ export function EmbedChatWidget({
               </div>
             )}
 
-            {/* ── Messages Feed ── */}
+            {/* Scrollable Message Feed */}
             <div
-              className="flex-1 overflow-y-auto p-4 space-y-3.5"
-              style={{
-                backgroundColor,
-                color: bgText,
-              }}
+              className="flex-1 overflow-y-auto p-3.5 space-y-3.5 select-text"
+              style={{ backgroundColor }}
             >
-              {isInitializing && messages.length === 1 ? (
-                /* High-engagement Initial Connecting State */
-                <div className="flex flex-col items-center justify-center h-36 gap-2.5">
+              {isInitializing && messages.length <= 1 ? (
+                /* Shimmer skeleton during initial connect */
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-4 my-auto">
                   <div
-                    className="relative flex size-10 items-center justify-center border shadow-xs"
+                    className="size-12 flex items-center justify-center border shadow-xs"
                     style={{
-                      backgroundColor: `${primaryColor}15`,
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
                       borderColor: `${primaryColor}35`,
-                      color: primaryColor,
-                      borderRadius: `${Math.min(cornerRadius, 8)}px`,
+                      borderRadius: `${Math.min(cornerRadius, 10)}px`,
                     }}
                   >
-                    <Bot className="size-5 animate-pulse" />
-                    <span
-                      className="absolute -top-1 -right-1 size-2.5 bg-emerald-400 ring-2 ring-black/40 animate-ping"
-                      style={{ borderRadius: `${Math.min(cornerRadius, 3)}px` }}
+                    <div
+                      className="size-5 rounded-full"
+                      style={{
+                        backgroundColor: primaryColor,
+                        animation: "cursorPulse 1.2s infinite ease-in-out",
+                      }}
                     />
                   </div>
                   <div className="text-center">
-                    <p className="font-heading text-xs font-bold" style={{ color: bgText }}>
+                    <p
+                      className="font-heading text-xs font-bold"
+                      style={{ color: bgText }}
+                    >
                       {config.botName || "Sanad AI Assistant"}
                     </p>
-                    <p className="font-mono text-[9px] mt-0.5 opacity-70" style={{ color: bgMutedText }}>
+                    <p
+                      className="font-mono text-[9px] mt-0.5 opacity-70"
+                      style={{ color: bgMutedText }}
+                    >
                       {isRtl
                         ? "جاري الاتصال بقاعدة بيانات المتجر..."
                         : "Connecting to store verified database..."}
@@ -638,7 +647,7 @@ export function EmbedChatWidget({
                   </div>
                 </div>
               ) : sessionError && !sessionToken && messages.length <= 1 ? (
-                /* Fallback Error View when widget session cannot connect */
+                /* Error view when session handshake fails completely */
                 <div className="flex flex-col items-center justify-center py-10 px-4 text-center space-y-3.5 my-auto">
                   <div
                     className="size-10 flex items-center justify-center border text-destructive bg-destructive/10 border-destructive/30"
@@ -647,10 +656,18 @@ export function EmbedChatWidget({
                     <AlertCircle className="size-5" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-heading font-semibold text-xs" style={{ color: bgText }}>
-                      {isRtl ? "المساعد غير متوفر حالياً" : "Assistant Currently Unavailable"}
+                    <h3
+                      className="font-heading font-semibold text-xs"
+                      style={{ color: bgText }}
+                    >
+                      {isRtl
+                        ? "المساعد غير متوفر حالياً"
+                        : "Assistant Currently Unavailable"}
                     </h3>
-                    <p className="text-[11px] leading-relaxed max-w-xs" style={{ color: bgMutedText }}>
+                    <p
+                      className="text-[11px] leading-relaxed max-w-xs"
+                      style={{ color: bgMutedText }}
+                    >
                       {sessionError}
                     </p>
                   </div>
@@ -669,513 +686,107 @@ export function EmbedChatWidget({
                   </button>
                 </div>
               ) : (
-                messages.map((msg) => {
-                  const isBot = msg.role === "assistant";
-                  const isError = Boolean(msg.error);
-                  const hasContent = Boolean(msg.text && msg.text.trim().length > 0);
-
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`flex gap-2 items-start ${
-                        isBot ? "justify-start" : "justify-end"
-                      }`}
-                    >
-                      {isBot && (
-                        <div
-                          className={`size-7 shrink-0 flex items-center justify-center text-[10px] border shadow-xs mt-0.5 ${
-                            isError
-                              ? "bg-destructive/15 text-destructive border-destructive/40"
-                              : ""
-                          }`}
-                          style={{
-                            ...(!isError && {
-                              backgroundColor: primaryColor,
-                              color: primaryText,
-                              borderColor: `${primaryColor}40`,
-                            }),
-                            borderRadius: `${Math.min(cornerRadius, 6)}px`,
-                          }}
-                        >
-                          {isError ? (
-                            <AlertCircle className="size-3.5" />
-                          ) : (
-                            <Bot className="size-3.5" />
-                          )}
-                        </div>
-                      )}
-
-                      <div
-                        className={`max-w-[85%] flex flex-col ${
-                          isBot ? "items-start" : "items-end"
-                        }`}
-                      >
-                        {!hasContent && msg.isStreaming ? (
-                          /* Captivating Stage Indicator While Thinking */
-                          <ThinkingIndicator
-                            isRtl={isRtl}
-                            primaryColor={primaryColor}
-                            secondaryColor={secondaryColor}
-                            surfaceCardBg={surfaceCardBg}
-                            isDarkBg={isDarkBg}
-                            cornerRadius={cornerRadius}
-                          />
-                        ) : isError ? (
-                          /* Dedicated Non-Tech Red Error Bubble */
-                          <div
-                            className="p-3 text-xs leading-relaxed border shadow-xs bg-destructive/10 text-destructive border-destructive/40"
-                            style={{
-                              borderRadius: `${Math.min(cornerRadius, 12)}px`,
-                              borderLeftWidth: isRtl ? "1px" : "3px",
-                              borderRightWidth: isRtl ? "3px" : "1px",
-                              borderLeftColor: isRtl
-                                ? "rgba(214, 69, 69, 0.3)"
-                                : "var(--color-destructive, #D64545)",
-                              borderRightColor: isRtl
-                                ? "var(--color-destructive, #D64545)"
-                                : "rgba(214, 69, 69, 0.3)",
-                            }}
-                            dir="auto"
-                          >
-                            <div className="space-y-2">
-                              <p className="font-medium text-xs leading-relaxed select-text">
-                                {msg.text.trim()}
-                              </p>
-                              {msg.retryText && (
-                                <button
-                                  type="button"
-                                  disabled={isStreaming}
-                                  onClick={() => handleSendMessage(msg.retryText, msg.id)}
-                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium bg-destructive text-white hover:bg-destructive/90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                                  style={{
-                                    borderRadius: `${Math.min(cornerRadius, 4)}px`,
-                                  }}
-                                >
-                                  <RefreshCw className="size-3 shrink-0" />
-                                  <span>{isRtl ? "إعادة المحاولة" : "Try again"}</span>
-                                </button>
-                              )}
-                            </div>
-
-                            {msg.time && (
-                              <span className="block mt-1.5 font-mono text-[8px] select-none opacity-70">
-                                {msg.time}
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          /* Formatted Message Bubble */
-                          <div
-                            className="p-3 text-xs leading-relaxed border shadow-xs"
-                            style={{
-                              backgroundColor: isBot
-                                ? isDarkBg
-                                  ? "rgba(255, 255, 255, 0.08)"
-                                  : surfaceCardBg
-                                : primaryColor,
-                              color: isBot ? bgText : primaryText,
-                              borderColor: isBot
-                                ? isDarkBg
-                                  ? "rgba(255, 255, 255, 0.12)"
-                                  : `${primaryColor}25`
-                                : `${primaryColor}60`,
-                              borderRadius: `${Math.min(cornerRadius, 12)}px`,
-                              borderLeftWidth: isBot ? (isRtl ? "1px" : "3px") : "1px",
-                              borderRightWidth: isBot ? (isRtl ? "3px" : "1px") : "1px",
-                              borderLeftColor: isBot
-                                ? isRtl
-                                  ? isDarkBg
-                                    ? "rgba(255,255,255,0.12)"
-                                    : `${primaryColor}25`
-                                  : primaryColor
-                                : `${primaryColor}60`,
-                              borderRightColor: isBot
-                                ? isRtl
-                                  ? primaryColor
-                                  : isDarkBg
-                                    ? "rgba(255,255,255,0.12)"
-                                    : `${primaryColor}25`
-                                : `${primaryColor}60`,
-                            }}
-                            dir="auto"
-                          >
-                            {isBot ? (
-                              <div className="prose prose-xs max-w-none text-xs leading-relaxed break-words">
-                                <ReactMarkdown
-                                  remarkPlugins={[remarkGfm]}
-                                  components={{
-                                    p: ({ children }) => (
-                                      <p className="mb-1.5 last:mb-0 leading-relaxed">
-                                        {children}
-                                      </p>
-                                    ),
-                                    strong: ({ children }) => (
-                                      <strong className="font-semibold text-inherit">
-                                        {children}
-                                      </strong>
-                                    ),
-                                    em: ({ children }) => (
-                                      <em className="italic text-inherit">
-                                        {children}
-                                      </em>
-                                    ),
-                                    ul: ({ children }) => (
-                                      <ul className="list-disc ps-4 mb-1.5 space-y-0.5">
-                                        {children}
-                                      </ul>
-                                    ),
-                                    ol: ({ children }) => (
-                                      <ol className="list-decimal ps-4 mb-1.5 space-y-0.5">
-                                        {children}
-                                      </ol>
-                                    ),
-                                    li: ({ children }) => (
-                                      <li className="leading-relaxed">
-                                        {children}
-                                      </li>
-                                    ),
-                                    code: ({ children }) => (
-                                      <code
-                                        className="px-1 py-0.5 font-mono text-[10px] bg-black/10 dark:bg-white/10"
-                                        style={{
-                                          borderRadius: `${Math.min(cornerRadius, 3)}px`,
-                                        }}
-                                      >
-                                        {children}
-                                      </code>
-                                    ),
-                                    a: ({ href, children }) => {
-                                      const isSafe =
-                                        href &&
-                                        (href.startsWith("http://") ||
-                                          href.startsWith("https://") ||
-                                          href.startsWith("mailto:") ||
-                                          href.startsWith("tel:"));
-                                      if (!isSafe) {
-                                        return <span>{children}</span>;
-                                      }
-                                      return (
-                                        <a
-                                          href={href}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="underline font-medium hover:opacity-80"
-                                          style={{ color: primaryColor }}
-                                        >
-                                          {children}
-                                        </a>
-                                      );
-                                    },
-                                  }}
-                                >
-                                  {msg.text.trim()}
-                                </ReactMarkdown>
-
-                                {/* Animated Live Streaming Cursor */}
-                                {msg.isStreaming && (
-                                  <span
-                                    className="inline-block ms-1 size-1.5 align-middle bg-primary"
-                                    style={{
-                                      backgroundColor: primaryColor,
-                                      borderRadius: `${Math.min(cornerRadius, 1)}px`,
-                                      animation: "cursorPulse 0.8s infinite ease-in-out",
-                                    }}
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <p className="whitespace-pre-line break-words leading-relaxed">
-                                {msg.text.trim()}
-                              </p>
-                            )}
-
-                            {msg.time && (
-                              <span
-                                className="block mt-1 font-mono text-[8px] select-none"
-                                style={{
-                                  color: isBot
-                                    ? bgMutedText
-                                    : "rgba(255, 255, 255, 0.85)",
-                                }}
-                              >
-                                {msg.time}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
+                messages.map((msg) => (
+                  <WidgetMessageItem
+                    key={msg.id}
+                    msg={msg}
+                    sessionToken={sessionToken}
+                    primaryColor={primaryColor}
+                    primaryText={primaryText}
+                    secondaryColor={secondaryColor}
+                    surfaceCardBg={surfaceCardBg}
+                    bgText={bgText}
+                    bgMutedText={bgMutedText}
+                    inputBg={inputBg}
+                    inputTextColor={inputTextColor}
+                    isDarkBg={isDarkBg}
+                    isRtl={isRtl}
+                    cornerRadius={cornerRadius}
+                    originPage={originPage}
+                    isStreaming={isStreaming}
+                    onRetry={(txt, id) => handleSendMessage(txt, id)}
+                    onScrollToBottom={scrollToBottom}
+                  />
+                ))
               )}
 
-              {/* ── Starter Questions Chips ── */}
+              {/* Starter Questions Chips */}
               {showStarterQuestions && (
-                <div className="pt-2 space-y-2">
-                  <div
-                    className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider select-none font-mono"
-                    style={{ color: bgMutedText }}
-                  >
-                    <Sparkles className="size-3" style={{ color: primaryColor }} />
-                    <span>{isRtl ? "أسئلة مقترحة" : "Suggested inquiries"}</span>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    {starterQuestions.map((question, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        disabled={isStreaming}
-                        onClick={() => handleSendMessage(question)}
-                        className="w-full text-start px-3 py-2 text-xs border transition-all cursor-pointer flex items-center justify-between group hover:border-primary/60 shadow-2xs"
-                        style={{
-                          backgroundColor: surfaceCardBg,
-                          color: bgText,
-                          borderColor: isDarkBg
-                            ? "rgba(255, 255, 255, 0.1)"
-                            : `${primaryColor}25`,
-                          borderRadius: `${Math.min(cornerRadius, 8)}px`,
-                          borderWidth: `${Math.max(1, borderRadius)}px`,
-                        }}
-                        dir="auto"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span
-                            className="flex size-5 shrink-0 items-center justify-center font-mono text-[10px] font-bold border shadow-2xs"
-                            style={{
-                              backgroundColor: secondaryColor,
-                              color: secondaryText,
-                              borderColor: `${primaryColor}40`,
-                              borderRadius: `${Math.min(cornerRadius, 4)}px`,
-                            }}
-                          >
-                            {idx + 1}
-                          </span>
-                          <span className="truncate">{question}</span>
-                        </div>
-                        <Send className="size-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ms-1" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <WidgetStarterQuestions
+                  questions={starterQuestions}
+                  isStreaming={isStreaming}
+                  surfaceCardBg={surfaceCardBg}
+                  bgText={bgText}
+                  bgMutedText={bgMutedText}
+                  primaryColor={primaryColor}
+                  secondaryColor={secondaryColor}
+                  secondaryText={secondaryText}
+                  isDarkBg={isDarkBg}
+                  isRtl={isRtl}
+                  cornerRadius={cornerRadius}
+                  borderRadius={borderRadius}
+                  onSelectQuestion={(q) => handleSendMessage(q)}
+                />
               )}
 
               <div ref={messagesEndRef} />
             </div>
 
-            {/* ── Input Bar ── */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendMessage();
-              }}
-              className="p-3 flex flex-col gap-2 shrink-0 border-t"
-              style={{
-                backgroundColor,
-                borderTopColor: inputBorderAbove,
-                borderTopWidth: `${Math.max(1, borderRadius)}px`,
-              }}
-            >
-              <div
-                style={{
-                  borderRadius: `${Math.min(cornerRadius, 8)}px`,
-                  borderWidth: `${Math.max(1, borderRadius)}px`,
-                  borderColor: inputBarBorder,
-                  boxShadow: isInputFocused
-                    ? `0 0 0 2px ${primaryColor}30`
-                    : isDarkBg
-                      ? "0 1px 3px rgba(0,0,0,0.3)"
-                      : "0 1px 3px rgba(0,0,0,0.05)",
-                  backgroundColor: inputBg,
-                }}
-                className="flex items-center gap-2 border transition-all p-1.5 shadow-2xs"
-              >
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={inputText}
-                  disabled={isStreaming}
-                  onFocus={() => setIsInputFocused(true)}
-                  onBlur={() => setIsInputFocused(false)}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={
-                    isRtl ? "اكتب سؤالك هنا..." : "Type your question..."
-                  }
-                  dir="auto"
-                  style={{
-                    color: inputTextColor,
-                  }}
-                  className="flex-1 bg-transparent px-2.5 py-1.5 font-sans text-xs outline-none"
-                />
+            {/* Input Bar */}
+            <WidgetInputBar
+              inputText={inputText}
+              onInputChange={setInputText}
+              onSend={() => handleSendMessage()}
+              inputRef={inputRef}
+              isInputFocused={isInputFocused}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
+              onKeyDown={handleKeyDown}
+              isStreaming={isStreaming}
+              backgroundColor={backgroundColor}
+              primaryColor={primaryColor}
+              primaryText={primaryText}
+              secondaryColor={secondaryColor}
+              bgMutedText={bgMutedText}
+              inputBg={inputBg}
+              inputTextColor={inputTextColor}
+              inputBarBorder={inputBarBorder}
+              inputBorderAbove={inputBorderAbove}
+              isDarkBg={isDarkBg}
+              isRtl={isRtl}
+              cornerRadius={cornerRadius}
+              borderRadius={borderRadius}
+            />
 
-                <button
-                  type="submit"
-                  disabled={!inputText.trim() || isStreaming}
-                  className="flex size-8 items-center justify-center transition-all disabled:opacity-40 shrink-0 cursor-pointer shadow-xs hover:brightness-110 active:scale-95"
-                  style={{
-                    backgroundColor: primaryColor,
-                    color: primaryText,
-                    borderRadius: `${Math.min(cornerRadius, 6)}px`,
-                  }}
-                  title={isRtl ? "إرسال" : "Send message"}
-                >
-                  {isStreaming ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <Send className="size-3.5" />
-                  )}
-                </button>
-              </div>
-
-              {/* Status Bar below input with Secondary Color Pill Badge */}
-              <div className="flex items-center justify-between px-1 text-[10px] font-mono select-none">
-                <span style={{ color: bgMutedText }}>
-                  {isRtl ? "اضغط Enter للإرسال" : "Enter to send"}
-                </span>
-                <span
-                  className="font-medium flex items-center gap-1.5 px-2 py-0.5 border"
-                  style={{
-                    backgroundColor: `${secondaryColor}30`,
-                    borderColor: `${secondaryColor}70`,
-                    color: isDarkBg ? "#FFFFFF" : primaryColor,
-                    borderRadius: `${Math.min(cornerRadius, 4)}px`,
-                  }}
-                >
-                  <span
-                    className="size-1.5 inline-block"
-                    style={{
-                      backgroundColor: primaryColor,
-                      borderRadius: `${Math.min(cornerRadius, 2)}px`,
-                    }}
-                  />
-                  {isRtl ? "إجابات فورية موثقة" : "Verified Instant Response"}
-                </span>
-              </div>
-            </form>
-
-            {/* ── Brand Attribution Footer (Dynamic Based on Subscription Plan) ── */}
-            {brandingEnabled ? (
-              // Free Plan: Required "Powered by Sanad" attribution
-              <div
-                className="border-t py-1.5 text-center font-mono text-[9px] select-none"
-                style={{
-                  backgroundColor,
-                  borderTopColor: inputBorderBelow,
-                  borderTopWidth: `${Math.max(1, borderRadius)}px`,
-                  color: bgMutedText,
-                  borderBottomLeftRadius: `${cornerRadius}px`,
-                  borderBottomRightRadius: `${cornerRadius}px`,
-                }}
-              >
-                <a
-                  href="https://sanad.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity hover:underline"
-                  style={{ color: bgMutedText }}
-                >
-                  <span>Powered by</span>
-                  <span className="font-bold tracking-wide" style={{ color: bgText }}>
-                    Sanad
-                  </span>
-                  <span
-                    className="px-1 py-0.2 font-bold text-[8px] border uppercase"
-                    style={{
-                      backgroundColor: `${primaryColor}20`,
-                      borderColor: `${primaryColor}40`,
-                      color: primaryColor,
-                      borderRadius: `${Math.min(cornerRadius, 3)}px`,
-                    }}
-                  >
-                    AI
-                  </span>
-                </a>
-              </div>
-            ) : (
-              // Paid Plans (Starter / Growth / Pro): Custom Branding Unlocked (White-labeled)
-              <div
-                className="border-t py-1.5 px-3 flex items-center justify-between font-mono text-[9px] select-none"
-                style={{
-                  backgroundColor,
-                  borderTopColor: inputBorderBelow,
-                  borderTopWidth: `${Math.max(1, borderRadius)}px`,
-                  color: bgMutedText,
-                  borderBottomLeftRadius: `${cornerRadius}px`,
-                  borderBottomRightRadius: `${cornerRadius}px`,
-                }}
-              >
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="size-3 text-emerald-500" />
-                  <span>{isRtl ? "مساعد رسمي للمتجر" : "Verified Store Assistant"}</span>
-                </span>
-                <span className="opacity-80">
-                  {isRtl ? "دعم متواصل 24/7" : "24/7 Live Support"}
-                </span>
-              </div>
-            )}
+            {/* Brand Attribution Footer */}
+            <WidgetFooter
+              brandingEnabled={brandingEnabled}
+              backgroundColor={backgroundColor}
+              inputBorderBelow={inputBorderBelow}
+              bgText={bgText}
+              bgMutedText={bgMutedText}
+              primaryColor={primaryColor}
+              cornerRadius={cornerRadius}
+              borderRadius={borderRadius}
+              isRtl={isRtl}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ──────────────── 2. FLOATING LAUNCHER BUTTON ──────────────── */}
-      {!isOpen && (
-        <div
-          className={`fixed ${
-            config.position === "bottom-left" ? "left-4" : "right-4"
-          } bottom-4 z-40`}
-        >
-          {config.launcherStyle === "badge" ? (
-            <button
-              type="button"
-              onClick={() => toggleOpen(true)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold border shadow-xl transition-transform hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
-              style={{
-                backgroundColor: primaryColor,
-                color: primaryText,
-                borderColor: `${primaryText}40`,
-                borderRadius: `${cornerRadius}px`,
-                borderWidth: `${Math.max(1, borderRadius)}px`,
-              }}
-            >
-              <div className="relative">
-                <Bot className="size-4 shrink-0" />
-                <span
-                  className="absolute -top-1 -right-1 size-1.5 bg-emerald-400 animate-pulse"
-                  style={{ borderRadius: `${Math.min(cornerRadius, 4)}px` }}
-                />
-              </div>
-              <span className="tracking-wide">
-                {config.launcherText ||
-                  (isRtl ? "تحدث معنا" : "Chat with us")}
-              </span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => toggleOpen(true)}
-              className="flex items-center justify-center size-13 border shadow-xl transition-transform hover:scale-[1.05] active:scale-[0.98] cursor-pointer"
-              style={{
-                backgroundColor: primaryColor,
-                color: primaryText,
-                borderColor: `${primaryText}40`,
-                borderRadius: `${cornerRadius}px`,
-                borderWidth: `${Math.max(1, borderRadius)}px`,
-              }}
-              title={
-                config.launcherText || (isRtl ? "تحدث معنا" : "Chat with us")
-              }
-            >
-              <div className="relative">
-                <MessageSquare className="size-5 shrink-0" />
-                <span
-                  className="absolute -top-1 -right-1 size-2 bg-emerald-400 ring-2 ring-black/30 animate-pulse"
-                  style={{ borderRadius: `${Math.min(cornerRadius, 4)}px` }}
-                />
-              </div>
-            </button>
-          )}
-        </div>
-      )}
+      {/* Floating Launcher Button */}
+      <WidgetLauncher
+        isOpen={isOpen}
+        onOpen={() => toggleOpen(true)}
+        position={config.position}
+        launcherStyle={config.launcherStyle}
+        launcherText={config.launcherText}
+        primaryColor={primaryColor}
+        primaryText={primaryText}
+        cornerRadius={cornerRadius}
+        borderRadius={borderRadius}
+        isRtl={isRtl}
+      />
     </div>
   );
 }

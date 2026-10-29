@@ -1,61 +1,82 @@
-import { z } from "zod";
-import { generateText, Output,type LanguageModel } from "ai";
+import { generateText, type LanguageModel } from "ai";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
-import * as Sentry from "@sentry/nextjs"
+import * as Sentry from "@sentry/nextjs";
 
 export async function getConversationTitleAndSummary({
   conversationId,
   userMessage,
+  assistantResponse,
   model,
 }: {
   conversationId: string;
   userMessage: string;
+  assistantResponse?: string;
   model: LanguageModel;
 }) {
+  let cleanTitle = userMessage.trim().slice(0, 45) || "Inquiry";
+  let cleanSummary = "Customer inquiry received.";
+
   try {
-    const { output } = await generateText({
+    const cleanedAssistantSnippet = (assistantResponse || "")
+      .replace("[[SHOW_LEAD_FORM]]", "")
+      .trim()
+      .slice(0, 400);
+
+    // Generate plain-text Title & Summary without brittle json_schema modes
+    const { text } = await generateText({
       model,
-      output: Output.object({
-        schema: z.object({
-          title: z
-            .string()
-            .describe(
-              "Concise 2 to 4 word topic title in the language used (e.g. 'Shipping to Riyadh' or 'استفسار الشحن للرياض')",
-            ),
-          summary: z
-            .string()
-            .describe(
-              "A single 1-sentence executive summary of the visitor inquiry and the resolution",
-            ),
-        }),
-      }),
-      prompt:`User inquired: ${userMessage}\n Generate a clean title and 1 sentence summary based on user's inquiry`
+      system: `You are an executive conversation summarizer for a store customer support dashboard.
+Inquiries may be in Arabic, English, or Franco-Arabic / Arabizi (e.g., 'mwa3eed el dacatra' means 'مواعيد الأطباء / Doctor schedules', 'bkam' means 'بكم / price').
+Translate any Franco-Arabic or slang to its real meaning.
+Do NOT use meta-commentary like "The user is asking in Egyptian Arabic about...".
+Respond EXACTLY in this 2-line format (in Arabic if the inquiry was Arabic/Franco, or English if English):
+Title: [2 to 4 words topic]
+Summary: [1 sentence direct executive summary of what the customer asked and the resolution]`,
+      prompt: `Customer Message: "${userMessage}"\nAssistant Answer: "${cleanedAssistantSnippet}"`,
     });
 
-    await supabaseAdminClient.from("conversations").update({
-        title:output.title,
-        summary:output.summary
-    }).eq("id",conversationId)
+    // Parse the 2 lines reliably
+    const titleMatch = text.match(/Title:\s*(.+)/i);
+    const summaryMatch = text.match(/Summary:\s*(.+)/i);
 
+    const parsedTitle = titleMatch?.[1]?.replace(/[*#"`]/g, "").trim();
+    const parsedSummary = summaryMatch?.[1]?.replace(/[*#"`]/g, "").trim();
+
+    if (parsedTitle && parsedTitle.length > 1 && parsedTitle.length < 60) {
+      cleanTitle = parsedTitle;
+    }
+
+    if (parsedSummary && parsedSummary.length > 5) {
+      cleanSummary = parsedSummary;
+    } else if (cleanedAssistantSnippet.length > 0) {
+      cleanSummary = cleanedAssistantSnippet.slice(0, 150);
+    }
   } catch (err) {
-
+    console.error("[Conversation Summary] Generation failed:", err);
     Sentry.captureException(err, {
       extra: {
         feature: "conversation-summary",
         conversationId,
-        userMessageSnippet: userMessage.slice(0, 30),
+        userMessageSnippet: userMessage.slice(0, 40),
       },
     });
-    // 2. Graceful Fallback: Never leave the title empty in the database!
-    // Truncate the first few words of the user's inquiry as a fallback titl
+
+    cleanSummary = (assistantResponse || userMessage)
+      .replace("[[SHOW_LEAD_FORM]]", "")
+      .trim()
+      .slice(0, 120);
+  }
+
+  // Update conversation record
+  try {
     await supabaseAdminClient
       .from("conversations")
       .update({
-        title: "Inquiry received",
-        summary: userMessage.slice(0,20),
+        title: cleanTitle,
+        summary: cleanSummary,
       })
-      .eq("id", conversationId)
-      
-
+      .eq("id", conversationId);
+  } catch (dbErr) {
+    console.error("[Conversation Summary] DB update failed:", dbErr);
   }
 }
