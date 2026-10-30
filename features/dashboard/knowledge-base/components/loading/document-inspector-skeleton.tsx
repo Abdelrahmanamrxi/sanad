@@ -45,20 +45,7 @@ export default function DocumentInspectorSkeleton() {
       {/* ── Body Skeleton ── */}
       <div className="mt-4 flex flex-col gap-3">
         {/* KPI Cards Skeleton */}
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="border border-border bg-background p-3.5 rounded-none space-y-3"
-            >
-              <div className="flex justify-between items-center">
-                <div className="h-2.5 w-20 bg-muted/60 rounded-none" />
-                <div className="size-3.5 bg-muted rounded-none" />
-              </div>
-              <div className="h-6 w-14 bg-muted rounded-none" />
-            </div>
-          ))}
-        </div>
+      
 
         {/* Content Box Skeleton */}
         <div className="border border-border bg-background p-3.5 rounded-none space-y-2.5 mt-1">

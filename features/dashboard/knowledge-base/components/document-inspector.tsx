@@ -312,77 +312,9 @@ export function DocumentInspector({
           {/* Performance Metrics Cards */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             {/* Citations */}
-            <div className="border border-border bg-background p-3.5 rounded-none flex flex-col justify-between">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="text-[11px] font-mono uppercase tracking-wider">
-                  Citations (30d)
-                </span>
-                <TrendingUp className="size-3.5 text-primary" />
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl font-bold font-mono text-foreground">
-                  {perf.times_cited_30d}
-                </span>
-                <span className="text-[11px] font-mono text-primary">
-                  +{perf.times_cited_7d} in 7d
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Times referenced in customer answers
-              </p>
-            </div>
+           
 
-            {/* Satisfaction / Helpfulness */}
-            <div className="border border-border bg-background p-3.5 rounded-none flex flex-col justify-between">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="text-[11px] font-mono uppercase tracking-wider">
-                  Helpfulness Rate
-                </span>
-                <CheckCircle2 className="size-3.5 text-success" />
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl font-bold font-mono text-foreground">
-                  {perf.times_cited_30d > 0
-                    ? `${perf.satisfaction_rate}%`
-                    : "N/A"}
-                </span>
-                {perf.times_cited_30d > 0 && (
-                  <span className="text-[11px] font-mono text-success">
-                    Positive
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Feedback on answers citing this doc
-              </p>
-            </div>
-
-            {/* Thumbs Down / Issues */}
-            <div className="border border-border bg-background p-3.5 rounded-none flex flex-col justify-between">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="text-[11px] font-mono uppercase tracking-wider">
-                  Thumbs Down
-                </span>
-                <ThumbsDown className="size-3.5 text-destructive" />
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span
-                  className={`text-2xl font-bold font-mono ${
-                    perf.thumbs_down_count > 0
-                      ? "text-destructive"
-                      : "text-foreground"
-                  }`}
-                >
-                  {perf.thumbs_down_count}
-                </span>
-                <span className="text-[11px] font-mono text-muted-foreground">
-                  downvotes
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Negative ratings on cited answers
-              </p>
-            </div>
+        
           </div>
 
           {/* Cold Document Alert (Never Retrieved) */}

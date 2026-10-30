@@ -212,3 +212,16 @@ export const getMessages = async ({
     nextCursor,
   };
 };
+
+export const markResolved=async(conversationId:string,type:"resolved" | "contacted"|"active")=>{
+    const{supabase}=await getAuthContext()
+
+    const{data,error}=await supabase.from("conversations").update({
+        status:type
+    }).eq("id",conversationId).select("id")
+
+    if(error){
+        throw new Error("Failed to update conversation")
+    }
+    return {data,success:true}
+}

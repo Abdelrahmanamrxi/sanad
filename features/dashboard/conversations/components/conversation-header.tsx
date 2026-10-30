@@ -13,9 +13,12 @@ import {
   User,
   CheckCircle2,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { markResolved } from "../actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ConversationHeaderProps {
   conversation: ConversationItem;
@@ -23,9 +26,22 @@ interface ConversationHeaderProps {
 
 export function ConversationHeader({
   conversation,
-  
 }: ConversationHeaderProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: updateStatus,
+    isPending: isUpdating,
+    variables: pendingStatus,
+  } = useMutation({
+    mutationFn: async (newStatus: "resolved" | "contacted" | "active") => {
+      return markResolved(conversation.id, newStatus);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -35,7 +51,9 @@ export function ConversationHeader({
 
   const isResolved = conversation.status === "resolved";
   const isLead = conversation.hasLead && conversation.lead;
-  const isContacted = isLead && conversation.lead?.status === "contacted";
+  const isContacted =
+    conversation.status === "contacted" ||
+    Boolean(isLead && conversation.lead?.status === "contacted");
 
   return (
     <div className="border-b border-border bg-card p-4 flex flex-col gap-3">
@@ -92,14 +110,23 @@ export function ConversationHeader({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          {isLead  && (
+          {isLead && (
             <Button
               variant="outline"
               size="sm"
-              
+              onClick={() => updateStatus(isContacted ? "active" : "contacted")}
+              disabled={isUpdating}
               className="text-xs rounded-none border-border"
             >
-              <Check className={cn("size-3.5", isContacted && "text-emerald-600")} />
+              {isUpdating &&
+              (pendingStatus === "contacted" ||
+                (isContacted && pendingStatus === "active")) ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Check
+                  className={cn("size-3.5", isContacted && "text-emerald-600")}
+                />
+              )}
               {isContacted ? "Contacted" : "Mark as Contacted"}
             </Button>
           )}
@@ -107,10 +134,15 @@ export function ConversationHeader({
           <Button
             variant={isResolved ? "outline" : "default"}
             size="sm"
-          
+            onClick={() => updateStatus(isResolved ? "active" : "resolved")}
+            disabled={isUpdating}
             className="text-xs rounded-none"
           >
-            {isResolved ? (
+            {isUpdating &&
+            (pendingStatus === "resolved" ||
+              (isResolved && pendingStatus === "active")) ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : isResolved ? (
               <>
                 <RotateCcw className="size-3.5" />
                 Reopen

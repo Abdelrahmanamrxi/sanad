@@ -1,4 +1,4 @@
-export type ConversationStatus = "active" | "needs_attention" | "resolved";
+export type ConversationStatus = "active" | "needs_attention" | "resolved" | "contacted";
 export type LeadStatus = "new" | "contacted" | "closed";
 export type FilterTab = "all" | "leads" | "needs_attention" | "resolved";
 

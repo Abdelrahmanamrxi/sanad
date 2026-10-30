@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   AlertCircle,
   RefreshCw,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatChatTimestamp } from "../utils";
@@ -220,6 +221,12 @@ export function ConversationsList({
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 border border-amber-500/20 rounded-none">
                       <AlertTriangle className="size-2.5" />
                       Needs Review
+                    </span>
+                  )}
+                  {conv.status === "contacted" && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 border border-emerald-500/20 rounded-none">
+                      <Check className="size-2.5" />
+                      Contacted
                     </span>
                   )}
                   {conv.status === "resolved" && (
