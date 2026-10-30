@@ -19,14 +19,11 @@ import { cn } from "@/lib/utils";
 
 interface ConversationHeaderProps {
   conversation: ConversationItem;
-  onToggleResolved: (id: string) => void;
-  onToggleContacted?: (id: string) => void;
 }
 
 export function ConversationHeader({
   conversation,
-  onToggleResolved,
-  onToggleContacted,
+  
 }: ConversationHeaderProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -95,11 +92,11 @@ export function ConversationHeader({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          {isLead && onToggleContacted && (
+          {isLead  && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onToggleContacted(conversation.id)}
+              
               className="text-xs rounded-none border-border"
             >
               <Check className={cn("size-3.5", isContacted && "text-emerald-600")} />
@@ -110,7 +107,7 @@ export function ConversationHeader({
           <Button
             variant={isResolved ? "outline" : "default"}
             size="sm"
-            onClick={() => onToggleResolved(conversation.id)}
+          
             className="text-xs rounded-none"
           >
             {isResolved ? (

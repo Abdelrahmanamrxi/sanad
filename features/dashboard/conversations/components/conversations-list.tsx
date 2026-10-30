@@ -2,8 +2,17 @@
 
 import React from "react";
 import { ConversationItem, FilterTab } from "../types";
-import { Search, User, Sparkles, AlertTriangle, CheckCircle2 } from "lucide-react";
+import {
+  Search,
+  User,
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatChatTimestamp } from "../utils";
 
 interface ConversationsListProps {
   conversations: ConversationItem[];
@@ -13,6 +22,9 @@ interface ConversationsListProps {
   onTabChange: (tab: FilterTab) => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  isLoading?: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
 }
 
 export function ConversationsList({
@@ -23,6 +35,9 @@ export function ConversationsList({
   onTabChange,
   searchQuery,
   onSearchChange,
+  isLoading = false,
+  isError = false,
+  onRetry,
 }: ConversationsListProps) {
   const tabs: { key: FilterTab; label: string; count: number }[] = [
     { key: "all", label: "All", count: conversations.length },
@@ -45,7 +60,7 @@ export function ConversationsList({
               Conversations
             </h2>
             <span className="text-xs font-mono font-medium px-1.5 py-0.5 bg-muted text-muted-foreground border border-border">
-              {conversations.length}
+              {isLoading ? "..." : conversations.length}
             </span>
           </div>
         </div>
@@ -96,7 +111,50 @@ export function ConversationsList({
 
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto divide-y divide-border/40">
-        {conversations.length === 0 ? (
+        {isError ? (
+          <div className="p-6 text-center flex flex-col items-center justify-center space-y-3">
+            <div className="size-8 bg-destructive/10 border border-destructive/20 flex items-center justify-center rounded-none text-destructive">
+              <AlertCircle className="size-4" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-foreground">
+                Failed to load conversations
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                An error occurred while loading your conversation inbox.
+              </p>
+            </div>
+            {onRetry && (
+              <button
+                onClick={onRetry}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono bg-muted/60 hover:bg-muted border border-border text-foreground transition-colors cursor-pointer rounded-none"
+              >
+                <RefreshCw className="size-3" />
+                <span>Retry</span>
+              </button>
+            )}
+          </div>
+        ) : isLoading ? (
+          <div className="p-3 space-y-2.5">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="p-3 border border-border/60 bg-muted/15 flex flex-col gap-2 rounded-none animate-pulse"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="h-3 w-28 bg-muted/70 rounded-none" />
+                  <div className="h-2.5 w-12 bg-muted/50 rounded-none" />
+                </div>
+                <div className="h-3.5 w-4/5 bg-muted/80 rounded-none" />
+                <div className="h-2.5 w-1/2 bg-muted/50 rounded-none" />
+                <div className="flex items-center gap-2 pt-0.5">
+                  <div className="h-3 w-16 bg-muted/60 rounded-none" />
+                  <div className="h-3 w-24 bg-muted/40 rounded-none" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : conversations.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-xs">
             No conversations match your filter criteria.
           </div>
@@ -126,7 +184,7 @@ export function ConversationsList({
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
                         <User className="size-3" />
-                        {conv.visitorId.replace("vis-", "Visitor #")}
+                        Visitor # {conv.visitorId.slice(0,13)}
                       </span>
                     )}
 
@@ -138,7 +196,7 @@ export function ConversationsList({
                   </div>
 
                   <span className="text-[11px] font-mono text-muted-foreground shrink-0">
-                    {conv.lastMessageAt}
+                    {formatChatTimestamp(conv.lastMessageAt)}
                   </span>
                 </div>
 
@@ -149,12 +207,10 @@ export function ConversationsList({
 
                 {/* Email / Lead context or message snippet */}
                 <div className="text-[11px] text-muted-foreground line-clamp-1">
-                  {conv.hasLead && conv.lead ? (
+                  {conv.hasLead && conv.lead && (
                     <span className="font-mono text-[11px] text-primary dark:text-primary">
                       {conv.lead.email}
                     </span>
-                  ) : (
-                    conv.lastMessageSnippet
                   )}
                 </div>
 
@@ -180,7 +236,7 @@ export function ConversationsList({
 
                   {conv.originPage && (
                     <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[130px]">
-                      {conv.originPage}
+                      Page: {conv.originPage}
                     </span>
                   )}
                 </div>

@@ -84,8 +84,8 @@ export const POST = handle(async (req) => {
     model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
     system: `${systemPresets.systemPrompt}
     ${groundingInstructions}
-=== VERIFIED DOCUMENT CONTEXT ===
-${formatChunks(retrievedChunks)}`,
+    === VERIFIED DOCUMENT CONTEXT ===
+    ${formatChunks(retrievedChunks)}`,
     messages: conversationMessages,
     temperature: effectiveTemperature,
   });

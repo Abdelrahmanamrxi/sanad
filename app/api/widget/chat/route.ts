@@ -36,6 +36,31 @@ const chatRequestSchema = z.object({
     .default([]),
 });
 
+function isGreetingOrSmallTalk(msg: string): boolean {
+  const cleaned = msg
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (cleaned.length === 0) return true;
+  if (cleaned.length <= 3 && !msg.includes("?") && !msg.includes("؟")) return true;
+
+  const smallTalkPatterns = [
+    // English greetings, pleasantries & acknowledgments
+    /^(hi|hello|hey|good (morning|evening|afternoon|day)|greetings|welcome|salam)( there)?$/i,
+    /^(thanks|thank you|thank you so much|many thanks|thx|ty|bye|goodbye|see you|take care|ok|okay|got it|cool|great|awesome)$/i,
+    // Arabic greetings, pleasantries & acknowledgments
+    /^(مرحبا|مرحباً|مرحب|أهلا|اهلا|أهلاً|اهلاً|أهليـن|اهلين|يا هلا|هلا|هاي|هلو)( (وسهلا|بيك|بك|يا غالي))?$/i,
+    /^(السلام عليكم( ورحمة الله( وبركاته)?)?|سلام عليكم|وعليكم السلام)$/i,
+    /^(صباح (الخير|النور|الورد)|مساء (الخير|النور|الورد))$/i,
+    /^(شكرا|شكراً|مشكور|تسلم|يعطيك (العافيه|العافية)|جزاك الله خير|تمام|اوك|أوك|ماشي|حاضر|طيب|مع السلامة|باي)$/i,
+  ];
+
+  return smallTalkPatterns.some((pattern) => pattern.test(cleaned));
+}
+
 export const POST = handle(async (req) => {
   // 1. Authenticate widget session token
   const authHeader = req.headers.get("authorization");
@@ -146,8 +171,8 @@ Base your responses strictly and directly on the verified store context below.
 Provide direct, clear, and helpful answers. Avoid unnecessary filler.
 Never start your response with empty lines.
 Do not use emojis anywhere in your response. Maintain clean typography and professional language.
-If the requested information is not present in the context, politely clarify that it is not documented.
-If the customer asks for a quote, human agent, or unlisted pricing, or if the context does not answer their question, append [[SHOW_LEAD_FORM]] at the very end of your response.
+If the customer is greeting you (e.g. "hi", "hello", "السلام عليكم") or offering pleasantries, greet them back politely and ask how you can help them. Do NOT append [[SHOW_LEAD_FORM]] for simple greetings or pleasantries.
+If the customer asks for a quote, human agent, or unlisted pricing, or asks a specific question that cannot be answered using the store context, append [[SHOW_LEAD_FORM]] at the very end of your response.
 
 === STORE VERIFIED CONTEXT ===
 ${context}`,
@@ -192,8 +217,14 @@ ${context}`,
           );
         }
 
-        // Flag needs_attention if the AI triggered the lead/human form or if no docs were retrieved
-        const needsAttention = text.includes("[[SHOW_LEAD_FORM]]") || chunkIds.length === 0;
+        // Flag needs_attention if:
+        // 1. The AI explicitly requested escalation/lead capture via [[SHOW_LEAD_FORM]]
+        // 2. OR zero docs were found for a genuine question/inquiry (excluding greetings & small talk)
+        const isUnansweredInquiry =
+          chunkIds.length === 0 && !isGreetingOrSmallTalk(message);
+        const needsAttention =
+          text.includes("[[SHOW_LEAD_FORM]]") || isUnansweredInquiry;
+
         await supabaseAdminClient
           .from("conversations")
           .update({

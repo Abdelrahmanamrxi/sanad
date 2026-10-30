@@ -23,16 +23,28 @@ export interface ConversationMessage {
   createdAt: string;
   source?: ConversationSource;
   isLeadCaptureEvent?: boolean;
+  hasLeadFormTrigger?: boolean;
   capturedData?: {
     name?: string;
     email?: string;
     phone?: string;
   };
 }
-
+export interface ConversationItemAPI{
+  id:string,
+  title:string,
+  channel:"widget" | "widget",
+  status:ConversationStatus,
+  has_lead:boolean,
+  lead?:ConversationLead[],
+  origin_page:string,
+  summary?:string,
+  last_message_at:string,
+  visitor_id:string,
+  started_at:string
+}
 export interface ConversationItem {
   id: string;
-  visitorId: string;
   title: string;
   channel: "widget" | "test";
   status: ConversationStatus;
@@ -40,8 +52,10 @@ export interface ConversationItem {
   lead?: ConversationLead;
   originPage?: string;
   summary?: string;
-  lastMessageSnippet: string;
-  lastMessageAt: string;
-  messagesCount: number;
-  messages: ConversationMessage[];
+  lastMessageSnippet?: string;
+  lastMessageAt?: string;
+  visitorId: string;
+  startedAt?: string;
+  messagesCount?: number;
+  messages?: ConversationMessage[];
 }
