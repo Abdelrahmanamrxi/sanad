@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Sliders,
   Code2,
@@ -15,23 +16,29 @@ import {
   AlertCircle,
   Eye,
   X,
+  Crown,
+  Lock,
 } from "lucide-react";
 import type { WidgetConfig, EditTab } from "../types";
+import { PLANS, type PlanTier } from "@/features/billing/plans";
 import { DEFAULT_WIDGET_CONFIG } from "../constants";
 import { saveWidgetSettings } from "../actions";
 import WidgetEditPanel from "./widget-edit-panel";
 import WidgetViewPanel from "./widget-view-panel";
+import { UpgradePlansModal } from "@/features/billing/components";
 
 interface WidgetStudioViewProps {
   businessId: string;
   initialConfig?: WidgetConfig;
   widgetSettings?: WidgetConfig;
+  planTier?: PlanTier;
 }
 
 export default function WidgetStudioView({
   businessId = "workspace-live",
   initialConfig,
   widgetSettings,
+  planTier = "free",
 }: WidgetStudioViewProps) {
   const [config, setConfig] = useState<WidgetConfig>(
     widgetSettings || initialConfig || DEFAULT_WIDGET_CONFIG
@@ -42,13 +49,80 @@ export default function WidgetStudioView({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isCopiedCode, setIsCopiedCode] = useState(false);
   const [showMobilePreview, setShowMobilePreview] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [restrictedFeature, setRestrictedFeature] = useState<{
+    featureName: string;
+    requiredTier: "starter" | "pro";
+    reason: string;
+  } | null>(null);
+
   const appOrigin =
     typeof window !== "undefined" && window.location.origin
       ? window.location.origin
       : "https://sanad.app";
   const embedScript = `<script src="${appOrigin}/widget.js" data-business-id="${businessId}" defer></script>`;
 
+  const checkPlanRestrictedFeature = (
+    cfg: WidgetConfig
+  ): { featureName: string; requiredTier: "starter" | "pro"; reason: string } | null => {
+    // 1. Domain Limits Check (Free: 1, Starter: 5, Pro: 10)
+    const domainCount = (cfg.allowedDomains || []).filter((d) => d.trim().length > 0).length;
+    if (planTier === "free" && domainCount > PLANS.free.maxDomains) {
+      return {
+        featureName: `Multi-Domain (${domainCount} domains)`,
+        requiredTier: "starter",
+        reason: `Free plan allows ${PLANS.free.maxDomains} authorized domain. Starter plan supports up to ${PLANS.starter.maxDomains} domains.`,
+      };
+    }
+    if (planTier === "starter" && domainCount > PLANS.starter.maxDomains) {
+      return {
+        featureName: `Enterprise Domains (${domainCount} domains)`,
+        requiredTier: "pro",
+        reason: `Starter plan allows up to ${PLANS.starter.maxDomains} domains. Pro plan supports up to ${PLANS.pro.maxDomains} domains.`,
+      };
+    }
+
+    // 2. Custom Assistant Name Check (Free uses default Sanad Assistant, Starter/Pro can customize)
+    if (planTier === "free" && cfg.botName) {
+      const trimmed = cfg.botName.trim().toLowerCase();
+      const isDefault =
+        trimmed === "" ||
+        trimmed === "sanad ai" ||
+        trimmed === "sanad assistant" ||
+        trimmed === "sanad ai support" ||
+        trimmed === "مساعد سند الذكي" ||
+        trimmed === "سند";
+
+      if (!isDefault) {
+        return {
+          featureName: "Custom Assistant Name",
+          requiredTier: "starter",
+          reason: "Free plan uses the default 'Sanad Assistant'. Upgrade to Starter to brand your assistant with your store or clinic name.",
+        };
+      }
+    }
+
+    // 3. Document Highlight Card Check (Requires PRO plan)
+    if (planTier !== "pro" && cfg.citationStyle === "document-snippet") {
+      return {
+        featureName: "Document Highlight Cards",
+        requiredTier: "pro",
+        reason: "Document Highlight Cards with high-visibility excerpts require the Growth (Pro) plan. Upgrade to display verified source cards in your chat widget.",
+      };
+    }
+
+    return null;
+  };
+
   const handleSave = async () => {
+    // Subscription Gating: check if user is on free/starter plan and selected higher tier design feature
+    const restricted = checkPlanRestrictedFeature(config);
+    if (restricted) {
+      setRestrictedFeature(restricted);
+      setShowUpgradeModal(true);
+      return;
+    }
+
     // Client-side validation: allowedDomains must NOT be empty
     const cleanDomains = (config.allowedDomains || [])
       .map((d) => d.trim())
@@ -232,6 +306,11 @@ export default function WidgetStudioView({
             onTabChange={setActiveTab}
             businessId={businessId}
             domainError={saveError}
+            planTier={planTier}
+            onUpgrade={(restricted) => {
+              setRestrictedFeature(restricted || null);
+              setShowUpgradeModal(true);
+            }}
           />
         </div>
 
@@ -302,6 +381,14 @@ export default function WidgetStudioView({
           </div>
         </div>
       )}
+
+      {/* ── Reusable Upgrade Plan Modal ── */}
+      <UpgradePlansModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        restrictedFeature={restrictedFeature}
+        currentTier={planTier}
+      />
     </div>
   );
 }

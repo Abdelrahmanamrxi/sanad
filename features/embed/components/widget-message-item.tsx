@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import { Bot, AlertCircle, RefreshCw } from "lucide-react";
+import { Bot, AlertCircle, RefreshCw, FileText } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { type ChatMessage } from "@/features/embed/types";
+import type { ContainerShape, CitationStyle, AvatarMode } from "@/features/dashboard/widget/types";
 import { ThinkingIndicator } from "./thinking-indicator";
 import { LeadCaptureCard } from "./lead-capture-card";
 
@@ -26,6 +27,10 @@ export interface WidgetMessageItemProps {
   isStreaming: boolean;
   onRetry?: (text: string, id: string) => void;
   onScrollToBottom: () => void;
+  containerShape?: ContainerShape;
+  citationStyle?: CitationStyle;
+  avatarMode?: AvatarMode;
+  avatarMonogram?: string;
 }
 
 export function WidgetMessageItem({
@@ -46,7 +51,12 @@ export function WidgetMessageItem({
   isStreaming,
   onRetry,
   onScrollToBottom,
+  containerShape = "arch",
+  citationStyle = "document-snippet",
+  avatarMode = "monogram",
+  avatarMonogram = "س",
 }: WidgetMessageItemProps) {
+  const isCurved = containerShape === "arch" || containerShape === "pill";
   const isBot = msg.role === "assistant";
   const isError = Boolean(msg.error);
   const hasContent = Boolean(msg.text && msg.text.trim().length > 0);
@@ -61,7 +71,7 @@ export function WidgetMessageItem({
     >
       {isBot && (
         <div
-          className={`size-7 shrink-0 flex items-center justify-center text-[10px] border shadow-xs mt-0.5 ${
+          className={`size-7 shrink-0 flex items-center justify-center text-xs font-bold border shadow-xs mt-0.5 ${
             isError
               ? "bg-destructive/15 text-destructive border-destructive/40"
               : ""
@@ -72,11 +82,13 @@ export function WidgetMessageItem({
               color: primaryText,
               borderColor: `${primaryColor}40`,
             }),
-            borderRadius: `${Math.min(cornerRadius, 6)}px`,
+            borderRadius: isCurved ? "9999px" : containerShape === "square" ? "0px" : `${Math.min(cornerRadius, 6)}px`,
           }}
         >
           {isError ? (
             <AlertCircle className="size-3.5" />
+          ) : avatarMode === "monogram" ? (
+            <span className="text-[11px] leading-none select-none">{avatarMonogram || "س"}</span>
           ) : (
             <Bot className="size-3.5" />
           )}
@@ -84,7 +96,7 @@ export function WidgetMessageItem({
       )}
 
       <div
-        className={`max-w-[85%] flex flex-col ${
+        className={`max-w-[85%] min-w-0 flex flex-col ${
           isBot ? "items-start" : "items-end"
         }`}
       >
@@ -97,13 +109,14 @@ export function WidgetMessageItem({
             surfaceCardBg={surfaceCardBg}
             isDarkBg={isDarkBg}
             cornerRadius={cornerRadius}
+            containerShape={containerShape}
           />
         ) : isError ? (
           /* Dedicated Red Error Bubble */
           <div
             className="p-3 text-xs leading-relaxed border shadow-xs bg-destructive/10 text-destructive border-destructive/40"
             style={{
-              borderRadius: `${Math.min(cornerRadius, 12)}px`,
+              borderRadius: isCurved ? "16px" : containerShape === "square" ? "0px" : `${Math.min(cornerRadius, 12)}px`,
               borderLeftWidth: isRtl ? "1px" : "3px",
               borderRightWidth: isRtl ? "3px" : "1px",
               borderLeftColor: isRtl
@@ -126,7 +139,7 @@ export function WidgetMessageItem({
                   onClick={() => onRetry(msg.retryText!, msg.id)}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium bg-destructive text-white hover:bg-destructive/90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
                   style={{
-                    borderRadius: `${Math.min(cornerRadius, 4)}px`,
+                    borderRadius: isCurved ? "9999px" : containerShape === "square" ? "0px" : `${Math.min(cornerRadius, 4)}px`,
                   }}
                 >
                   <RefreshCw className="size-3 shrink-0" />
@@ -144,7 +157,7 @@ export function WidgetMessageItem({
         ) : (
           /* Standard Message Bubble */
           <div
-            className="p-3 text-xs leading-relaxed border shadow-xs"
+            className="p-3 text-xs leading-relaxed border shadow-xs max-w-full min-w-0 overflow-hidden"
             style={{
               backgroundColor: isBot
                 ? isDarkBg
@@ -157,7 +170,17 @@ export function WidgetMessageItem({
                   ? "rgba(255, 255, 255, 0.12)"
                   : `${primaryColor}25`
                 : `${primaryColor}60`,
-              borderRadius: `${Math.min(cornerRadius, 12)}px`,
+              borderRadius: isCurved
+                ? isBot
+                  ? isRtl
+                    ? "16px 4px 16px 16px"
+                    : "4px 16px 16px 16px"
+                  : isRtl
+                    ? "16px 16px 4px 16px"
+                    : "16px 16px 16px 4px"
+                : containerShape === "square"
+                  ? "0px"
+                  : `${Math.min(cornerRadius, 12)}px`,
               borderLeftWidth: isBot ? (isRtl ? "1px" : "3px") : "1px",
               borderRightWidth: isBot ? (isRtl ? "3px" : "1px") : "1px",
               borderLeftColor: isBot
@@ -171,21 +194,31 @@ export function WidgetMessageItem({
                 ? isRtl
                   ? primaryColor
                   : isDarkBg
-                  ? "rgba(255,255,255,0.12)"
-                  : `${primaryColor}25`
+                    ? "rgba(255,255,255,0.12)"
+                    : `${primaryColor}25`
                 : `${primaryColor}60`,
             }}
             dir="auto"
           >
             {isBot ? (
-              <div className="prose prose-xs max-w-none text-xs leading-relaxed break-words">
+              <div className="prose prose-xs max-w-none text-xs leading-relaxed break-words min-w-0 overflow-hidden">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
                     p: ({ children }) => (
-                      <p className="mb-1.5 last:mb-0 leading-relaxed">
+                      <p className="mb-1.5 last:mb-0 leading-relaxed break-words">
                         {children}
                       </p>
+                    ),
+                    blockquote: ({ children }) => (
+                      <blockquote
+                        className="my-2 ps-2.5 pe-2 py-1.5 text-xs font-sans border-s-2 border-primary/70 bg-primary/5 rounded-sm"
+                        style={{
+                          borderRadius: isCurved ? "8px" : "0px",
+                        }}
+                      >
+                        {children}
+                      </blockquote>
                     ),
                     strong: ({ children }) => (
                       <strong className="font-semibold text-inherit">
@@ -206,13 +239,13 @@ export function WidgetMessageItem({
                       </ol>
                     ),
                     li: ({ children }) => (
-                      <li className="leading-relaxed">{children}</li>
+                      <li className="leading-relaxed break-words">{children}</li>
                     ),
                     code: ({ children }) => (
                       <code
-                        className="px-1 py-0.5 font-mono text-[10px] bg-black/10 dark:bg-white/10"
+                        className="px-1 py-0.5 font-mono text-[10px] bg-black/10 dark:bg-white/10 break-all"
                         style={{
-                          borderRadius: `${Math.min(cornerRadius, 3)}px`,
+                          borderRadius: isCurved ? "4px" : "0px",
                         }}
                       >
                         {children}
@@ -233,7 +266,7 @@ export function WidgetMessageItem({
                           href={href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline font-medium hover:opacity-80"
+                          className="underline font-medium hover:opacity-80 break-all"
                           style={{ color: primaryColor }}
                         >
                           {children}
@@ -255,6 +288,37 @@ export function WidgetMessageItem({
                       animation: "cursorPulse 0.8s infinite ease-in-out",
                     }}
                   />
+                )}
+
+                {/* Verified Document Name Badge (PRO) */}
+                {msg.citation && citationStyle === "document-snippet" && (
+                  <div className="mt-2.5 pt-2 border-t border-black/10 dark:border-white/10 w-full min-w-0 overflow-hidden not-prose select-none">
+                    <div
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 border text-[11px] font-sans font-medium max-w-full min-w-0 shadow-2xs"
+                      style={{
+                        backgroundColor: isDarkBg ? "rgba(255, 255, 255, 0.05)" : `${primaryColor}0D`,
+                        borderColor: isDarkBg ? "rgba(255, 255, 255, 0.12)" : `${primaryColor}25`,
+                        color: isDarkBg ? "#F3F7F6" : "#10201F",
+                        borderRadius: isCurved ? "4px" : "0px",
+                      }}
+                      title={msg.citation.documentTitle}
+                    >
+                      <FileText className="size-3.5 shrink-0" style={{ color: primaryColor }} />
+                      <span className="truncate min-w-0">
+                        {msg.citation.documentTitle}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Compact Citation footer (when citationStyle is compact) */}
+                {msg.citation && citationStyle === "compact" && (
+                  <div className="mt-2 pt-1.5 border-t border-black/10 dark:border-white/10 flex items-center gap-1.5 text-[11px] font-sans text-muted-foreground not-prose select-none min-w-0 max-w-full overflow-hidden">
+                    <FileText className="size-3 shrink-0" style={{ color: primaryColor }} />
+                    <span className="truncate min-w-0" title={msg.citation.documentTitle}>
+                      {isRtl ? "المصدر:" : "Source:"} {msg.citation.documentTitle}
+                    </span>
+                  </div>
                 )}
 
                 {/* Inline Lead Capture Card if triggered */}
@@ -285,9 +349,7 @@ export function WidgetMessageItem({
               <span
                 className="block mt-1 font-mono text-[8px] select-none"
                 style={{
-                  color: isBot
-                    ? bgMutedText
-                    : "rgba(255, 255, 255, 0.85)",
+                  color: isBot ? bgMutedText : "rgba(255, 255, 255, 0.85)",
                 }}
               >
                 {msg.time}

@@ -2,11 +2,17 @@
 
 import React, { useState } from "react";
 import { Globe, Plus, X, AlertCircle, ShieldCheck } from "lucide-react";
+import type { PlanTier } from "@/features/billing/plans";
+
+import { cn } from "@/lib/utils";
 
 interface AllowedDomainsInputProps {
   domains: string[];
   onChange: (domains: string[]) => void;
   error?: string | null;
+  maxAllowed?: number;
+  planTier?: PlanTier;
+  onUpgrade?: () => void;
 }
 
 export function cleanDomain(raw: string): string {
@@ -24,6 +30,9 @@ export default function AllowedDomainsInput({
   domains = [],
   onChange,
   error,
+  maxAllowed,
+  planTier = "free",
+  onUpgrade,
 }: AllowedDomainsInputProps) {
   const [inputValue, setInputValue] = useState("");
   const [inputError, setInputError] = useState<string | null>(null);
@@ -34,6 +43,22 @@ export default function AllowedDomainsInput({
 
     if (!cleaned) {
       setInputError("Please enter a valid domain name");
+      return;
+    }
+
+    // Check plan limits before adding
+    if (maxAllowed !== undefined && domains.length >= maxAllowed) {
+      if (planTier === "free") {
+        setInputError(
+          "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains)."
+        );
+      } else if (planTier === "starter") {
+        setInputError(
+          "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains."
+        );
+      } else {
+        setInputError("Pro plan allows a maximum of 10 authorized domains.");
+      }
       return;
     }
 
@@ -68,24 +93,55 @@ export default function AllowedDomainsInput({
   };
 
   const isEmpty = domains.length === 0;
+  const isAtLimit = maxAllowed !== undefined && domains.length >= maxAllowed;
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <label className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <Globe className="size-3.5 text-primary" />
-          <span>Authorized Domains (Whitelist)</span>
+      {/* ── Top Header Row with Crisp Balanced Badges ── */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <label className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">
+          <Globe className="size-3.5 text-primary shrink-0" />
+          <span>Authorized Domains</span>
           <span className="text-destructive font-bold text-xs">*</span>
         </label>
-        <span
-          className={`font-mono text-[10px] px-1.5 py-0.5 border ${
-            isEmpty
-              ? "border-destructive/40 bg-destructive/10 text-destructive font-bold"
-              : "border-border bg-muted/60 text-muted-foreground font-semibold"
-          } rounded-none`}
-        >
-          {domains.length} {domains.length === 1 ? "Domain" : "Domains"}
-        </span>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span
+            className={cn(
+              "font-mono text-[10px] font-bold px-2 py-0.5 border rounded-none whitespace-nowrap",
+              isEmpty
+                ? "border-destructive/40 bg-destructive/10 text-destructive"
+                : isAtLimit
+                ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                : "border-border bg-muted/60 text-muted-foreground"
+            )}
+          >
+            {domains.length}{maxAllowed !== undefined ? ` / ${maxAllowed}` : ""} Domains
+          </span>
+
+          {planTier && (
+            <span
+              className={cn(
+                "font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border rounded-none whitespace-nowrap",
+                planTier === "free"
+                  ? "border-border bg-muted/70 text-muted-foreground"
+                  : "border-primary/30 bg-primary/10 text-primary"
+              )}
+            >
+              {planTier === "free" ? "Free" : planTier.toUpperCase()}
+            </span>
+          )}
+
+          {isAtLimit && onUpgrade && (
+            <button
+              type="button"
+              onClick={onUpgrade}
+              className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border border-amber-500/40 cursor-pointer transition-colors rounded-none whitespace-nowrap"
+            >
+              Upgrade
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Input row */}
@@ -174,6 +230,9 @@ export default function AllowedDomainsInput({
       {/* Informational Guidance */}
       <p className="text-[11px] text-muted-foreground font-sans leading-relaxed">
         Only storefronts matching these domains will be authorized to initialize the assistant. Subdomains are automatically included (e.g. adding <code className="font-mono text-[10px] bg-muted px-1 py-0.5">salla.sa</code> also allows <code className="font-mono text-[10px] bg-muted px-1 py-0.5">mystore.salla.sa</code>).
+        <span className="block mt-1 font-mono text-[10px] text-primary">
+          Authorized domain limits: Free (1 domain), Starter (5 domains), Pro (10 domains).
+        </span>
       </p>
     </div>
   );

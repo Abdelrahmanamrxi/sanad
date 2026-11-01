@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
-import { Globe, Bot } from "lucide-react";
+import { Globe, Bot, Lock } from "lucide-react";
 import type { WidgetConfig, WidgetLanguage } from "../../types";
+import { type PlanTier, PLANS } from "@/features/billing/plans";
+import { cn } from "@/lib/utils";
 
 import AllowedDomainsInput from "./allowed-domains-input";
 
@@ -10,9 +12,18 @@ interface TabIdentityProps {
   config: WidgetConfig;
   onChange: (config: WidgetConfig) => void;
   domainError?: string | null;
+  planTier?: PlanTier;
+  onUpgrade?: () => void;
 }
 
-export default function TabIdentity({ config, onChange, domainError }: TabIdentityProps) {
+export default function TabIdentity({
+  config,
+  onChange,
+  domainError,
+  planTier = "free",
+  onUpgrade,
+}: TabIdentityProps) {
+  const isFree = planTier === "free";
   const languageOptions = [
     {
       id: "auto",
@@ -50,24 +61,65 @@ export default function TabIdentity({ config, onChange, domainError }: TabIdenti
       {/* Assistant Name */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Assistant Name
+          <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <span>Assistant Name</span>
+            {isFree && (
+              <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1 rounded-none">
+                <Lock className="size-2.5" />
+                <span>STARTER TIER</span>
+              </span>
+            )}
           </label>
-          <span className="font-mono text-[10px] text-primary font-bold">
-            {config.botName.length} / 40
+          <span className="font-mono text-[10px] text-muted-foreground">
+            {isFree ? "Default Name" : `${config.botName.length} / 40`}
           </span>
         </div>
-        <input
-          type="text"
-          maxLength={40}
-          value={config.botName}
-          onChange={(e) => onChange({ ...config, botName: e.target.value })}
-          placeholder="e.g. Sanad AI Support"
-          className="w-full border border-border bg-background px-3 py-2 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all rounded-none shadow-2xs"
-        />
-        <p className="mt-1 text-[11px] text-muted-foreground font-sans">
-          Displayed prominently in the widget header and above verified AI responses.
-        </p>
+
+        <div className="relative">
+          <input
+            type="text"
+            maxLength={40}
+            disabled={isFree}
+            value={isFree ? (config.botName || "Sanad Assistant") : config.botName}
+            onChange={(e) => onChange({ ...config, botName: e.target.value })}
+            placeholder="e.g. Sanad AI Support"
+            className={cn(
+              "w-full border px-3 py-2 font-sans text-xs outline-none transition-all rounded-none shadow-2xs",
+              isFree
+                ? "border-border/80 bg-muted/60 text-muted-foreground cursor-not-allowed border-dashed select-none"
+                : "border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30"
+            )}
+          />
+          {isFree && (
+            <div className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+              <Lock className="size-3.5" />
+            </div>
+          )}
+        </div>
+
+        {isFree ? (
+          <div className="mt-2 flex items-center justify-between p-2.5 bg-amber-500/10 border border-amber-500/25 text-xs rounded-none">
+            <div className="flex items-center gap-2">
+              <Lock className="size-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="text-[11px] text-foreground/90 leading-tight">
+                Free plan defaults to <strong>&quot;Sanad Assistant&quot;</strong>. Upgrade to Starter to brand with your store or clinic name.
+              </span>
+            </div>
+            {onUpgrade && (
+              <button
+                type="button"
+                onClick={onUpgrade}
+                className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0 cursor-pointer transition-colors rounded-none whitespace-nowrap"
+              >
+                UPGRADE
+              </button>
+            )}
+          </div>
+        ) : (
+          <p className="mt-1 text-[11px] text-muted-foreground font-sans">
+            Displayed prominently in the widget header and above verified AI responses.
+          </p>
+        )}
       </div>
 
       {/* Status Subtitle */}
@@ -136,6 +188,9 @@ export default function TabIdentity({ config, onChange, domainError }: TabIdenti
           domains={config.allowedDomains || []}
           onChange={(domains) => onChange({ ...config, allowedDomains: domains })}
           error={domainError}
+          maxAllowed={PLANS[planTier || "free"].maxDomains}
+          planTier={planTier}
+          onUpgrade={onUpgrade}
         />
       </div>
     </div>

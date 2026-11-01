@@ -11,8 +11,10 @@ export interface PlanConfig {
   maxTotalPages: number; // drives embedding and storage cost
   maxOutputTokens: number; // caps cost per answer
   maxUserMessageChars: number; // caps cost per question
+  maxDomains: number; // allowed authorized domains for widget embed
   features: {
-    customBranding: boolean; // remove "Powered by Sanad"
+    customBranding: boolean; // remove "Powered by Sanad" (PRO only)
+    documentHighlightCards: boolean; // Rich grounded document highlight card citations (PRO only)
     prioritySupport: boolean;
     analytics: boolean;
   };
@@ -29,7 +31,8 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     maxTotalPages: 12,
     maxOutputTokens: 400,
     maxUserMessageChars: 400,
-    features: { customBranding: false, prioritySupport: false, analytics: false },
+    maxDomains: 1,
+    features: { customBranding: false, documentHighlightCards: false, prioritySupport: false, analytics: false },
   },
   starter: {
     id: "starter",
@@ -41,7 +44,8 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     maxTotalPages: 150,
     maxOutputTokens: 500,
     maxUserMessageChars: 1000,
-    features: { customBranding: true, prioritySupport: false, analytics: true },
+    maxDomains: 5,
+    features: { customBranding: false, documentHighlightCards: false, prioritySupport: false, analytics: true },
   },
   pro: {
     id: "pro",
@@ -53,7 +57,8 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     maxTotalPages: 500,
     maxOutputTokens: 600,
     maxUserMessageChars: 1000,
-    features: { customBranding: true, prioritySupport: true, analytics: true },
+    maxDomains: 10,
+    features: { customBranding: true, documentHighlightCards: true, prioritySupport: true, analytics: true },
   },
 };
 

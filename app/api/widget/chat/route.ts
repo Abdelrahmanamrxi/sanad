@@ -143,6 +143,7 @@ export const POST = handle(async (req) => {
   let context = "";
   let chunkIds: string[] = [];
   let topScore: number | null = null;
+  let citationPayload: { documentTitle: string; page?: string; highlightedExcerpt?: string } | null = null;
 
   try {
     const retrievedChunks = await RetrieveChunks({
@@ -156,6 +157,18 @@ export const POST = handle(async (req) => {
     chunkIds = retrievedChunks.map((c) => c.id).filter(Boolean);
     topScore = retrievedChunks[0]?.similarity ?? null;
     context = retrievedChunks.length > 0 ? formatChunks(retrievedChunks) : "";
+
+    if (retrievedChunks.length > 0) {
+      const topChunk = retrievedChunks[0];
+      const rawName =
+        topChunk.documentName ||
+        (topChunk.headingPath ? topChunk.headingPath.split(">")[0].trim() : "Verified Knowledge");
+      const cleanDocName = rawName.split(/[\\/]/).pop()?.trim() || "Verified Document";
+
+      citationPayload = {
+        documentTitle: cleanDocName,
+      };
+    }
   } catch (retrievalErr) {
     console.error("[Chat Route] Knowledge retrieval error:", retrievalErr);
     context = "";
@@ -257,7 +270,17 @@ ${context}`,
     },
   });
 
+  const responseHeaders: Record<string, string> = {
+    "Access-Control-Expose-Headers": "x-sanad-citation",
+  };
+  if (citationPayload) {
+    responseHeaders["x-sanad-citation"] = encodeURIComponent(
+      JSON.stringify(citationPayload),
+    );
+  }
+
   return createTextStreamResponse({
     stream: result.textStream,
+    headers: responseHeaders,
   });
 });

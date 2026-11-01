@@ -9,6 +9,8 @@ import {
   WidgetSettingsDBRow,
 } from "@/features/dashboard/widget/types";
 import { DEFAULT_WIDGET_CONFIG } from "@/features/dashboard/widget/constants";
+import { getActiveSubscription } from "@/features/billing/services/usage";
+import type { PlanTier } from "@/features/billing/plans";
 
 export const metadata: Metadata = {
   title: "Widget Studio | Sanad",
@@ -34,6 +36,14 @@ export default async function WidgetPage() {
 
   const { businessId, supabase } = authContext;
 
+  let planTier: PlanTier = "free";
+  try {
+    const sub = await getActiveSubscription(businessId);
+    planTier = (sub.plan_tier as PlanTier) || "free";
+  } catch (err) {
+    console.error("[Widget Page] Error fetching plan tier:", err);
+  }
+
   const { data } = await supabase
     .from("widget_settings")
     .select("*")
@@ -43,6 +53,10 @@ export default async function WidgetPage() {
   const widgetSettings = data ? toWidgetConfig(data) : DEFAULT_WIDGET_CONFIG;
 
   return (
-    <WidgetStudioView businessId={businessId} initialConfig={widgetSettings} />
+    <WidgetStudioView
+      businessId={businessId}
+      initialConfig={widgetSettings}
+      planTier={planTier}
+    />
   );
 }

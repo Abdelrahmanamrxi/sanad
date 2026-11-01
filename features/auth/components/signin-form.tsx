@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import logo from "../../../public/sanad_logo.png";
-import { Eye, EyeOff, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
 import { signInSchema, type SignInInput } from "../schemas/auth";
 import { signIn } from "../actions";
 
@@ -28,6 +28,7 @@ export function SignInForm({
   const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const {
     register,
@@ -52,7 +53,9 @@ export function SignInForm({
         return;
       }
 
-      router.replace("/dashboard");
+      setIsSuccess(true);
+      router.replace(result.redirectTo || "/dashboard");
+      router.refresh();
     } catch (err) {
       if (err instanceof Error) {
         setServerError(err.message);
@@ -94,8 +97,19 @@ export function SignInForm({
 
       {/* Sign In Form */}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        {/* Success Message Banner */}
+        {isSuccess && (
+          <div className="flex items-start gap-2.5 p-3 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-none animate-in fade-in duration-150">
+            <CheckCircle2 className="size-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+            <div className="space-y-0.5">
+              <p className="font-semibold leading-snug">Signed in successfully!</p>
+              <p className="text-[11px] opacity-90">Redirecting to your workspace...</p>
+            </div>
+          </div>
+        )}
+
         {/* Server Error Message */}
-        {serverError && (
+        {serverError && !isSuccess && (
           <div className="flex items-start gap-2.5 p-3 text-xs bg-destructive/10 border border-destructive/30 text-destructive rounded-none">
             <AlertCircle className="size-4 shrink-0 mt-0.5" />
             <span className="leading-snug">{serverError}</span>
@@ -113,6 +127,7 @@ export function SignInForm({
               type="email"
               placeholder="name@company.com"
               autoComplete="email"
+              disabled={isSubmitting || isSuccess}
               autoFocus
               {...register("email", {
                 onChange: () => setServerError(null),
@@ -137,6 +152,7 @@ export function SignInForm({
                 id="signin-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
+                disabled={isSubmitting || isSuccess}
                 autoComplete="current-password"
                 {...register("password", {
                   onChange: () => setServerError(null),
@@ -167,10 +183,15 @@ export function SignInForm({
           {/* Submit Button */}
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isSuccess}
             className="w-full h-11 sm:h-10 mt-1 cursor-pointer text-sm font-medium flex items-center justify-center gap-2 rounded-none disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? (
+            {isSuccess ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                <span>Redirecting...</span>
+              </>
+            ) : isSubmitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
                 <span>Signing In...</span>

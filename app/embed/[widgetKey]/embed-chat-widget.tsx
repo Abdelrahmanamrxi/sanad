@@ -33,6 +33,7 @@ export function EmbedChatWidget({
   config,
   initialOpen = false,
   showBranding = true,
+  planTier = "free",
   hostDomain,
   originPage,
 }: EmbedChatWidgetProps) {
@@ -56,6 +57,21 @@ export function EmbedChatWidget({
   const primaryColor = config.primaryColor || "#0F5C55";
   const secondaryColor = config.secondaryColor || "#D3E6E2";
   const backgroundColor = config.backgroundColor || "#FFFFFF";
+
+  // Widget Archetype and Style customizations
+  const containerShape = config.containerShape || "arch";
+  const headerLayout = config.headerLayout || "hero";
+  const avatarMode = config.avatarMode || "monogram";
+  const avatarMonogram = config.avatarMonogram || "س";
+  const borderStyle = config.borderStyle || "hairline";
+
+  // Pro plan gating: Document Highlight Card is restricted to Pro plan
+  const isPro = planTier === "pro";
+  const rawCitationStyle = config.citationStyle || "none";
+  const citationStyle =
+    rawCitationStyle === "document-snippet" && !isPro
+      ? "none"
+      : rawCitationStyle;
 
   // Dynamic corner curvature and stroke thickness configured by merchant in Database
   const cornerRadius =
@@ -409,6 +425,24 @@ export function EmbedChatWidget({
           throw new Error(errorMsg);
         }
 
+        // Parse grounded citation metadata from response header if available
+        const citationHeader = res.headers.get("x-sanad-citation");
+        let parsedCitation:
+          | {
+              documentTitle: string;
+              page?: string | number;
+              highlightedExcerpt: string;
+            }
+          | undefined = undefined;
+
+        if (citationHeader) {
+          try {
+            parsedCitation = JSON.parse(decodeURIComponent(citationHeader));
+          } catch (e) {
+            console.error("[Embed] Failed to parse citation header:", e);
+          }
+        }
+
         if (!res.body) {
           throw new Error(
             isRtl
@@ -432,7 +466,13 @@ export function EmbedChatWidget({
           setChatHistory((prev) =>
             prev.map((m) =>
               m.id === assistantMsgId
-                ? { ...m, text: currentText, isStreaming: true, error: false }
+                ? {
+                    ...m,
+                    text: currentText,
+                    citation: parsedCitation,
+                    isStreaming: true,
+                    error: false,
+                  }
                 : m,
             ),
           );
@@ -452,7 +492,13 @@ export function EmbedChatWidget({
         setChatHistory((prev) =>
           prev.map((m) =>
             m.id === assistantMsgId
-              ? { ...m, text: finalText, isStreaming: false, error: false }
+              ? {
+                  ...m,
+                  text: finalText,
+                  citation: parsedCitation,
+                  isStreaming: false,
+                  error: false,
+                }
               : m,
           ),
         );
@@ -560,15 +606,57 @@ export function EmbedChatWidget({
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className={`fixed ${
               config.position === "bottom-left" ? "left-4" : "right-4"
-            } bottom-4 z-50 flex flex-col w-[385px] max-w-[calc(100vw-32px)] h-[620px] max-h-[calc(100vh-32px)] shadow-2xl border overflow-hidden`}
+            } bottom-4 z-50 flex flex-col w-[385px] max-w-[calc(100vw-32px)] h-[620px] max-h-[calc(100vh-32px)] border overflow-hidden`}
             style={{
               backgroundColor,
               color: bgText,
-              borderColor: isDarkBg ? `${primaryColor}55` : `${primaryColor}35`,
-              borderRadius: `${cornerRadius}px`,
-              borderWidth: `${Math.max(1, borderRadius)}px`,
+              borderColor:
+                borderStyle === "hard-brutalist"
+                  ? isDarkBg
+                    ? "#334E4C"
+                    : "#1E1E1E"
+                  : borderStyle === "accent-gold"
+                    ? isDarkBg
+                      ? "#6E5B37"
+                      : "#E5D5B8"
+                    : isDarkBg
+                      ? `${primaryColor}55`
+                      : `${primaryColor}35`,
+              borderRadius:
+                containerShape === "arch"
+                  ? "195px 195px 28px 28px"
+                  : containerShape === "pill"
+                    ? "28px"
+                    : "0px",
+              borderWidth:
+                borderStyle === "none"
+                  ? "0px"
+                  : borderStyle === "hard-brutalist"
+                    ? "2px"
+                    : `${Math.max(1, borderRadius)}px`,
+              boxShadow:
+                borderStyle === "hard-brutalist"
+                  ? isDarkBg
+                    ? "5px 5px 0px #334E4C"
+                    : "5px 5px 0px #1E1E1E"
+                  : isDarkBg
+                    ? "0 25px 50px -12px rgba(0,0,0,0.7)"
+                    : "0 25px 50px -12px rgba(0,0,0,0.25)",
             }}
           >
+            {/* ── Inner Hairline Contour for Egyptian/Andalusian Arch ── */}
+            {containerShape === "arch" && (
+              <div
+                className="pointer-events-none absolute inset-1.5 transition-all select-none z-10"
+                style={{
+                  borderRadius: "188px 188px 24px 24px",
+                  border: `1px solid ${
+                    isDarkBg ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)"
+                  }`,
+                }}
+              />
+            )}
+
             {/* Header */}
             <WidgetHeader
               botName={config.botName}
@@ -577,7 +665,13 @@ export function EmbedChatWidget({
               primaryText={primaryText}
               secondaryColor={secondaryColor}
               secondaryText={secondaryText}
+              backgroundColor={backgroundColor}
+              isDarkBg={isDarkBg}
               cornerRadius={cornerRadius}
+              containerShape={containerShape}
+              headerLayout={headerLayout}
+              avatarMode={avatarMode}
+              avatarMonogram={avatarMonogram}
               isRtl={isRtl}
               hasMessages={chatHistory.length > 0}
               onRequestHumanSupport={handleRequestHumanSupport}
@@ -607,7 +701,7 @@ export function EmbedChatWidget({
 
             {/* Scrollable Message Feed */}
             <div
-              className="flex-1 overflow-y-auto p-3.5 space-y-3.5 select-text"
+              className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-3.5 select-text"
               style={{ backgroundColor }}
             >
               {isInitializing && messages.length <= 1 ? (
@@ -702,6 +796,10 @@ export function EmbedChatWidget({
                     isDarkBg={isDarkBg}
                     isRtl={isRtl}
                     cornerRadius={cornerRadius}
+                    containerShape={containerShape}
+                    citationStyle={citationStyle}
+                    avatarMode={avatarMode}
+                    avatarMonogram={avatarMonogram}
                     originPage={originPage}
                     isStreaming={isStreaming}
                     onRetry={(txt, id) => handleSendMessage(txt, id)}
@@ -756,6 +854,7 @@ export function EmbedChatWidget({
               isRtl={isRtl}
               cornerRadius={cornerRadius}
               borderRadius={borderRadius}
+              containerShape={containerShape}
             />
 
             {/* Brand Attribution Footer */}
@@ -783,9 +882,14 @@ export function EmbedChatWidget({
         launcherText={config.launcherText}
         primaryColor={primaryColor}
         primaryText={primaryText}
+        secondaryColor={secondaryColor}
+        secondaryText={secondaryText}
         cornerRadius={cornerRadius}
         borderRadius={borderRadius}
         isRtl={isRtl}
+        containerShape={containerShape}
+        avatarMode={avatarMode}
+        avatarMonogram={avatarMonogram}
       />
     </div>
   );

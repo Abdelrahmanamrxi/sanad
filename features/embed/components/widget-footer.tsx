@@ -82,9 +82,7 @@ export function WidgetFooter({
     >
       <span className="flex items-center gap-1.5">
         <CheckCircle2 className="size-3 text-emerald-500" />
-        <span>
-          {isRtl ? "مساعد رسمي للمتجر" : "Verified Store Assistant"}
-        </span>
+        <span>{isRtl ? "مساعد رسمي للمتجر" : "Verified Store Assistant"}</span>
       </span>
       <span className="opacity-80">
         {isRtl ? "دعم متواصل 24/7" : "24/7 Live Support"}

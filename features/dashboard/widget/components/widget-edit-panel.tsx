@@ -3,6 +3,8 @@
 import React from "react";
 import { Bot, Palette, MessageSquare, Code2 } from "lucide-react";
 import type { WidgetConfig, EditTab } from "../types";
+import type { PlanTier } from "@/features/billing/plans";
+import type { RestrictedFeatureInfo } from "@/features/billing/components/upgrade-plans-modal";
 import TabIdentity from "./edit/tab-identity";
 import TabAppearance from "./edit/tab-appearance";
 import TabMessages from "./edit/tab-messages";
@@ -15,6 +17,8 @@ interface WidgetEditPanelProps {
   onTabChange: (tab: EditTab) => void;
   businessId?: string;
   domainError?: string | null;
+  planTier?: PlanTier;
+  onUpgrade?: (restricted?: RestrictedFeatureInfo | null) => void;
 }
 
 export default function WidgetEditPanel({
@@ -24,6 +28,8 @@ export default function WidgetEditPanel({
   onTabChange,
   businessId = "workspace-live",
   domainError,
+  planTier = "free",
+  onUpgrade,
 }: WidgetEditPanelProps) {
   const tabs = [
     {
@@ -93,10 +99,17 @@ export default function WidgetEditPanel({
             config={config}
             onChange={onChange}
             domainError={domainError}
+            planTier={planTier}
+            onUpgrade={onUpgrade}
           />
         )}
         {activeTab === "appearance" && (
-          <TabAppearance config={config} onChange={onChange} />
+          <TabAppearance
+            config={config}
+            onChange={onChange}
+            planTier={planTier}
+            onUpgrade={onUpgrade}
+          />
         )}
         {activeTab === "messages" && (
           <TabMessages config={config} onChange={onChange} />

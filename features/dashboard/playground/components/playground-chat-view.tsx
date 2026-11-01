@@ -425,23 +425,43 @@ export function PlaygroundChatView({
         {/* ── Natural Thinking / Formulation State ── */}
         {isRunning && (
           <div className="flex flex-col items-start w-full max-w-3xl">
-            <div className="w-full border border-primary/40 bg-card p-5 border-s-3 border-s-primary shadow-xs animate-pulse">
-              <div className="flex items-center gap-2 font-sans text-xs text-primary font-semibold mb-3">
-                <Sparkles className="size-4 animate-spin" />
+            <div className="relative overflow-hidden w-full border border-primary/30 bg-card p-5 border-s-3 border-s-primary shadow-xs">
+              {/* Dynamic top shimmer accent */}
+              <div
+                className="absolute top-0 inset-x-0 h-[2px] opacity-75"
+                style={{
+                  backgroundImage: "linear-gradient(90deg, transparent 0%, var(--color-primary, #0F5C55) 50%, transparent 100%)",
+                  backgroundSize: "200% 100%",
+                  animation: "thinkingShimmer 1.8s infinite linear",
+                }}
+              />
+              <style>{`
+                @keyframes thinkingShimmer {
+                  0% { background-position: -200% 0; }
+                  100% { background-position: 200% 0; }
+                }
+              `}</style>
+              <div className="flex items-center gap-2.5 font-sans text-xs text-primary font-semibold mb-3">
+                <div className="relative size-4 shrink-0 flex items-center justify-center">
+                  <svg className="size-full animate-spin" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeOpacity="0.2" />
+                    <path d="M8 2 A 6 6 0 0 1 14 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
                 <span>SEARCHING DOCUMENTS & WRITING ANSWER...</span>
               </div>
 
               <div className="space-y-2 font-sans text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 bg-primary inline-block" />
+                  <span className="size-1.5 bg-primary inline-block" />
                   <span>Reading verified policy documents from your knowledge base...</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="size-2 bg-primary/70 inline-block" />
+                  <span className="size-1.5 bg-primary/70 inline-block" />
                   <span>Matching customer question to exact clauses...</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="size-2 bg-primary/40 inline-block" />
+                  <span className="size-1.5 bg-primary/40 inline-block" />
                   <span>Formulating a clear, helpful response...</span>
                 </div>
               </div>

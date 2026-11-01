@@ -6,6 +6,7 @@ import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
+import type { PlanTier } from "@/features/billing/plans";
 import {
   Sidebar,
   SidebarContent,
@@ -93,9 +94,10 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     email: string;
     avatar?: string;
   };
+  planTier: PlanTier
 }
 
-export function AppSidebar({ businessName, user, ...props }: AppSidebarProps) {
+export function AppSidebar({ planTier,businessName, user, ...props }: AppSidebarProps) {
   const currentUser = {
     name: user?.name || "User",
     email: user?.email || "",
@@ -107,7 +109,7 @@ export function AppSidebar({ businessName, user, ...props }: AppSidebarProps) {
       <SidebarHeader className="border-b border-sidebar-border p-3">
         <div className="flex items-center gap-2.5">
           <div
-            className="flex size-9 shrink-0 items-center justify-center bg-primary text-primary-foreground border border-primary/20 rounded-none shadow-xs"
+            className="flex size-7 shrink-0 items-center justify-center bg-primary text-primary-foreground border border-primary/20 rounded-none shadow-xs"
             title={businessName || "Business Workspace"}
           >
             <Building2 className="size-4.5" />
@@ -139,7 +141,7 @@ export function AppSidebar({ businessName, user, ...props }: AppSidebarProps) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={currentUser} />
+        <NavUser user={currentUser} planTier={planTier} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

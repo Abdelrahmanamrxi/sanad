@@ -86,14 +86,16 @@ export async function signIn(
       .eq("owner_id", user.id)
       .maybeSingle();
 
-    if (business) {
-      redirect("/dashboard");
-    } else {
-      redirect("/onboarding");
-    }
+    return {
+      success: true,
+      redirectTo: business ? "/dashboard" : "/onboarding",
+    };
   }
 
-  redirect("/dashboard");
+  return {
+    success: true,
+    redirectTo: "/dashboard",
+  };
 }
 
 export async function verifyOtp(
@@ -165,3 +167,9 @@ export const resendOTP = async (email: string): Promise<VerifyOTPResult> => {
   }
   return { success: true };
 };
+
+export async function signOut(){
+  const supabase=await createClient()
+  await supabase.auth.signOut()
+  redirect("/")
+}

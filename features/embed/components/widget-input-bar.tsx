@@ -3,6 +3,8 @@
 import React from "react";
 import { Send, Loader2 } from "lucide-react";
 
+import type { ContainerShape } from "@/features/dashboard/widget/types";
+
 export interface WidgetInputBarProps {
   inputText: string;
   onInputChange: (val: string) => void;
@@ -27,6 +29,7 @@ export interface WidgetInputBarProps {
   isRtl: boolean;
   cornerRadius: number;
   borderRadius: number;
+  containerShape?: ContainerShape;
 }
 
 export function WidgetInputBar({
@@ -53,7 +56,14 @@ export function WidgetInputBar({
   isRtl,
   cornerRadius,
   borderRadius,
+  containerShape = "arch",
 }: WidgetInputBarProps) {
+  const isCurved = containerShape === "arch" || containerShape === "pill";
+  const defaultPlaceholder = isRtl
+    ? containerShape === "arch"
+      ? "اكتب بالعامية.. أو بالفرانكو"
+      : "اكتب سؤالك هنا..."
+    : "Type your question...";
   return (
     <form
       onSubmit={(e) => {
@@ -69,7 +79,7 @@ export function WidgetInputBar({
     >
       <div
         style={{
-          borderRadius: `${Math.min(cornerRadius, 8)}px`,
+          borderRadius: isCurved ? "9999px" : containerShape === "square" ? "0px" : `${Math.min(cornerRadius, 8)}px`,
           borderWidth: `${Math.max(1, borderRadius)}px`,
           borderColor: inputBarBorder,
           boxShadow: isInputFocused
@@ -79,7 +89,7 @@ export function WidgetInputBar({
               : "0 1px 3px rgba(0,0,0,0.05)",
           backgroundColor: inputBg,
         }}
-        className="flex items-center gap-2 border transition-all p-1.5 shadow-2xs"
+        className={`flex items-center gap-2 border transition-all ${isCurved ? "p-1.5 ps-3 pe-1.5" : "p-1.5"} shadow-2xs`}
       >
         <input
           ref={inputRef}
@@ -90,25 +100,24 @@ export function WidgetInputBar({
           onBlur={onBlur}
           onChange={(e) => onInputChange(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder={
-            placeholder ||
-            (isRtl ? "اكتب سؤالك هنا..." : "Type your question...")
-          }
+          placeholder={placeholder || defaultPlaceholder}
           dir="auto"
           style={{
             color: inputTextColor,
           }}
-          className="flex-1 bg-transparent px-2.5 py-1.5 font-sans text-xs outline-none"
+          className="flex-1 bg-transparent px-2 py-1 font-sans text-xs outline-none"
         />
 
         <button
           type="submit"
           disabled={!inputText.trim() || isStreaming}
-          className="flex size-8 items-center justify-center transition-all disabled:opacity-40 shrink-0 cursor-pointer shadow-xs hover:brightness-110 active:scale-95"
+          className={`flex size-8.5 items-center justify-center transition-all disabled:opacity-40 shrink-0 cursor-pointer shadow-xs hover:brightness-110 active:scale-95 ${
+            isCurved ? "rounded-full" : containerShape === "square" ? "rounded-none" : ""
+          }`}
           style={{
             backgroundColor: primaryColor,
             color: primaryText,
-            borderRadius: `${Math.min(cornerRadius, 6)}px`,
+            borderRadius: isCurved ? "9999px" : containerShape === "square" ? "0px" : `${Math.min(cornerRadius, 6)}px`,
           }}
           title={isRtl ? "إرسال" : "Send message"}
         >
@@ -131,14 +140,14 @@ export function WidgetInputBar({
             backgroundColor: `${secondaryColor}30`,
             borderColor: `${secondaryColor}70`,
             color: isDarkBg ? "#FFFFFF" : primaryColor,
-            borderRadius: `${Math.min(cornerRadius, 4)}px`,
+            borderRadius: isCurved ? "9999px" : containerShape === "square" ? "0px" : `${Math.min(cornerRadius, 4)}px`,
           }}
         >
           <span
             className="size-1.5 inline-block"
             style={{
               backgroundColor: primaryColor,
-              borderRadius: `${Math.min(cornerRadius, 2)}px`,
+              borderRadius: isCurved ? "9999px" : containerShape === "square" ? "0px" : `${Math.min(cornerRadius, 2)}px`,
             }}
           />
           {isRtl ? "إجابات فورية موثقة" : "Verified Instant Response"}

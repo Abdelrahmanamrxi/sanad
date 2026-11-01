@@ -17,9 +17,8 @@ export interface EmbedChatWidgetProps {
   showBranding?: boolean;
   planTier?: string;
   hostDomain?: string;
-  originPage:string;
+  originPage: string;
 }
-
 
 export interface ChatMessage {
   id: string;
@@ -29,6 +28,9 @@ export interface ChatMessage {
   isStreaming?: boolean;
   error?: boolean;
   retryText?: string;
+  citation?: {
+    documentTitle: string;
+    page?: number | string;
+    highlightedExcerpt: string;
+  };
 }
-
-

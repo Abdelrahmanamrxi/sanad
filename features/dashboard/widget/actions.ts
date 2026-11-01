@@ -2,6 +2,7 @@
 
 import { WidgetConfig, toWidgetSettingsDBRow } from "./types";
 import { getAuthContext } from "@/lib/auth";
+import { getActiveSubscription } from "@/features/billing/services/usage";
 import { revalidatePath } from "next/cache";
 
 export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
@@ -31,6 +32,55 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
   }
 
   const dbUpdate = toWidgetSettingsDBRow(widget);
+
+  // Subscription Plan Gating
+  const sub = await getActiveSubscription(businessId);
+  const currentTier = sub?.planTier || "free";
+
+  // 1. Authorized Domain Count Limits (Free: 1, Starter: 5, Pro: 10)
+  if (widget.allowedDomains && widget.allowedDomains.length > 0) {
+    const domainCount = widget.allowedDomains.length;
+    if (currentTier === "free" && domainCount > 1) {
+      throw new Error(
+        "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains)."
+      );
+    }
+    if (currentTier === "starter" && domainCount > 5) {
+      throw new Error(
+        "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains."
+      );
+    }
+    if (currentTier === "pro" && domainCount > 10) {
+      throw new Error(
+        "Pro plan allows a maximum of 10 authorized domains."
+      );
+    }
+  }
+
+  // 2. Custom Assistant Name (Free uses default Sanad Assistant, Starter/Pro can customize)
+  if (currentTier === "free" && widget.botName !== undefined) {
+    const trimmed = widget.botName.trim();
+    const isDefaultName =
+      trimmed === "" ||
+      trimmed.toLowerCase() === "sanad ai" ||
+      trimmed.toLowerCase() === "sanad assistant" ||
+      trimmed.toLowerCase() === "sanad ai support" ||
+      trimmed === "مساعد سند الذكي" ||
+      trimmed === "سند";
+
+    if (!isDefaultName) {
+      throw new Error(
+        "Customizing the assistant name requires a Starter plan or higher. Free plan uses default 'Sanad Assistant'."
+      );
+    }
+  }
+
+  // 3. Document Highlight Card Gating (Requires Pro plan)
+  if (currentTier !== "pro" && widget.citationStyle === "document-snippet") {
+    throw new Error(
+      "Document Highlight Cards require a Pro plan. Upgrade to Growth (Pro) to enable rich verified source cards."
+    );
+  }
 
   const { data, error } = await supabase
     .from("widget_settings")

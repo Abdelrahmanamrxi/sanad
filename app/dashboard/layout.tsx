@@ -24,7 +24,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
     }
    redirect('/signin')
   }
-  const { user, businessId, businessName } = authContext;
+  const { user, businessId, businessName,planTier } = authContext;
 
   const userName =
     user.user_metadata?.full_name ||
@@ -41,6 +41,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
             name: userName,
             email: user.email || "",
           }}
+          planTier={planTier}
         />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

@@ -2,7 +2,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Send, User, Phone, Mail, Loader2, Headphones, AlertCircle } from "lucide-react";
+import {
+  Check,
+  Send,
+  User,
+  Phone,
+  Mail,
+  Loader2,
+  Headphones,
+  AlertCircle,
+} from "lucide-react";
 
 export interface LeadCaptureCardProps {
   sessionToken: string;
@@ -139,8 +148,8 @@ export function LeadCaptureCard({
         err instanceof Error
           ? err.message
           : isRtl
-          ? "تعذر الإرسال، يرجى المحاولة لاحقاً"
-          : "Failed to send. Please try again.";
+            ? "تعذر الإرسال، يرجى المحاولة لاحقاً"
+            : "Failed to send. Please try again.";
       setServerError(msg);
     } finally {
       setIsSubmitting(false);
@@ -153,8 +162,12 @@ export function LeadCaptureCard({
       <div
         className="mt-2.5 p-3 text-xs leading-relaxed border shadow-2xs flex items-center gap-2.5"
         style={{
-          backgroundColor: isDarkBg ? "rgba(46, 158, 107, 0.15)" : "rgba(46, 158, 107, 0.1)",
-          borderColor: isDarkBg ? "rgba(46, 158, 107, 0.4)" : "rgba(46, 158, 107, 0.35)",
+          backgroundColor: isDarkBg
+            ? "rgba(46, 158, 107, 0.15)"
+            : "rgba(46, 158, 107, 0.1)",
+          borderColor: isDarkBg
+            ? "rgba(46, 158, 107, 0.4)"
+            : "rgba(46, 158, 107, 0.35)",
           color: isDarkBg ? "#E8EFEE" : "#10201F",
           borderRadius: `${radius}px`,
         }}
@@ -189,10 +202,18 @@ export function LeadCaptureCard({
       }}
       dir="auto"
     >
-      <div className="flex items-center gap-1.5 pb-1 border-b" style={{ borderColor: containerBorder }}>
-        <Headphones className="size-3.5 shrink-0" style={{ color: primaryColor }} />
+      <div
+        className="flex items-center gap-1.5 pb-1 border-b"
+        style={{ borderColor: containerBorder }}
+      >
+        <Headphones
+          className="size-3.5 shrink-0"
+          style={{ color: primaryColor }}
+        />
         <span className="font-semibold text-[11px] tracking-wide">
-          {isRtl ? "طلب التواصل مع فريق الدعم / المبيعات" : "Connect with Support & Sales"}
+          {isRtl
+            ? "طلب التواصل مع فريق الدعم / المبيعات"
+            : "Connect with Support & Sales"}
         </span>
       </div>
 
@@ -219,7 +240,9 @@ export function LeadCaptureCard({
             placeholder={isRtl ? "الاسم الكامل *" : "Your full name *"}
             style={{
               backgroundColor: fieldBg,
-              borderColor: fieldErrors.name ? errorBorderColor : defaultFieldBorder,
+              borderColor: fieldErrors.name
+                ? errorBorderColor
+                : defaultFieldBorder,
               color: fieldText,
               borderRadius: `${Math.min(radius, 4)}px`,
             }}
@@ -227,7 +250,9 @@ export function LeadCaptureCard({
           />
         </div>
         {fieldErrors.name && (
-          <p className="text-[10px] text-destructive mt-1 font-medium">{fieldErrors.name}</p>
+          <p className="text-[10px] text-destructive mt-1 font-medium">
+            {fieldErrors.name}
+          </p>
         )}
       </div>
 
@@ -244,10 +269,14 @@ export function LeadCaptureCard({
                 setFieldErrors((prev) => ({ ...prev, phone: undefined }));
               }
             }}
-            placeholder={isRtl ? "رقم الهاتف أو واتساب *" : "Phone or WhatsApp number *"}
+            placeholder={
+              isRtl ? "رقم الهاتف أو واتساب *" : "Phone or WhatsApp number *"
+            }
             style={{
               backgroundColor: fieldBg,
-              borderColor: fieldErrors.phone ? errorBorderColor : defaultFieldBorder,
+              borderColor: fieldErrors.phone
+                ? errorBorderColor
+                : defaultFieldBorder,
               color: fieldText,
               borderRadius: `${Math.min(radius, 4)}px`,
             }}
@@ -255,7 +284,9 @@ export function LeadCaptureCard({
           />
         </div>
         {fieldErrors.phone && (
-          <p className="text-[10px] text-destructive mt-1 font-medium">{fieldErrors.phone}</p>
+          <p className="text-[10px] text-destructive mt-1 font-medium">
+            {fieldErrors.phone}
+          </p>
         )}
       </div>
 
@@ -272,10 +303,14 @@ export function LeadCaptureCard({
                 setFieldErrors((prev) => ({ ...prev, email: undefined }));
               }
             }}
-            placeholder={isRtl ? "البريد الإلكتروني (اختياري)" : "Email address (optional)"}
+            placeholder={
+              isRtl ? "البريد الإلكتروني (اختياري)" : "Email address (optional)"
+            }
             style={{
               backgroundColor: fieldBg,
-              borderColor: fieldErrors.email ? errorBorderColor : defaultFieldBorder,
+              borderColor: fieldErrors.email
+                ? errorBorderColor
+                : defaultFieldBorder,
               color: fieldText,
               borderRadius: `${Math.min(radius, 4)}px`,
             }}
@@ -283,7 +318,9 @@ export function LeadCaptureCard({
           />
         </div>
         {fieldErrors.email && (
-          <p className="text-[10px] text-destructive mt-1 font-medium">{fieldErrors.email}</p>
+          <p className="text-[10px] text-destructive mt-1 font-medium">
+            {fieldErrors.email}
+          </p>
         )}
       </div>
 

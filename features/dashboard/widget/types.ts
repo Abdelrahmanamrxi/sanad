@@ -5,6 +5,12 @@ export type DevicePreview = "desktop" | "mobile";
 export type StoreTheme = "light" | "dark";
 export type EditTab = "identity" | "appearance" | "messages" | "embed";
 
+export type ContainerShape = "arch" | "pill" | "square";
+export type HeaderLayout = "hero" | "docked";
+export type AvatarMode = "monogram" | "icon" | "image";
+export type BorderStrokeStyle = "hairline" | "hard-brutalist" | "accent-gold" | "none";
+export type CitationStyle = "document-snippet" | "compact" | "none";
+
 export interface WidgetConfig {
   botName: string;
   subtitle: string;
@@ -22,6 +28,12 @@ export interface WidgetConfig {
   isActive?: boolean;
   status?: "online" | "offline";
   allowedDomains?: string[];
+  containerShape?: ContainerShape;
+  headerLayout?: HeaderLayout;
+  avatarMode?: AvatarMode;
+  avatarMonogram?: string;
+  borderStyle?: BorderStrokeStyle;
+  citationStyle?: CitationStyle;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -52,10 +64,15 @@ export interface WidgetSettingsDBRow {
   starter_questions: Array<string>;
   is_active: boolean;
   allowed_domains?: string[];
+  container_shape: ContainerShape;
+  header_layout: HeaderLayout;
+  avatar_mode: AvatarMode;
+  avatar_monogram: string;
+  border_style: BorderStrokeStyle;
+  citation_style: CitationStyle;
   created_at: string;
   updated_at: string;
 }
-
 
 export function toWidgetConfig(row: WidgetSettingsDBRow): WidgetConfig {
   return {
@@ -75,6 +92,12 @@ export function toWidgetConfig(row: WidgetSettingsDBRow): WidgetConfig {
     status: row.status,
     allowedDomains: row.allowed_domains || [],
     welcomeMessage: row.welcome_message,
+    containerShape: row.container_shape || "arch",
+    headerLayout: row.header_layout || "hero",
+    avatarMode: row.avatar_mode || "monogram",
+    avatarMonogram: row.avatar_monogram || "س",
+    borderStyle: row.border_style || "hairline",
+    citationStyle: row.citation_style || "document-snippet",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -113,6 +136,12 @@ export function toWidgetSettingsDBRow(
   if (config.isActive !== undefined) update.is_active = config.isActive;
   if (config.status !== undefined) update.status = config.status;
   if (config.allowedDomains !== undefined) update.allowed_domains = config.allowedDomains;
+  if (config.containerShape !== undefined) update.container_shape = config.containerShape;
+  if (config.headerLayout !== undefined) update.header_layout = config.headerLayout;
+  if (config.avatarMode !== undefined) update.avatar_mode = config.avatarMode;
+  if (config.avatarMonogram !== undefined) update.avatar_monogram = config.avatarMonogram;
+  if (config.borderStyle !== undefined) update.border_style = config.borderStyle;
+  if (config.citationStyle !== undefined) update.citation_style = config.citationStyle;
 
   return update;
 }
