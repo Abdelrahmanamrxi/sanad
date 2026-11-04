@@ -33,6 +33,7 @@ interface PlaygroundChatViewProps {
   onSelectStarterQuery: (query: string) => void;
   onSelectChunkForInspection: (chunk: PlaygroundChunk) => void;
   onFeedbackChange?: (messageId: string, feedback: "positive" | "negative") => void;
+  isLimitReached:boolean
 }
 
 export function PlaygroundChatView({
@@ -44,6 +45,7 @@ export function PlaygroundChatView({
   onSelectStarterQuery,
   onSelectChunkForInspection,
   onFeedbackChange,
+  isLimitReached
 }: PlaygroundChatViewProps) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [feedbackState, setFeedbackState] = useState<Record<string, "positive" | "negative">>({});
@@ -101,7 +103,7 @@ export function PlaygroundChatView({
       onFeedbackChange(id, feedback);
     }
   };
-
+  
   return (
     <div
       ref={scrollContainerRef}
@@ -173,7 +175,8 @@ export function PlaygroundChatView({
             </p>
 
             {/* Quick Test Starter Pills (Clean & Non-cluttered) */}
-            <div className="mt-8 w-full max-w-2xl text-start">
+         {!isLimitReached &&   (
+           <div className="mt-8 w-full max-w-2xl text-start">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Quick Verification Inquiries:
@@ -183,7 +186,7 @@ export function PlaygroundChatView({
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {CATEGORIZED_STARTERS.map((item, i) => (
                   <button
                     key={i}
@@ -201,7 +204,9 @@ export function PlaygroundChatView({
                   </button>
                 ))}
               </div>
-            </div>
+             
+            
+            </div>)}
           </div>
         )}
 

@@ -147,6 +147,7 @@ export function PlaygroundView({
         {/* Whole Chat Column: Full Width, Expansive & Centered */}
         <div className="flex flex-1 flex-col overflow-hidden bg-background">
           <PlaygroundChatView
+            isLimitReached={isLimitReached}
             messages={messages}
             isRunning={isStreaming}
             activeKbPrompt={activeKbPrompt}

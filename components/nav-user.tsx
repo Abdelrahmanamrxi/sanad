@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut } from "@/features/auth/actions";
-
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,10 +91,10 @@ export function NavUser({
                       {user.name ? user.name.slice(0, 2).toUpperCase() : "US"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid text-foreground flex-1 font-sans text-start text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs">{user.email}</span>
-                    <span className=" text-xs font-semibold mt-1">
+                  <div className="grid text-foreground flex-1 font-sans text-start text-sm leading-tight normal-case tracking-normal">
+                    <span className="truncate font-semibold">{user.name}</span>
+                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                    <span className="text-[11px] font-semibold mt-1 capitalize text-primary font-mono">
                       {planTier} Plan
                     </span>
                   </div>
@@ -105,9 +105,7 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className={"cursor-pointer"}
-                onClick={() => {
-                  router.push("/dashboard/billing");
-                }}
+                  render={<Link href="/dashboard/billing" />}
               >
                 <SparklesIcon className="text-yellow-500" />
                 {UpgradeSuggestion()}
@@ -115,15 +113,16 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+              render={<Link href="/dashboard/account" />}
+              >
                 <BadgeCheckIcon />
                 Account
               </DropdownMenuItem>
               <DropdownMenuItem
+                render={<Link href="/dashboard/billing" />}
                 className="cursor-pointer"
-                onClick={() => {
-                  router.push("/dashboard/billing");
-                }}
+              
               >
                 <CreditCardIcon />
                 Billing
