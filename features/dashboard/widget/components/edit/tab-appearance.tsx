@@ -82,14 +82,15 @@ export default function TabAppearance({
   const avatarMode: AvatarMode = config.avatarMode || "monogram";
   const avatarMonogram = config.avatarMonogram || "س";
   const borderStyle: BorderStrokeStyle = config.borderStyle || "hairline";
-  const citationStyle: CitationStyle = config.citationStyle || "document-snippet";
+  const citationStyle: CitationStyle =
+    config.citationStyle || "document-snippet";
   const position: WidgetPosition = config.position || "bottom-right";
   const launcherStyle: LauncherStyle = config.launcherStyle || "badge";
 
   const [activeArchetypeId, setActiveArchetypeId] = useState<string | null>(
     containerShape === "arch" && headerLayout === "hero"
       ? "egyptian-concierge"
-      : null
+      : null,
   );
 
   const handleApplyArchetype = (archetype: StyleArchetype) => {
@@ -108,7 +109,9 @@ export default function TabAppearance({
       <div className="flex items-center gap-2.5 border border-primary/25 bg-primary/5 p-3 text-xs font-sans text-foreground leading-relaxed shadow-2xs">
         <Sparkles className="size-4 text-primary shrink-0" />
         <p>
-          Customize your brand identity, colors, typography, container shapes, and header layouts. All appearance options are fully included for all plans.
+          Customize your brand identity, colors, typography, container shapes,
+          and header layouts. All appearance options are fully included for all
+          plans.
         </p>
       </div>
 
@@ -125,7 +128,9 @@ export default function TabAppearance({
         </div>
 
         <p className="text-[11px] text-muted-foreground font-sans mb-3 leading-relaxed">
-          Select a pre-tuned brand archetype suited for your store or clinic. Each preset sets the silhouette, palette, header, and fonts in one click.
+          Select a pre-tuned brand archetype suited for your store or clinic.
+          Each preset sets the silhouette, palette, header, and fonts in one
+          click.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -145,7 +150,7 @@ export default function TabAppearance({
                   "relative text-start p-3 border transition-all cursor-pointer flex flex-col justify-between group shadow-2xs",
                   isSelected
                     ? "border-primary bg-primary/[0.06] ring-1 ring-primary shadow-xs"
-                    : "border-border bg-card hover:border-primary/50"
+                    : "border-border bg-card hover:border-primary/50",
                 )}
               >
                 {/* Header row: Badge and Live Color Swatches */}
@@ -155,21 +160,24 @@ export default function TabAppearance({
                       className="size-3.5 border border-black/15 shadow-2xs inline-block"
                       style={{
                         backgroundColor: arch.previewColors.primary,
-                        borderRadius: arch.id === "velvet-salon" ? "9999px" : "0px",
+                        borderRadius:
+                          arch.id === "velvet-salon" ? "9999px" : "0px",
                       }}
                     />
                     <span
                       className="size-3.5 border border-black/15 shadow-2xs inline-block"
                       style={{
                         backgroundColor: arch.previewColors.bg,
-                        borderRadius: arch.id === "velvet-salon" ? "9999px" : "0px",
+                        borderRadius:
+                          arch.id === "velvet-salon" ? "9999px" : "0px",
                       }}
                     />
                     <span
                       className="size-3.5 border border-black/15 shadow-2xs inline-block"
                       style={{
                         backgroundColor: arch.previewColors.accent,
-                        borderRadius: arch.id === "velvet-salon" ? "9999px" : "0px",
+                        borderRadius:
+                          arch.id === "velvet-salon" ? "9999px" : "0px",
                       }}
                     />
                   </div>
@@ -232,8 +240,8 @@ export default function TabAppearance({
               isCompactHeader
                 ? "opacity-40 cursor-not-allowed bg-muted/40 border-dashed border-border"
                 : containerShape === "arch"
-                ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold cursor-pointer"
-                : "border-border bg-card hover:border-primary/40 cursor-pointer"
+                  ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold cursor-pointer"
+                  : "border-border bg-card hover:border-primary/40 cursor-pointer",
             )}
             title={
               isCompactHeader
@@ -245,7 +253,9 @@ export default function TabAppearance({
               <div
                 className={cn(
                   "w-8 h-10 border-2 bg-primary/20 rounded-t-[16px] rounded-b-[4px]",
-                  isCompactHeader ? "border-muted-foreground/40" : "border-primary"
+                  isCompactHeader
+                    ? "border-muted-foreground/40"
+                    : "border-primary",
                 )}
               />
               {isCompactHeader ? (
@@ -279,7 +289,7 @@ export default function TabAppearance({
               "p-3 border text-start transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs",
               containerShape === "pill"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="flex items-center justify-between w-full">
@@ -307,7 +317,7 @@ export default function TabAppearance({
               "p-3 border text-start transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs",
               containerShape === "square"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="flex items-center justify-between w-full">
@@ -347,7 +357,7 @@ export default function TabAppearance({
               "p-3 border text-start transition-all cursor-pointer flex flex-col gap-2 shadow-2xs",
               headerLayout === "hero"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="flex items-center justify-between">
@@ -357,9 +367,12 @@ export default function TabAppearance({
               <CircleDot className="size-3.5 text-primary" />
             </div>
             <div>
-              <p className="font-heading text-xs font-bold">Centered Hero Concierge</p>
+              <p className="font-heading text-xs font-bold">
+                Centered Hero Concierge
+              </p>
               <p className="text-[10px] text-muted-foreground font-sans leading-relaxed mt-0.5">
-                Prominent center monogram avatar, real-time response indicator, and friendly greeting.
+                Prominent center monogram avatar, real-time response indicator,
+                and friendly greeting.
               </p>
             </div>
           </button>
@@ -371,14 +384,16 @@ export default function TabAppearance({
               onChange({
                 ...config,
                 headerLayout: "docked",
-                ...(containerShape === "arch" ? { containerShape: "square" } : {}),
+                ...(containerShape === "arch"
+                  ? { containerShape: "square" }
+                  : {}),
               });
             }}
             className={cn(
               "p-3 border text-start transition-all cursor-pointer flex flex-col gap-2 shadow-2xs",
               headerLayout === "docked"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="flex items-center justify-between">
@@ -388,9 +403,12 @@ export default function TabAppearance({
               <Square className="size-3.5 text-muted-foreground" />
             </div>
             <div>
-              <p className="font-heading text-xs font-bold">Compact Docked Bar</p>
+              <p className="font-heading text-xs font-bold">
+                Compact Docked Bar
+              </p>
               <p className="text-[10px] text-muted-foreground font-sans leading-relaxed mt-0.5">
-                Streamlined horizontal top bar. (Note: Arch Dome is disabled in this layout).
+                Streamlined horizontal top bar. (Note: Arch Dome is disabled in
+                this layout).
               </p>
             </div>
           </button>
@@ -414,7 +432,7 @@ export default function TabAppearance({
           <div
             className={cn(
               "flex size-12 items-center justify-center font-bold text-lg border shadow-xs shrink-0 select-none",
-              containerShape === "square" ? "rounded-none" : "rounded-full"
+              containerShape === "square" ? "rounded-none" : "rounded-full",
             )}
             style={{
               backgroundColor: primaryColor,
@@ -441,7 +459,8 @@ export default function TabAppearance({
               className="w-full border border-border bg-background px-3 py-1.5 font-sans font-bold text-xs text-foreground uppercase tracking-widest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-none shadow-2xs"
             />
             <p className="text-[10.5px] text-muted-foreground font-sans mt-1">
-              Enter 1–3 characters to represent your brand across the widget header and floating launcher button.
+              Enter 1–3 characters to represent your brand across the widget
+              header and floating launcher button.
             </p>
           </div>
         </div>
@@ -468,28 +487,38 @@ export default function TabAppearance({
               "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
               borderStyle === "hairline"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="w-full h-1 border-b border-foreground/60" />
-            <span className="text-xs font-sans font-medium">Hairline Luxury</span>
-            <span className="text-[9px] font-mono text-muted-foreground">1px Stroke</span>
+            <span className="text-xs font-sans font-medium">
+              Hairline Luxury
+            </span>
+            <span className="text-[9px] font-mono text-muted-foreground">
+              1px Stroke
+            </span>
           </button>
 
           {/* Hard Brutalist 2px */}
           <button
             type="button"
-            onClick={() => onChange({ ...config, borderStyle: "hard-brutalist" })}
+            onClick={() =>
+              onChange({ ...config, borderStyle: "hard-brutalist" })
+            }
             className={cn(
               "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
               borderStyle === "hard-brutalist"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="w-full h-1 border-b-2 border-foreground" />
-            <span className="text-xs font-sans font-medium">Bold Brutalist</span>
-            <span className="text-[9px] font-mono text-muted-foreground">2px Ink Stroke</span>
+            <span className="text-xs font-sans font-medium">
+              Bold Brutalist
+            </span>
+            <span className="text-[9px] font-mono text-muted-foreground">
+              2px Ink Stroke
+            </span>
           </button>
 
           {/* Accent Gold */}
@@ -500,12 +529,14 @@ export default function TabAppearance({
               "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
               borderStyle === "accent-gold"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="w-full h-1 border-b-2 border-amber-400" />
             <span className="text-xs font-sans font-medium">Accent Gold</span>
-            <span className="text-[9px] font-mono text-muted-foreground">Gold Metallic</span>
+            <span className="text-[9px] font-mono text-muted-foreground">
+              Gold Metallic
+            </span>
           </button>
 
           {/* Borderless */}
@@ -516,12 +547,14 @@ export default function TabAppearance({
               "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
               borderStyle === "none"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="w-full h-1 border-b border-transparent" />
             <span className="text-xs font-sans font-medium">Subtle Soft</span>
-            <span className="text-[9px] font-mono text-muted-foreground">0px Border</span>
+            <span className="text-[9px] font-mono text-muted-foreground">
+              0px Border
+            </span>
           </button>
         </div>
       </div>
@@ -548,17 +581,23 @@ export default function TabAppearance({
             <input
               type="color"
               value={primaryColor}
-              onChange={(e) => onChange({ ...config, primaryColor: e.target.value })}
+              onChange={(e) =>
+                onChange({ ...config, primaryColor: e.target.value })
+              }
               className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0"
               aria-label="Primary color input"
             />
             <div className="relative flex-1 flex items-center">
-              <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">#</span>
+              <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">
+                #
+              </span>
               <input
                 type="text"
                 value={primaryColor.replace(/^#/, "")}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9A-Fa-f]/g, "").slice(0, 6);
+                  const val = e.target.value
+                    .replace(/[^0-9A-Fa-f]/g, "")
+                    .slice(0, 6);
                   onChange({ ...config, primaryColor: `#${val}` });
                 }}
                 className="flex-1 bg-transparent font-mono text-xs text-foreground uppercase outline-none"
@@ -577,25 +616,30 @@ export default function TabAppearance({
           {/* Preset Swatches with Checkmarks */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {PRIMARY_COLOR_PRESETS.map((preset) => {
-              const isSelected = primaryColor.toLowerCase() === preset.hex.toLowerCase();
+              const isSelected =
+                primaryColor.toLowerCase() === preset.hex.toLowerCase();
               return (
                 <button
                   key={preset.hex}
                   type="button"
-                  onClick={() => onChange({ ...config, primaryColor: preset.hex })}
+                  onClick={() =>
+                    onChange({ ...config, primaryColor: preset.hex })
+                  }
                   title={`${preset.name} (${preset.hex})`}
                   className={cn(
                     "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs",
                     isSelected
                       ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
-                      : "border-border bg-card hover:border-primary/50"
+                      : "border-border bg-card hover:border-primary/50",
                   )}
                 >
                   <span
                     className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs"
                     style={{ backgroundColor: preset.hex }}
                   >
-                    {isSelected && <Check className="size-3.5 text-white stroke-[3]" />}
+                    {isSelected && (
+                      <Check className="size-3.5 text-white stroke-[3]" />
+                    )}
                   </span>
                   <span className="font-mono text-[9px] font-medium text-foreground truncate w-full text-center">
                     {preset.name}
@@ -629,17 +673,23 @@ export default function TabAppearance({
             <input
               type="color"
               value={secondaryColor}
-              onChange={(e) => onChange({ ...config, secondaryColor: e.target.value })}
+              onChange={(e) =>
+                onChange({ ...config, secondaryColor: e.target.value })
+              }
               className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0"
               aria-label="Secondary color input"
             />
             <div className="relative flex-1 flex items-center">
-              <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">#</span>
+              <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">
+                #
+              </span>
               <input
                 type="text"
                 value={secondaryColor.replace(/^#/, "")}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9A-Fa-f]/g, "").slice(0, 6);
+                  const val = e.target.value
+                    .replace(/[^0-9A-Fa-f]/g, "")
+                    .slice(0, 6);
                   onChange({ ...config, secondaryColor: `#${val}` });
                 }}
                 className="flex-1 bg-transparent font-mono text-xs text-foreground uppercase outline-none"
@@ -658,25 +708,30 @@ export default function TabAppearance({
           {/* Preset Accent Swatches */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {ACCENT_COLOR_PRESETS.map((preset) => {
-              const isSelected = secondaryColor.toLowerCase() === preset.hex.toLowerCase();
+              const isSelected =
+                secondaryColor.toLowerCase() === preset.hex.toLowerCase();
               return (
                 <button
                   key={preset.hex}
                   type="button"
-                  onClick={() => onChange({ ...config, secondaryColor: preset.hex })}
+                  onClick={() =>
+                    onChange({ ...config, secondaryColor: preset.hex })
+                  }
                   title={`${preset.name} (${preset.hex})`}
                   className={cn(
                     "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs",
                     isSelected
                       ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
-                      : "border-border bg-card hover:border-primary/50"
+                      : "border-border bg-card hover:border-primary/50",
                   )}
                 >
                   <span
                     className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs"
                     style={{ backgroundColor: preset.hex }}
                   >
-                    {isSelected && <Check className="size-3.5 text-foreground stroke-[3]" />}
+                    {isSelected && (
+                      <Check className="size-3.5 text-foreground stroke-[3]" />
+                    )}
                   </span>
                   <span className="font-mono text-[9px] font-medium text-foreground truncate w-full text-center">
                     {preset.name}
@@ -710,17 +765,23 @@ export default function TabAppearance({
             <input
               type="color"
               value={backgroundColor}
-              onChange={(e) => onChange({ ...config, backgroundColor: e.target.value })}
+              onChange={(e) =>
+                onChange({ ...config, backgroundColor: e.target.value })
+              }
               className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0"
               aria-label="Background surface color input"
             />
             <div className="relative flex-1 flex items-center">
-              <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">#</span>
+              <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">
+                #
+              </span>
               <input
                 type="text"
                 value={backgroundColor.replace(/^#/, "")}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9A-Fa-f]/g, "").slice(0, 6);
+                  const val = e.target.value
+                    .replace(/[^0-9A-Fa-f]/g, "")
+                    .slice(0, 6);
                   onChange({ ...config, backgroundColor: `#${val}` });
                 }}
                 className="flex-1 bg-transparent font-mono text-xs text-foreground uppercase outline-none"
@@ -739,25 +800,30 @@ export default function TabAppearance({
           {/* Preset Swatches with Checkmarks */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {BG_COLOR_PRESETS.map((preset) => {
-              const isSelected = backgroundColor.toLowerCase() === preset.hex.toLowerCase();
+              const isSelected =
+                backgroundColor.toLowerCase() === preset.hex.toLowerCase();
               return (
                 <button
                   key={preset.hex}
                   type="button"
-                  onClick={() => onChange({ ...config, backgroundColor: preset.hex })}
+                  onClick={() =>
+                    onChange({ ...config, backgroundColor: preset.hex })
+                  }
                   title={`${preset.name} (${preset.hex})`}
                   className={cn(
                     "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs",
                     isSelected
                       ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
-                      : "border-border bg-card hover:border-primary/50"
+                      : "border-border bg-card hover:border-primary/50",
                   )}
                 >
                   <span
                     className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs"
                     style={{ backgroundColor: preset.hex }}
                   >
-                    {isSelected && <Check className="size-3.5 text-foreground stroke-[3]" />}
+                    {isSelected && (
+                      <Check className="size-3.5 text-foreground stroke-[3]" />
+                    )}
                   </span>
                   <span className="font-mono text-[9px] font-medium text-foreground truncate w-full text-center">
                     {preset.name}
@@ -795,7 +861,7 @@ export default function TabAppearance({
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {/* Option 1: Normal Message (No Document Part) */}
           <button
             type="button"
@@ -804,7 +870,7 @@ export default function TabAppearance({
               "p-3 border text-start transition-all cursor-pointer flex flex-col gap-1.5 shadow-2xs rounded-none",
               citationStyle === "none"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="flex items-center flex-col justify-center gap-1">
@@ -812,33 +878,13 @@ export default function TabAppearance({
                 <MessageSquare className="size-3 text-primary" />
                 Normal Message
               </span>
-              <span className="font-mono text-[9px] text-emerald-600 font-bold">DEFAULT</span>
-            </div>
-            <p className="text-[10px] text-muted-foreground font-sans leading-relaxed">
-              Standard conversational message without attaching source snippet cards or citation tags.
-            </p>
-          </button>
-
-          {/* Option 2: Compact Tag */}
-          <button
-            type="button"
-            onClick={() => onChange({ ...config, citationStyle: "compact" })}
-            className={cn(
-              "p-3 border text-start transition-all cursor-pointer flex flex-col gap-1.5 shadow-2xs rounded-none",
-              citationStyle === "compact"
-                ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
-                : "border-border bg-card hover:border-primary/40"
-            )}
-          >
-            <div className="flex items-center justify-center flex-col gap-1">
-              <span className="font-heading text-xs font-bold flex items-center gap-1.5">
-                <FileText className="size-3 text-primary" />
-                Compact Tag
+              <span className="font-mono text-[9px] text-emerald-600 font-bold">
+                DEFAULT
               </span>
-              <span className="font-mono text-[9px] text-muted-foreground">TAG ONLY</span>
             </div>
             <p className="text-[10px] text-muted-foreground font-sans leading-relaxed">
-              Subtle inline citation footnote anchored beneath the assistant response (e.g. From: Policy_2026.pdf).
+              Standard conversational message without attaching source snippet
+              cards or citation tags.
             </p>
           </button>
 
@@ -850,7 +896,8 @@ export default function TabAppearance({
                 onUpgrade?.({
                   featureName: "Document Highlight Cards",
                   requiredTier: "pro",
-                  reason: "Displaying rich Document Highlight Cards with verified marker excerpts requires the Growth (Pro) plan.",
+                  reason:
+                    "Displaying rich Document Highlight Cards with verified marker excerpts requires the Growth (Pro) plan.",
                 });
               }
               onChange({ ...config, citationStyle: "document-snippet" });
@@ -861,18 +908,23 @@ export default function TabAppearance({
                 ? isPro
                   ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                   : "border-amber-500 bg-amber-500/[0.06] ring-1 ring-amber-500 font-semibold"
-                : "border-border bg-card hover:border-primary/40"
+                : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="flex items-center justify-center flex-col gap-1">
               <span className="font-heading text-xs font-bold flex items-center gap-1.5">
-                <Crown className={cn("size-3", isPro ? "text-primary" : "text-amber-500")} />
+                <Crown
+                  className={cn(
+                    "size-3",
+                    isPro ? "text-primary" : "text-amber-500",
+                  )}
+                />
                 Verified Document Badge
               </span>
               <span
                 className={cn(
                   "font-mono text-[9px] font-bold flex items-center gap-0.5",
-                  isPro ? "text-primary" : "text-amber-600 dark:text-amber-400"
+                  isPro ? "text-primary" : "text-amber-600 dark:text-amber-400",
                 )}
               >
                 {!isPro && <Lock className="size-2.5" />}
@@ -880,7 +932,8 @@ export default function TabAppearance({
               </span>
             </div>
             <p className="text-[10px] text-muted-foreground font-sans leading-relaxed">
-              Compact verified source badge showing official document name anchored neatly under the message.
+              Compact verified source badge showing official document name
+              anchored neatly under the message.
             </p>
           </button>
         </div>
@@ -897,7 +950,8 @@ export default function TabAppearance({
               id: "bottom-right",
               title: "Bottom Right",
               badge: "Standard (Recommended)",
-              badgeStyle: "border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-bold",
+              badgeStyle:
+                "border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-bold",
               desc: "Standard e-commerce placement, maximizing visitor discovery and ease of interaction.",
               cornerDot: "right-2 bottom-2",
             },
@@ -915,26 +969,38 @@ export default function TabAppearance({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => onChange({ ...config, position: item.id as WidgetPosition })}
+                onClick={() =>
+                  onChange({ ...config, position: item.id as WidgetPosition })
+                }
                 className={cn(
                   "relative border p-3 text-start transition-all rounded-none shadow-2xs cursor-pointer",
                   isSelected
                     ? "border-primary bg-primary/10 text-foreground ring-2 ring-primary/30"
-                    : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground",
                 )}
               >
                 {/* Mini Wireframe Displaying Corner Dot */}
                 <div className="relative h-10 w-full border border-border/80 bg-background/50 mb-2 p-1">
                   <span
-                    className={cn("absolute size-2.5 rounded-none shadow-xs", item.cornerDot)}
+                    className={cn(
+                      "absolute size-2.5 rounded-none shadow-xs",
+                      item.cornerDot,
+                    )}
                     style={{ backgroundColor: primaryColor }}
                   />
                 </div>
 
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-sans text-xs font-bold text-foreground">{item.title}</span>
+                  <span className="font-sans text-xs font-bold text-foreground">
+                    {item.title}
+                  </span>
                 </div>
-                <span className={cn("border px-1.5 py-0.2 font-mono text-[9px] inline-block mb-1", item.badgeStyle)}>
+                <span
+                  className={cn(
+                    "border px-1.5 py-0.2 font-mono text-[9px] inline-block mb-1",
+                    item.badgeStyle,
+                  )}
+                >
                   {item.badge}
                 </span>
                 <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
@@ -969,16 +1035,25 @@ export default function TabAppearance({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => onChange({ ...config, launcherStyle: item.id as LauncherStyle })}
+                onClick={() =>
+                  onChange({
+                    ...config,
+                    launcherStyle: item.id as LauncherStyle,
+                  })
+                }
                 className={cn(
                   "border p-3 text-start transition-all rounded-none shadow-2xs cursor-pointer",
                   isSelected
                     ? "border-primary bg-primary/10 text-foreground ring-2 ring-primary/30 font-semibold"
-                    : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground",
                 )}
               >
-                <span className="font-sans text-xs font-bold text-foreground block mb-1">{item.title}</span>
-                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
+                <span className="font-sans text-xs font-bold text-foreground block mb-1">
+                  {item.title}
+                </span>
+                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
+                  {item.desc}
+                </p>
               </button>
             );
           })}
@@ -993,8 +1068,14 @@ export default function TabAppearance({
               type="text"
               maxLength={28}
               value={config.launcherText || ""}
-              onChange={(e) => onChange({ ...config, launcherText: e.target.value })}
-              placeholder={containerShape === "arch" ? "At your help, ask me" : "Chat with us"}
+              onChange={(e) =>
+                onChange({ ...config, launcherText: e.target.value })
+              }
+              placeholder={
+                containerShape === "arch"
+                  ? "At your help, ask me"
+                  : "Chat with us"
+              }
               className="w-full border border-border bg-background px-3 py-1.5 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all rounded-none"
             />
           </div>

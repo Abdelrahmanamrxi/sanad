@@ -79,11 +79,6 @@ const data = {
       url: "/dashboard/conversations",
       icon: <MessagesCircle />,
     },
-    {
-      title: "Settings",
-      url: "#",
-      icon: <Settings2Icon />,
-    },
   ],
 };
 
@@ -94,10 +89,15 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     email: string;
     avatar?: string;
   };
-  planTier: PlanTier
+  planTier: PlanTier;
 }
 
-export function AppSidebar({ planTier,businessName, user, ...props }: AppSidebarProps) {
+export function AppSidebar({
+  planTier,
+  businessName,
+  user,
+  ...props
+}: AppSidebarProps) {
   const currentUser = {
     name: user?.name || "User",
     email: user?.email || "",
@@ -119,7 +119,9 @@ export function AppSidebar({ planTier,businessName, user, ...props }: AppSidebar
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-primary">
                 Business
               </span>
-              <span className="text-muted-foreground/30 text-[9px] font-mono">/</span>
+              <span className="text-muted-foreground/30 text-[9px] font-mono">
+                /
+              </span>
               <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-tight">
                 Workspace
               </span>

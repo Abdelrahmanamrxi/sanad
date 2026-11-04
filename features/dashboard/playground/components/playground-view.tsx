@@ -8,23 +8,45 @@ import { PlaygroundInspectorPanel } from "./playground-inspector-panel";
 import { DEFAULT_CONFIG, AVAILABLE_MODELS } from "../constants";
 import usePlaygroundChat from "../hooks/use-chat";
 import {
-  initialMockMessages,
   initialMockChunks,
-  generateSimulatedResponse,
 } from "../mock-data";
 import type {
   PlaygroundConfig,
-  PlaygroundMessage,
   PlaygroundChunk,
   InspectorTab,
 } from "../types";
+import { type PlanTier } from "@/features/billing";
 
 interface PlaygroundViewProps {
   initialQuery?: string;
+  businessId: string;
+  planTier: PlanTier;
+  isLimitReached: boolean;
+  remainingMessages: number;
+  initialCustomInstructions?: string;
+  initialTemperature?: number;
 }
 
-export function PlaygroundView({ initialQuery }: PlaygroundViewProps) {
-  const [config, setConfig] = useState<PlaygroundConfig>(DEFAULT_CONFIG);
+export function PlaygroundView({
+  initialQuery,
+  businessId,
+  planTier,
+  remainingMessages,
+  isLimitReached,
+  initialCustomInstructions,
+  initialTemperature,
+}: PlaygroundViewProps) {
+  const [config, setConfig] = useState<PlaygroundConfig>(() => ({
+    ...DEFAULT_CONFIG,
+    systemPrompt:
+      initialCustomInstructions && initialCustomInstructions.trim()
+        ? initialCustomInstructions
+        : DEFAULT_CONFIG.systemPrompt,
+    temperature:
+      typeof initialTemperature === "number"
+        ? initialTemperature
+        : DEFAULT_CONFIG.temperature,
+  }));
 
   const { isStreaming, error, messages, setMessages, stop, sendMessage } =
     usePlaygroundChat(config);
@@ -142,6 +164,8 @@ export function PlaygroundView({ initialQuery }: PlaygroundViewProps) {
             onSubmit={() => executeQuery(input)}
             isRunning={isStreaming}
             modelName={currentModel.name}
+            isLimitReached={isLimitReached}
+            remainingMessages={remainingMessages}
           />
         </div>
 
@@ -165,6 +189,7 @@ export function PlaygroundView({ initialQuery }: PlaygroundViewProps) {
                 config={config}
                 onConfigChange={setConfig}
                 onClose={() => setIsInspectorOpen(false)}
+                planTier={planTier}
               />
             </div>
           </>

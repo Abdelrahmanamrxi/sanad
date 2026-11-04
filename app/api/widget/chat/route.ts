@@ -45,7 +45,8 @@ function isGreetingOrSmallTalk(msg: string): boolean {
     .trim();
 
   if (cleaned.length === 0) return true;
-  if (cleaned.length <= 3 && !msg.includes("?") && !msg.includes("؟")) return true;
+  if (cleaned.length <= 3 && !msg.includes("?") && !msg.includes("؟"))
+    return true;
 
   const smallTalkPatterns = [
     // English greetings, pleasantries & acknowledgments
@@ -100,7 +101,7 @@ export const POST = handle(async (req) => {
     checkUsageLimit(businessId),
     supabaseAdminClient
       .from("widget_settings")
-      .select("bot_name")
+      .select("bot_name, custom_instructions, temperature")
       .eq("business_id", businessId)
       .maybeSingle(),
   ]);
@@ -120,6 +121,18 @@ export const POST = handle(async (req) => {
   const assistantName = isFreePlan
     ? "Sanad AI"
     : widgetSettings?.bot_name?.trim() || "Sanad AI";
+
+  const maxInstructionChars =
+    quota.tier === "starter" ? 1000 : quota.tier === "pro" ? 3000 : 0;
+  const customInstructions =
+    maxInstructionChars > 0 && widgetSettings?.custom_instructions?.trim()
+      ? widgetSettings.custom_instructions.trim().slice(0, maxInstructionChars)
+      : "";
+
+  const effectiveTemperature =
+    quota.tier === "pro" && typeof widgetSettings?.temperature === "number"
+      ? Number(widgetSettings.temperature)
+      : 0.2;
 
   // 4. Contextualize RAG search using recent user conversation history
   // Separate prior conversation history from the current incoming message
@@ -143,7 +156,11 @@ export const POST = handle(async (req) => {
   let context = "";
   let chunkIds: string[] = [];
   let topScore: number | null = null;
-  let citationPayload: { documentTitle: string; page?: string; highlightedExcerpt?: string } | null = null;
+  let citationPayload: {
+    documentTitle: string;
+    page?: string;
+    highlightedExcerpt?: string;
+  } | null = null;
 
   try {
     const retrievedChunks = await RetrieveChunks({
@@ -162,8 +179,11 @@ export const POST = handle(async (req) => {
       const topChunk = retrievedChunks[0];
       const rawName =
         topChunk.documentName ||
-        (topChunk.headingPath ? topChunk.headingPath.split(">")[0].trim() : "Verified Knowledge");
-      const cleanDocName = rawName.split(/[\\/]/).pop()?.trim() || "Verified Document";
+        (topChunk.headingPath
+          ? topChunk.headingPath.split(">")[0].trim()
+          : "Verified Knowledge");
+      const cleanDocName =
+        rawName.split(/[\\/]/).pop()?.trim() || "Verified Document";
 
       citationPayload = {
         documentTitle: cleanDocName,
@@ -187,13 +207,14 @@ Do not use emojis anywhere in your response. Maintain clean typography and profe
 If the customer is greeting you (e.g. "hi", "hello", "السلام عليكم") or offering pleasantries, greet them back politely and ask how you can help them. Do NOT append [[SHOW_LEAD_FORM]] for simple greetings or pleasantries.
 If the customer asks for a quote, human agent, or unlisted pricing, or asks a specific question that cannot be answered using the store context, append [[SHOW_LEAD_FORM]] at the very end of your response.
 
+${customInstructions ? `=== STORE SPECIFIC INSTRUCTIONS & RULES ===\n${customInstructions}\n` : ""}
 === STORE VERIFIED CONTEXT ===
 ${context}`,
     messages: [
       ...priorMessages.slice(-4), // Maintain last 4 conversation context turns for token efficiency
       { role: "user", content: message },
     ],
-    temperature: 0.2,
+    temperature: effectiveTemperature,
 
     onFinish: async ({ text, usage }) => {
       const latencyMs = Math.round(performance.now() - startTime);
@@ -215,8 +236,8 @@ ${context}`,
               business_id: businessId,
               role: "assistant",
               content: text,
-              sources: chunkIds,
-              top_score: topScore,
+              sources: text.includes("[[SHOW_LEAD_FORM]]") ? [] : chunkIds,
+              top_score: text.includes("[[SHOW_LEAD_FORM]]") ? null : topScore,
               tokens_in: usage?.inputTokens ?? 0,
               tokens_out: usage?.outputTokens ?? 0,
               latency_ms: latencyMs,

@@ -1,7 +1,8 @@
 import createClient from "./supabase/server";
 import AppError from "../http/error";
 import type { PlanTier } from "@/features/billing/plans";
-export async function getAuthContext() {
+import { cache } from "react";
+export const getAuthContext = cache(async () => {
   const supabase = await createClient();
 
   const {
@@ -22,18 +23,19 @@ export async function getAuthContext() {
     throw new AppError("No business workspace has been found", 404);
   }
 
-   const planTier = (
-    Array.isArray(business.subscriptions)
+  const planTier =
+    ((Array.isArray(business.subscriptions)
       ? business.subscriptions[0]?.plan_tier
-      : (business.subscriptions as { plan_tier?: string } | null)?.plan_tier
-  ) as PlanTier || "free";
-
+      : (business.subscriptions as { plan_tier?: string } | null)
+          ?.plan_tier) as PlanTier) || "free";
 
   return {
     supabase,
     user,
     businessId: business.id as string,
-    businessName: (business.name || business.name_arabic || "My Business") as string,
-    planTier
+    businessName: (business.name ||
+      business.name_arabic ||
+      "My Business") as string,
+    planTier,
   };
-}
+});

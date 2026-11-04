@@ -1,7 +1,8 @@
 import 'server-only'
 import { supabaseAdminClient } from "@/lib/supabase/admin";
-import { PLANS, PlanTier, isOverLimit } from "@/features/billing/plans";
+import { PLANS, PlanTier, isOverLimit } from "../plans";
 import AppError from '@/http/error';
+import { SubscriptionRow } from '../types';
 
 export interface QuotaCheckResult {
   allowed: boolean;
@@ -9,6 +10,7 @@ export interface QuotaCheckResult {
   messagesUsed: number;
   messageLimit: number;
   periodEnd: string;
+  subscription:SubscriptionRow
 }
 
 export async function getActiveSubscription(businessId: string) {
@@ -71,7 +73,7 @@ export async function checkUsageLimit(
   const sub = await getActiveSubscription(businessId);
   const tier = sub.plan_tier as PlanTier;
   const plan = PLANS[tier];
-
+  console.log(sub)
   // Fetch current cycle usage record (if none exists yet, 0 messages used so far)
   const { data: cycle, error: cycleError } = await supabaseAdminClient
     .from("usage_cycles")
@@ -93,6 +95,13 @@ export async function checkUsageLimit(
     messagesUsed,
     messageLimit: plan.messages,
     periodEnd: sub.current_period_end,
+    subscription:{
+      currentPeriodStart:sub.current_period_start,
+      currentPeriodEnd:sub.current_period_end,
+      status:sub.status,
+      businessId
+    }
+    
   };
 }
 

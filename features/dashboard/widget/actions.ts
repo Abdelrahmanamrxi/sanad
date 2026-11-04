@@ -11,21 +11,24 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
   // Validate allowedDomains: Must not be empty when saving widget settings
   if (widget.allowedDomains !== undefined) {
     const cleanDomains = (widget.allowedDomains || [])
-      .map((d) =>
-        d
-          .trim()
-          .toLowerCase()
-          .replace(/^https?:\/\//i, "")
-          .replace(/\/.*$/, "")
-          .replace(/^\./, "")
-          .split(":")[0]
+      .map(
+        (d) =>
+          d
+            .trim()
+            .toLowerCase()
+            .replace(/^https?:\/\//i, "")
+            .replace(/\/.*$/, "")
+            .replace(/^\./, "")
+            .split(":")[0],
       )
       .filter(Boolean);
 
     const uniqueDomains = Array.from(new Set(cleanDomains));
 
     if (uniqueDomains.length === 0) {
-      throw new Error("At least one allowed domain is required (e.g. yourstore.com or store.salla.sa)");
+      throw new Error(
+        "At least one allowed domain is required (e.g. yourstore.com or store.salla.sa)",
+      );
     }
 
     widget.allowedDomains = uniqueDomains;
@@ -42,18 +45,16 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
     const domainCount = widget.allowedDomains.length;
     if (currentTier === "free" && domainCount > 1) {
       throw new Error(
-        "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains)."
+        "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains).",
       );
     }
     if (currentTier === "starter" && domainCount > 5) {
       throw new Error(
-        "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains."
+        "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains.",
       );
     }
     if (currentTier === "pro" && domainCount > 10) {
-      throw new Error(
-        "Pro plan allows a maximum of 10 authorized domains."
-      );
+      throw new Error("Pro plan allows a maximum of 10 authorized domains.");
     }
   }
 
@@ -70,7 +71,7 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
 
     if (!isDefaultName) {
       throw new Error(
-        "Customizing the assistant name requires a Starter plan or higher. Free plan uses default 'Sanad Assistant'."
+        "Customizing the assistant name requires a Starter plan or higher. Free plan uses default 'Sanad Assistant'.",
       );
     }
   }
@@ -78,8 +79,29 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
   // 3. Document Highlight Card Gating (Requires Pro plan)
   if (currentTier !== "pro" && widget.citationStyle === "document-snippet") {
     throw new Error(
-      "Document Highlight Cards require a Pro plan. Upgrade to Growth (Pro) to enable rich verified source cards."
+      "Document Highlight Cards require a Pro plan. Upgrade to Growth (Pro) to enable rich verified source cards.",
     );
+  }
+
+  // 4. Custom Instructions Gating
+  if (widget.customInstructions !== undefined) {
+    const trimmed = widget.customInstructions.trim();
+    if (currentTier === "free" && trimmed.length > 0) {
+      throw new Error("Custom instructions require a Starter plan or higher.");
+    }
+    if (currentTier === "starter" && trimmed.length > 1000) {
+      throw new Error("Starter plan allows up to 1,000 characters for custom instructions.");
+    }
+    if (currentTier === "pro" && trimmed.length > 3000) {
+      throw new Error("Pro plan allows up to 3,000 characters for custom instructions.");
+    }
+  }
+
+  // 5. Temperature Gating (Pro only)
+  if (widget.temperature !== undefined) {
+    if (currentTier !== "pro" && Math.abs(widget.temperature - 0.2) > 0.01) {
+      throw new Error("Customizing response tone & temperature requires the Flagship Pro plan.");
+    }
   }
 
   const { data, error } = await supabase
@@ -90,7 +112,7 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
         ...dbUpdate,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: "business_id" }
+      { onConflict: "business_id" },
     )
     .select()
     .single();

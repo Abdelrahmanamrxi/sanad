@@ -25,7 +25,7 @@ import { DEFAULT_WIDGET_CONFIG } from "../constants";
 import { saveWidgetSettings } from "../actions";
 import WidgetEditPanel from "./widget-edit-panel";
 import WidgetViewPanel from "./widget-view-panel";
-import { UpgradePlansModal } from "@/features/billing/components";
+import UpgradePlansModal from "@/features/billing/components/upgrade-plans-modal";
 
 interface WidgetStudioViewProps {
   businessId: string;
@@ -41,7 +41,7 @@ export default function WidgetStudioView({
   planTier = "free",
 }: WidgetStudioViewProps) {
   const [config, setConfig] = useState<WidgetConfig>(
-    widgetSettings || initialConfig || DEFAULT_WIDGET_CONFIG
+    widgetSettings || initialConfig || DEFAULT_WIDGET_CONFIG,
   );
   const [activeTab, setActiveTab] = useState<EditTab>("identity");
   const [isSaved, setIsSaved] = useState(false);
@@ -63,10 +63,16 @@ export default function WidgetStudioView({
   const embedScript = `<script src="${appOrigin}/widget.js" data-business-id="${businessId}" defer></script>`;
 
   const checkPlanRestrictedFeature = (
-    cfg: WidgetConfig
-  ): { featureName: string; requiredTier: "starter" | "pro"; reason: string } | null => {
+    cfg: WidgetConfig,
+  ): {
+    featureName: string;
+    requiredTier: "starter" | "pro";
+    reason: string;
+  } | null => {
     // 1. Domain Limits Check (Free: 1, Starter: 5, Pro: 10)
-    const domainCount = (cfg.allowedDomains || []).filter((d) => d.trim().length > 0).length;
+    const domainCount = (cfg.allowedDomains || []).filter(
+      (d) => d.trim().length > 0,
+    ).length;
     if (planTier === "free" && domainCount > PLANS.free.maxDomains) {
       return {
         featureName: `Multi-Domain (${domainCount} domains)`,
@@ -97,7 +103,8 @@ export default function WidgetStudioView({
         return {
           featureName: "Custom Assistant Name",
           requiredTier: "starter",
-          reason: "Free plan uses the default 'Sanad Assistant'. Upgrade to Starter to brand your assistant with your store or clinic name.",
+          reason:
+            "Free plan uses the default 'Sanad Assistant'. Upgrade to Starter to brand your assistant with your store or clinic name.",
         };
       }
     }
@@ -107,7 +114,8 @@ export default function WidgetStudioView({
       return {
         featureName: "Document Highlight Cards",
         requiredTier: "pro",
-        reason: "Document Highlight Cards with high-visibility excerpts require the Growth (Pro) plan. Upgrade to display verified source cards in your chat widget.",
+        reason:
+          "Document Highlight Cards with high-visibility excerpts require the Growth (Pro) plan. Upgrade to display verified source cards in your chat widget.",
       };
     }
 
@@ -129,7 +137,9 @@ export default function WidgetStudioView({
       .filter(Boolean);
 
     if (cleanDomains.length === 0) {
-      setSaveError("At least one allowed domain is required (e.g. yourstore.com or store.salla.sa)");
+      setSaveError(
+        "At least one allowed domain is required (e.g. yourstore.com or store.salla.sa)",
+      );
       setTimeout(() => setSaveError(null), 6000);
       return;
     }
@@ -141,7 +151,8 @@ export default function WidgetStudioView({
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to save settings";
+      const message =
+        err instanceof Error ? err.message : "Failed to save settings";
       console.error("Failed to save widget settings:", message);
       setSaveError(message);
       setTimeout(() => setSaveError(null), 6000);
@@ -163,10 +174,18 @@ export default function WidgetStudioView({
   return (
     <div className="relative flex min-h-0 lg:min-h-[820px] h-[calc(100vh-6.5rem)] flex-col border border-border bg-card shadow-xs overflow-hidden">
       {/* Corner crosshairs for architectural craft */}
-      <span className="pointer-events-none absolute -bottom-1 -left-1 font-mono text-[10px] text-border select-none">+</span>
-      <span className="pointer-events-none absolute -bottom-1 -right-1 font-mono text-[10px] text-border select-none">+</span>
-      <span className="pointer-events-none absolute -top-1 -left-1 font-mono text-[10px] text-border select-none">+</span>
-      <span className="pointer-events-none absolute -top-1 -right-1 font-mono text-[10px] text-border select-none">+</span>
+      <span className="pointer-events-none absolute -bottom-1 -left-1 font-mono text-[10px] text-border select-none">
+        +
+      </span>
+      <span className="pointer-events-none absolute -bottom-1 -right-1 font-mono text-[10px] text-border select-none">
+        +
+      </span>
+      <span className="pointer-events-none absolute -top-1 -left-1 font-mono text-[10px] text-border select-none">
+        +
+      </span>
+      <span className="pointer-events-none absolute -top-1 -right-1 font-mono text-[10px] text-border select-none">
+        +
+      </span>
 
       {/* ── Studio Header Bar ── */}
       <div className="flex flex-col gap-3 border-b border-border bg-card p-4 transition-colors lg:flex-row lg:items-center lg:justify-between shrink-0">
@@ -187,7 +206,8 @@ export default function WidgetStudioView({
               </span>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground font-sans">
-              Customize your storefront assistant appearance, branding, and copy the embed script
+              Customize your storefront assistant appearance, branding, and copy
+              the embed script
             </p>
           </div>
         </div>
@@ -243,8 +263,8 @@ export default function WidgetStudioView({
               isSaved
                 ? "border-emerald-600 bg-emerald-600 text-white"
                 : saveError
-                ? "border-destructive bg-destructive text-white"
-                : "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
+                  ? "border-destructive bg-destructive text-white"
+                  : "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
             }`}
           >
             {isSaving ? (
@@ -298,7 +318,11 @@ export default function WidgetStudioView({
             config={config}
             onChange={(newConfig) => {
               setConfig(newConfig);
-              if (saveError && newConfig.allowedDomains && newConfig.allowedDomains.length > 0) {
+              if (
+                saveError &&
+                newConfig.allowedDomains &&
+                newConfig.allowedDomains.length > 0
+              ) {
                 setSaveError(null);
               }
             }}

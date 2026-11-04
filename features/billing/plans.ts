@@ -25,7 +25,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     id: "free",
     name: "Free Trial",
     messages: 75,
-    messagePeriod: "lifetime",
+    messagePeriod: "monthly",
     maxDocuments: 1,
     maxFileSizeMb: 2,
     maxTotalPages: 12,

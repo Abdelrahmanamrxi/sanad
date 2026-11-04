@@ -18,7 +18,7 @@ interface WidgetEditPanelProps {
   businessId?: string;
   domainError?: string | null;
   planTier?: PlanTier;
-  onUpgrade?: (restricted?: RestrictedFeatureInfo | null) => void;
+  onUpgrade?: (restricted?: RestrictedFeatureInfo) => void;
 }
 
 export default function WidgetEditPanel({
@@ -38,7 +38,8 @@ export default function WidgetEditPanel({
       shortLabel: "ID",
       icon: Bot,
       color: "text-emerald-600 dark:text-emerald-400",
-      activeBg: "bg-emerald-500/10 border-b-2 border-emerald-600 text-emerald-800 dark:text-emerald-300",
+      activeBg:
+        "bg-emerald-500/10 border-b-2 border-emerald-600 text-emerald-800 dark:text-emerald-300",
     },
     {
       id: "appearance" as const,
@@ -46,7 +47,8 @@ export default function WidgetEditPanel({
       shortLabel: "Style",
       icon: Palette,
       color: "text-amber-600 dark:text-amber-400",
-      activeBg: "bg-amber-500/10 border-b-2 border-amber-600 text-amber-800 dark:text-amber-300",
+      activeBg:
+        "bg-amber-500/10 border-b-2 border-amber-600 text-amber-800 dark:text-amber-300",
     },
     {
       id: "messages" as const,
@@ -54,7 +56,8 @@ export default function WidgetEditPanel({
       shortLabel: "Msgs",
       icon: MessageSquare,
       color: "text-indigo-600 dark:text-indigo-400",
-      activeBg: "bg-indigo-500/10 border-b-2 border-indigo-600 text-indigo-800 dark:text-indigo-300",
+      activeBg:
+        "bg-indigo-500/10 border-b-2 border-indigo-600 text-indigo-800 dark:text-indigo-300",
     },
     {
       id: "embed" as const,
@@ -62,7 +65,8 @@ export default function WidgetEditPanel({
       shortLabel: "Code",
       icon: Code2,
       color: "text-teal-600 dark:text-teal-400",
-      activeBg: "bg-teal-500/10 border-b-2 border-teal-600 text-teal-800 dark:text-teal-300",
+      activeBg:
+        "bg-teal-500/10 border-b-2 border-teal-600 text-teal-800 dark:text-teal-300",
     },
   ];
 
@@ -84,9 +88,13 @@ export default function WidgetEditPanel({
                   : "border-b-2 border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40"
               }`}
             >
-              <Icon className={`size-3.5 shrink-0 ${isActive ? "" : tab.color}`} />
+              <Icon
+                className={`size-3.5 shrink-0 ${isActive ? "" : tab.color}`}
+              />
               <span className="hidden sm:inline ">{tab.label}</span>
-              <span className="text-[10px] sm:hidden font-mono">{tab.shortLabel}</span>
+              <span className="text-[10px] sm:hidden font-mono">
+                {tab.shortLabel}
+              </span>
             </button>
           );
         })}

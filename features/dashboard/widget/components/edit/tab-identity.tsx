@@ -4,6 +4,7 @@ import React from "react";
 import { Globe, Bot, Lock } from "lucide-react";
 import type { WidgetConfig, WidgetLanguage } from "../../types";
 import { type PlanTier, PLANS } from "@/features/billing/plans";
+import type { RestrictedFeatureInfo } from "@/features/billing/components/upgrade-plans-modal";
 import { cn } from "@/lib/utils";
 
 import AllowedDomainsInput from "./allowed-domains-input";
@@ -13,7 +14,7 @@ interface TabIdentityProps {
   onChange: (config: WidgetConfig) => void;
   domainError?: string | null;
   planTier?: PlanTier;
-  onUpgrade?: () => void;
+  onUpgrade?: (feature?: RestrictedFeatureInfo) => void;
 }
 
 export default function TabIdentity({
@@ -29,21 +30,24 @@ export default function TabIdentity({
       id: "auto",
       label: "Auto Detect",
       badge: "AUTO",
-      badgeColor: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+      badgeColor:
+        "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
       desc: "Matches the visitor's storefront language automatically.",
     },
     {
       id: "en",
       label: "English (LTR)",
       badge: "LTR",
-      badgeColor: "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400",
+      badgeColor:
+        "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400",
       desc: "Standard left-to-right alignment for English storefronts.",
     },
     {
       id: "ar",
       label: "Arabic (RTL)",
       badge: "RTL",
-      badgeColor: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+      badgeColor:
+        "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
       desc: "Forces right-to-left alignment for Arabic storefronts.",
     },
   ];
@@ -54,7 +58,8 @@ export default function TabIdentity({
       <div className="flex items-center gap-2.5 border border-emerald-500/30 bg-emerald-500/10 p-3 rounded-none">
         <Bot className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
         <p className="text-xs font-sans text-emerald-950 dark:text-emerald-200 leading-relaxed">
-          Configure your assistant&apos;s public brand name, online presence subtitle, and default language.
+          Configure your assistant&apos;s public brand name, online presence
+          subtitle, and default language.
         </p>
       </div>
 
@@ -80,14 +85,14 @@ export default function TabIdentity({
             type="text"
             maxLength={40}
             disabled={isFree}
-            value={isFree ? (config.botName || "Sanad Assistant") : config.botName}
+            value={isFree ? "AI Assistant" : config.botName}
             onChange={(e) => onChange({ ...config, botName: e.target.value })}
             placeholder="e.g. Sanad AI Support"
             className={cn(
               "w-full border px-3 py-2 font-sans text-xs outline-none transition-all rounded-none shadow-2xs",
               isFree
                 ? "border-border/80 bg-muted/60 text-muted-foreground cursor-not-allowed border-dashed select-none"
-                : "border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30"
+                : "border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30",
             )}
           />
           {isFree && (
@@ -102,13 +107,21 @@ export default function TabIdentity({
             <div className="flex items-center gap-2">
               <Lock className="size-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
               <span className="text-[11px] text-foreground/90 leading-tight">
-                Free plan defaults to <strong>&quot;Sanad Assistant&quot;</strong>. Upgrade to Starter to brand with your store or clinic name.
+                Free plan defaults to <strong>&quot;AI Assistant&quot;</strong>.
+                Upgrade to Starter to brand with your store or clinic name.
               </span>
             </div>
             {onUpgrade && (
               <button
                 type="button"
-                onClick={onUpgrade}
+                onClick={() => {
+                  onUpgrade({
+                    featureName: "Assistant Name",
+                    requiredTier: "starter",
+                    reason:
+                      "Free plan defaults to 'AI Assistant'. Upgrade to Starter to brand with your store or clinic name.",
+                  });
+                }}
                 className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0 cursor-pointer transition-colors rounded-none whitespace-nowrap"
               >
                 UPGRADE
@@ -117,7 +130,8 @@ export default function TabIdentity({
           </div>
         ) : (
           <p className="mt-1 text-[11px] text-muted-foreground font-sans">
-            Displayed prominently in the widget header and above verified AI responses.
+            Displayed prominently in the widget header and above verified AI
+            responses.
           </p>
         )}
       </div>
@@ -142,7 +156,9 @@ export default function TabIdentity({
         />
         <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
           <span className="size-1.5 bg-emerald-500 rounded-none inline-block animate-pulse" />
-          <span>Accompanied by a pulsing green availability indicator in the header.</span>
+          <span>
+            Accompanied by a pulsing green availability indicator in the header.
+          </span>
         </div>
       </div>
 
@@ -159,7 +175,12 @@ export default function TabIdentity({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => onChange({ ...config, defaultLanguage: item.id as WidgetLanguage })}
+                onClick={() =>
+                  onChange({
+                    ...config,
+                    defaultLanguage: item.id as WidgetLanguage,
+                  })
+                }
                 className={`border p-3 text-start transition-all rounded-none shadow-2xs cursor-pointer ${
                   isSelected
                     ? "border-primary bg-primary/10 text-foreground ring-2 ring-primary/30 font-semibold"
@@ -168,11 +189,15 @@ export default function TabIdentity({
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <Globe className="size-3.5 text-primary" />
-                  <span className={`border px-1.5 py-0.2 font-mono text-[9px] font-bold ${item.badgeColor}`}>
+                  <span
+                    className={`border px-1.5 py-0.2 font-mono text-[9px] font-bold ${item.badgeColor}`}
+                  >
                     {item.badge}
                   </span>
                 </div>
-                <span className="block font-sans text-xs text-foreground font-semibold">{item.label}</span>
+                <span className="block font-sans text-xs text-foreground font-semibold">
+                  {item.label}
+                </span>
                 <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
                   {item.desc}
                 </p>
@@ -186,7 +211,9 @@ export default function TabIdentity({
       <div className="border-t border-border pt-4">
         <AllowedDomainsInput
           domains={config.allowedDomains || []}
-          onChange={(domains) => onChange({ ...config, allowedDomains: domains })}
+          onChange={(domains) =>
+            onChange({ ...config, allowedDomains: domains })
+          }
           error={domainError}
           maxAllowed={PLANS[planTier || "free"].maxDomains}
           planTier={planTier}

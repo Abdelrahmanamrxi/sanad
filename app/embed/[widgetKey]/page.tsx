@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
-import { toWidgetConfig, type WidgetSettingsDBRow } from "@/features/dashboard/widget/types";
+import {
+  toWidgetConfig,
+  type WidgetSettingsDBRow,
+} from "@/features/dashboard/widget/types";
 import { getActiveSubscription } from "@/features/billing/services/usage";
 import { PLANS, type PlanTier } from "@/features/billing/plans";
 import { EmbedChatWidget } from "./embed-chat-widget";
@@ -21,7 +24,7 @@ export default async function EmbedPage({
   const widgetKey = (rawWidgetKey || "").trim();
   const search = await searchParams;
   const hostParam = typeof search.host === "string" ? search.host : "";
-  const originPage= (search.page as string) || "/"
+  const originPage = (search.page as string) || "/";
 
   // 1. Validate widgetKey format (must be a valid UUID to avoid PostgreSQL syntax errors)
   const isValidUuid = uuidSchema.safeParse(widgetKey).success;
@@ -51,7 +54,10 @@ export default async function EmbedPage({
     const plan = PLANS[planTier] || PLANS.free;
     showBranding = !plan.features.customBranding;
   } catch (subErr) {
-    console.error("[Embed Page] Error fetching subscription tier for branding:", subErr);
+    console.error(
+      "[Embed Page] Error fetching subscription tier for branding:",
+      subErr,
+    );
     showBranding = true;
   }
 

@@ -14,7 +14,7 @@ import {
   FileText,
   Zap,
 } from "lucide-react";
-import { PLANS, type PlanTier } from "@/features/billing/plans";
+import { PLANS, type PlanTier } from "../plans";
 import { cn } from "@/lib/utils";
 
 export interface RestrictedFeatureInfo {
@@ -102,7 +102,7 @@ export default function UpgradePlansModal({
                 </div>
               </div>
               <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 self-start sm:self-auto shrink-0 rounded-none">
-                Requires {restrictedFeature.requiredTier.toUpperCase()} Plan
+                Requires {restrictedFeature.requiredTier && restrictedFeature.requiredTier.toUpperCase()} Plan
               </span>
             </div>
           )}

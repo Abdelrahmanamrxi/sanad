@@ -43,19 +43,22 @@ function normalizeDomain(raw: string): string {
 export async function validateWidgetAccess(
   widgetKey: string,
   originOrReferer: string | null,
-  candidateHost?: string | null
+  candidateHost?: string | null,
 ): Promise<VerifiedWidget> {
   // Query by either primary key (widget id) or business_id
   const { data: widgetConfig, error: widgetErr } = await supabaseAdminClient
     .from("widget_settings")
     .select(
-      "id, business_id, is_active, allowed_domains, bot_name, subtitle, primary_color, secondary_color, background_color, border_radius, corner_radius, position, launcher_style, launcher_text, welcome_message, starter_questions, default_language"
+      "id, business_id, is_active, allowed_domains, bot_name, subtitle, primary_color, secondary_color, background_color, border_radius, corner_radius, position, launcher_style, launcher_text, welcome_message, starter_questions, default_language",
     )
     .or(`id.eq.${widgetKey},business_id.eq.${widgetKey}`)
     .maybeSingle();
 
   if (widgetErr) {
-    console.error("[Widget Service] Error querying widget settings:", widgetErr);
+    console.error(
+      "[Widget Service] Error querying widget settings:",
+      widgetErr,
+    );
     throw new AppError("Failed to verify widget configuration", 500);
   }
 
@@ -74,7 +77,9 @@ export async function validateWidgetAccess(
   if (allowedDomains.length > 0) {
     const isLocalhost =
       process.env.NODE_ENV !== "production" &&
-      (callerDomain === "localhost" || callerDomain === "127.0.0.1" || !callerDomain);
+      (callerDomain === "localhost" ||
+        callerDomain === "127.0.0.1" ||
+        !callerDomain);
 
     const isInternalApp =
       callerDomain === "sanad.app" || callerDomain.endsWith(".sanad.app");
@@ -92,7 +97,7 @@ export async function validateWidgetAccess(
     if (!isAllowed) {
       throw new AppError(
         `Domain "${callerDomain || "unknown"}" is not authorized for this widget. Please add it to Allowed Domains in Widget Settings.`,
-        403
+        403,
       );
     }
   }
@@ -106,7 +111,7 @@ export async function validateWidgetAccess(
  */
 export async function upsertVisitor(
   businessId: string,
-  anonId: string
+  anonId: string,
 ): Promise<string> {
   const { data: upsertedVisitor, error: upsertErr } = await supabaseAdminClient
     .from("visitors")
@@ -118,7 +123,7 @@ export async function upsertVisitor(
       },
       {
         onConflict: "business_id,anon_id",
-      }
+      },
     )
     .select("id")
     .single();
@@ -133,10 +138,13 @@ export async function upsertVisitor(
       .maybeSingle();
 
     if (!existingVisitor) {
-      console.error("[Widget Service] Failed to upsert visitor:", upsertErr || fetchErr);
+      console.error(
+        "[Widget Service] Failed to upsert visitor:",
+        upsertErr || fetchErr,
+      );
       throw new AppError(
         `Failed to register visitor: ${upsertErr?.message || fetchErr?.message}`,
-        500
+        500,
       );
     }
     return existingVisitor.id;
@@ -152,9 +160,9 @@ export async function upsertVisitor(
 export async function getOrCreateWidgetConversation(
   businessId: string,
   visitorId: string,
-  originPage?:string,
-  title?:string,
-  summary?:string
+  originPage?: string,
+  title?: string,
+  summary?: string,
 ): Promise<string> {
   const lockKey = `${businessId}:${visitorId}`;
 
@@ -187,9 +195,9 @@ export async function getOrCreateWidgetConversation(
           business_id: businessId,
           visitor_id: visitorId,
           channel: "widget",
-          origin_page:originPage,
-          title:title,
-          summary:summary
+          origin_page: originPage,
+          title: title,
+          summary: summary,
         })
         .select("id")
         .single();
@@ -209,11 +217,11 @@ export async function getOrCreateWidgetConversation(
         if (!fallbackConvo) {
           console.error(
             "[Widget Service] Failed to create or retrieve conversation:",
-            newConvoError
+            newConvoError,
           );
           throw new AppError(
             `Failed to initialize conversation: ${newConvoError?.message}`,
-            500
+            500,
           );
         }
         return fallbackConvo.id;
@@ -233,7 +241,7 @@ export async function getOrCreateWidgetConversation(
  * Fetches recent message history for a conversation.
  */
 export async function fetchConversationHistory(
-  conversationId: string
+  conversationId: string,
 ): Promise<ConversationHistoryMessage[]> {
   try {
     const { data: history, error } = await supabaseAdminClient
@@ -249,7 +257,10 @@ export async function fetchConversationHistory(
 
     return (history as ConversationHistoryMessage[]) || [];
   } catch (err) {
-    console.error("[Widget Service] Unexpected error fetching message history:", err);
+    console.error(
+      "[Widget Service] Unexpected error fetching message history:",
+      err,
+    );
     return [];
   }
 }
@@ -258,7 +269,7 @@ export async function fetchConversationHistory(
  * Safely resolves subscription tier and branding display permissions.
  */
 export async function resolveWidgetBranding(
-  businessId: string
+  businessId: string,
 ): Promise<BrandingInfo> {
   try {
     const sub = await getActiveSubscription(businessId);
@@ -268,7 +279,10 @@ export async function resolveWidgetBranding(
 
     return { planTier, showBranding };
   } catch (err) {
-    console.error("[Widget Service] Error resolving subscription branding:", err);
+    console.error(
+      "[Widget Service] Error resolving subscription branding:",
+      err,
+    );
     return { planTier: "free", showBranding: true };
   }
 }

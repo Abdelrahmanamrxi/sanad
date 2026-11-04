@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Button } from "@/components/ui/button";
 import {
   RotateCcw,
   Sparkles,
@@ -80,36 +81,14 @@ export function PlaygroundHeader({
 
         {/* Right: Controls & Presets */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Active Model Indicator */}
-          {/* Assistant Role & Tone Preset */}
-          <div className="relative">
-            <select
-              aria-label="Assistant Role Preset"
-              className="appearance-none border border-border bg-background px-3 py-1.5 pe-8 font-sans text-xs text-foreground outline-none hover:border-primary focus:border-primary transition-colors cursor-pointer rounded-none shadow-2xs"
-              onChange={(e) => handlePresetSelect(e.target.value)}
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Select Role / Tone...
-              </option>
-              {SYSTEM_PRESETS.map((preset) => (
-                <option key={preset.id} value={preset.id}>
-                  {preset.name}
-                </option>
-              ))}
-            </select>
-            <Sparkles className="pointer-events-none absolute end-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
-          </div>
+        
 
           {/* Expand / Minimize Container Toggle */}
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant={isExpanded ? "secondary" : "outline"}
             onClick={onToggleExpand}
-            className={`flex items-center gap-1.5 border px-3 py-1.5 hover:border-primary font-sans text-xs transition-colors rounded-none shadow-2xs ${
-              isExpanded
-                ? "border-primary bg-primary/10 text-primary font-medium"
-                : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-border"
-            }`}
             title={isExpanded ? "Exit Expanded View (Esc)" : "Expand Container to Fullscreen"}
           >
             {isExpanded ? (
@@ -124,34 +103,33 @@ export function PlaygroundHeader({
                 <span className="hidden sm:inline">Expand Studio</span>
               </>
             )}
-          </button>
+          </Button>
 
           {/* Toggle Inspector Pane Button */}
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant={isInspectorOpen ? "secondary" : "outline"}
             onClick={onToggleInspector}
-            className={`flex items-center gap-1.5 border px-3 py-1.5 font-sans text-xs transition-colors rounded-none shadow-2xs ${
-              isInspectorOpen
-                ? "border-primary bg-primary/10 text-primary font-medium"
-                : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-border"
-            }`}
             title="Toggle Settings and Document Sources Panel"
           >
             <Sliders className="size-3.5" />
             <span className="hidden sm:inline">Settings & Sources</span>
-          </button>
+          </Button>
 
           {/* Clear Session */}
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
             onClick={onResetConversation}
             disabled={messageCount === 0}
-            className="flex items-center gap-1.5 border border-border bg-background px-3 py-1.5 font-sans text-xs text-muted-foreground transition-colors hover:border-destructive hover:text-destructive disabled:opacity-40 disabled:pointer-events-none rounded-none shadow-2xs"
+            className="hover:border-destructive hover:text-destructive"
             title="Clear chat history"
           >
             <RotateCcw className="size-3.5" />
             <span className="hidden sm:inline">Clear Chat</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -16,6 +16,10 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getMessages } from "../actions";
@@ -157,7 +161,7 @@ export function ConversationThread({ conversation }: ConversationThreadProps) {
                 msg.hasLeadFormTrigger ||
                 Boolean(
                   msg.content &&
-                    /\[\[\s*show[_\s-]?lead[_\s-]?form\s*\]\]/i.test(msg.content),
+                  /\[\[\s*show[_\s-]?lead[_\s-]?form\s*\]\]/i.test(msg.content),
                 );
 
               const cleanContent = (msg.content || "")
@@ -219,7 +223,88 @@ export function ConversationThread({ conversation }: ConversationThreadProps) {
                         )}
                         dir="auto"
                       >
-                        {cleanContent}
+                        <ReactMarkdown
+                       
+                          components={{
+                            p: ({ children }) => (
+                              <p className="whitespace-pre-wrap leading-relaxed mb-3 last:mb-0 ">
+                                {children}
+                              </p>
+                            ),
+                            strong: ({ children }) => (
+                              <strong className="font-semibold text-foreground">
+                                {children}
+                              </strong>
+                            ),
+                            table: ({ children }) => (
+                              <div className="my-3 w-full overflow-x-auto border border-border bg-card rounded-none shadow-2xs">
+                                <table className="w-full border-collapse text-xs text-foreground font-sans">
+                                  {children}
+                                </table>
+                              </div>
+                            ),
+                            thead: ({ children }) => (
+                              <thead className="border-b border-border bg-muted/60 text-foreground font-semibold">
+                                {children}
+                              </thead>
+                            ),
+                            tbody: ({ children }) => (
+                              <tbody className="divide-y divide-border/60">
+                                {children}
+                              </tbody>
+                            ),
+                            tr: ({ children }) => (
+                              <tr className="hover:bg-muted/30 transition-colors">
+                                {children}
+                              </tr>
+                            ),
+                            th: ({ children }) => (
+                              <th className="border-e border-border last:border-e-0 px-3 py-2 text-start font-medium text-foreground">
+                                {children}
+                              </th>
+                            ),
+                            td: ({ children }) => (
+                              <td className="border-e border-border last:border-e-0 px-3 py-2 text-start text-foreground/90 leading-relaxed align-top">
+                                {children}
+                              </td>
+                            ),
+                            ul: ({ children }) => (
+                              <ul className="list-disc ps-5 space-y-1.5 my-2.5">
+                                {children}
+                              </ul>
+                            ),
+                            ol: ({ children }) => (
+                              <ol className="list-decimal ps-5 space-y-1.5 my-2.5">
+                                {children}
+                              </ol>
+                            ),
+                            li: ({ children }) => (
+                              <li className="leading-relaxed">{children}</li>
+                            ),
+                            h1: ({ children }) => (
+                              <h1 className="font-heading text-base font-bold text-foreground mt-3 mb-1.5">
+                                {children}
+                              </h1>
+                            ),
+                            h2: ({ children }) => (
+                              <h2 className="font-heading text-sm font-bold text-foreground mt-3 mb-1.5">
+                                {children}
+                              </h2>
+                            ),
+                            h3: ({ children }) => (
+                              <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-primary mt-2.5 mb-1">
+                                {children}
+                              </h3>
+                            ),
+                            code: ({ children }) => (
+                              <code className="border border-border bg-muted/60 px-1 py-0.5 font-mono text-xs rounded-none text-foreground">
+                                {children}
+                              </code>
+                            ),
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
                       </div>
                     )}
 
@@ -230,7 +315,8 @@ export function ConversationThread({ conversation }: ConversationThreadProps) {
                       </div>
                     )}
 
-                    {msg.source && (
+                    {/* Only show citation when the AI actually answered from the document, not when it escalated / couldn't find the answer */}
+                    {msg.source && !hasLeadForm && (
                       <div className="flex flex-col gap-1.5 w-full mt-1">
                         <button
                           onClick={() => toggleSource(msg.id)}

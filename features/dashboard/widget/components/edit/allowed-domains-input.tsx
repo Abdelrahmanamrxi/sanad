@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Globe, Plus, X, AlertCircle, ShieldCheck } from "lucide-react";
 import type { PlanTier } from "@/features/billing/plans";
+import type { RestrictedFeatureInfo } from "@/features/billing/components/upgrade-plans-modal";
 
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,7 @@ interface AllowedDomainsInputProps {
   error?: string | null;
   maxAllowed?: number;
   planTier?: PlanTier;
-  onUpgrade?: () => void;
+  onUpgrade?: (feature?: RestrictedFeatureInfo) => void;
 }
 
 export function cleanDomain(raw: string): string {
@@ -50,11 +51,11 @@ export default function AllowedDomainsInput({
     if (maxAllowed !== undefined && domains.length >= maxAllowed) {
       if (planTier === "free") {
         setInputError(
-          "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains)."
+          "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains).",
         );
       } else if (planTier === "starter") {
         setInputError(
-          "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains."
+          "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains.",
         );
       } else {
         setInputError("Pro plan allows a maximum of 10 authorized domains.");
@@ -65,7 +66,9 @@ export default function AllowedDomainsInput({
     // Basic domain validation regex (alphanumeric, dots, hyphens, or localhost)
     const domainRegex = /^(localhost|([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,})$/i;
     if (!domainRegex.test(cleaned) && cleaned !== "localhost") {
-      setInputError("Invalid domain format (e.g. yourstore.com or store.salla.sa)");
+      setInputError(
+        "Invalid domain format (e.g. yourstore.com or store.salla.sa)",
+      );
       return;
     }
 
@@ -112,11 +115,12 @@ export default function AllowedDomainsInput({
               isEmpty
                 ? "border-destructive/40 bg-destructive/10 text-destructive"
                 : isAtLimit
-                ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                : "border-border bg-muted/60 text-muted-foreground"
+                  ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                  : "border-border bg-muted/60 text-muted-foreground",
             )}
           >
-            {domains.length}{maxAllowed !== undefined ? ` / ${maxAllowed}` : ""} Domains
+            {domains.length}
+            {maxAllowed !== undefined ? ` / ${maxAllowed}` : ""} Domains
           </span>
 
           {planTier && (
@@ -125,7 +129,7 @@ export default function AllowedDomainsInput({
                 "font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border rounded-none whitespace-nowrap",
                 planTier === "free"
                   ? "border-border bg-muted/70 text-muted-foreground"
-                  : "border-primary/30 bg-primary/10 text-primary"
+                  : "border-primary/30 bg-primary/10 text-primary",
               )}
             >
               {planTier === "free" ? "Free" : planTier.toUpperCase()}
@@ -135,7 +139,16 @@ export default function AllowedDomainsInput({
           {isAtLimit && onUpgrade && (
             <button
               type="button"
-              onClick={onUpgrade}
+              onClick={() => {
+                onUpgrade({
+                  featureName: "Authorized Domains",
+                  requiredTier: planTier === "free" ? "starter" : "pro",
+                  reason:
+                    planTier === "free"
+                      ? "Free plan allows 1 authorized domain. Starter plan supports up to 5 domains."
+                      : "Starter plan allows up to 5 domains. Growth (Pro) supports up to 10 domains.",
+                });
+              }}
               className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border border-amber-500/40 cursor-pointer transition-colors rounded-none whitespace-nowrap"
             >
               Upgrade
@@ -229,9 +242,19 @@ export default function AllowedDomainsInput({
 
       {/* Informational Guidance */}
       <p className="text-[11px] text-muted-foreground font-sans leading-relaxed">
-        Only storefronts matching these domains will be authorized to initialize the assistant. Subdomains are automatically included (e.g. adding <code className="font-mono text-[10px] bg-muted px-1 py-0.5">salla.sa</code> also allows <code className="font-mono text-[10px] bg-muted px-1 py-0.5">mystore.salla.sa</code>).
+        Only storefronts matching these domains will be authorized to initialize
+        the assistant. Subdomains are automatically included (e.g. adding{" "}
+        <code className="font-mono text-[10px] bg-muted px-1 py-0.5">
+          salla.sa
+        </code>{" "}
+        also allows{" "}
+        <code className="font-mono text-[10px] bg-muted px-1 py-0.5">
+          mystore.salla.sa
+        </code>
+        ).
         <span className="block mt-1 font-mono text-[10px] text-primary">
-          Authorized domain limits: Free (1 domain), Starter (5 domains), Pro (10 domains).
+          Authorized domain limits: Free (1 domain), Starter (5 domains), Pro
+          (10 domains).
         </span>
       </p>
     </div>

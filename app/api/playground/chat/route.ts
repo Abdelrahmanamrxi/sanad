@@ -5,9 +5,14 @@ import { streamText, createTextStreamResponse } from "ai";
 import { getAuthContext } from "@/lib/auth";
 import { z } from "zod";
 import {
+  checkUsageLimit,
+  recordMessageUsage,
+} from "@/features/billing/services/usage";
+import {
   RetrieveChunks,
   formatChunks,
 } from "@/features/dashboard/knowledge-base/services/retrieval/retrieve-chunk";
+import AppError from "@/http/error";
 
 const defaultSystemPresets = {
   model: "SovereignEG/Qwen3.8-27B-FP8",
@@ -44,7 +49,15 @@ export const POST = handle(async (req) => {
 
   const { messages, systemPresets, query } = chatRequestSchema.parse(body);
 
-  const { businessId } = await getAuthContext();
+  const { businessId, planTier } = await getAuthContext();
+
+  const quota = await checkUsageLimit(businessId);
+  if (!quota.allowed) {
+    throw new AppError(
+      "You have reached your inquiry limit for this cycle, please upgrade your plan to continue",
+      402,
+    );
+  }
 
   const startMs = performance.now();
 
@@ -60,6 +73,7 @@ export const POST = handle(async (req) => {
   const retrievedChunks = await RetrieveChunks({
     query: latestQuery,
     businessId,
+    matchCount:4,
     rrfK: 60,
   });
 
@@ -88,6 +102,13 @@ export const POST = handle(async (req) => {
     ${formatChunks(retrievedChunks)}`,
     messages: conversationMessages,
     temperature: effectiveTemperature,
+    onFinish: async ({ usage }) => {
+      await recordMessageUsage({
+        businessId,
+        tokensIn: usage?.inputTokens ?? 0,
+        tokensOut: usage?.outputTokens ?? 0,
+      });
+    },
   });
 
   const sources = retrievedChunks.map((source, index) => {

@@ -34,6 +34,8 @@ export interface WidgetConfig {
   avatarMonogram?: string;
   borderStyle?: BorderStrokeStyle;
   citationStyle?: CitationStyle;
+  customInstructions?: string;
+  temperature?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -70,6 +72,8 @@ export interface WidgetSettingsDBRow {
   avatar_monogram: string;
   border_style: BorderStrokeStyle;
   citation_style: CitationStyle;
+  custom_instructions?: string;
+  temperature?: number;
   created_at: string;
   updated_at: string;
 }
@@ -98,6 +102,9 @@ export function toWidgetConfig(row: WidgetSettingsDBRow): WidgetConfig {
     avatarMonogram: row.avatar_monogram || "س",
     borderStyle: row.border_style || "hairline",
     citationStyle: row.citation_style || "document-snippet",
+    customInstructions: row.custom_instructions || "",
+    temperature:
+      typeof row.temperature === "number" ? Number(row.temperature) : 0.2,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -142,6 +149,8 @@ export function toWidgetSettingsDBRow(
   if (config.avatarMonogram !== undefined) update.avatar_monogram = config.avatarMonogram;
   if (config.borderStyle !== undefined) update.border_style = config.borderStyle;
   if (config.citationStyle !== undefined) update.citation_style = config.citationStyle;
+  if (config.customInstructions !== undefined) update.custom_instructions = config.customInstructions;
+  if (config.temperature !== undefined) update.temperature = config.temperature;
 
   return update;
 }

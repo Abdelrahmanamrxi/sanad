@@ -1,23 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import {
   FileText,
   Sliders,
-  CheckSquare,
-  Square,
   ChevronDown,
   ChevronUp,
-  ShieldCheck,
   BookOpen,
   X,
+  Lock,
+  Sparkles,
+  Loader2,
+  Check,
+  AlertCircle,
+  Save,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type {
   PlaygroundConfig,
   PlaygroundChunk,
   InspectorTab,
 } from "../types";
-import { AVAILABLE_MODELS, calibrateSimilarity } from "../constants";
+import { PlanTier } from "@/features/billing";
+import { updateAssistantSettingsAction } from "../actions";
+import UpgradePlansModal, {
+  type RestrictedFeatureInfo,
+} from "@/features/billing/components/upgrade-plans-modal";
 
 interface PlaygroundInspectorPanelProps {
   activeTab: InspectorTab;
@@ -28,19 +36,51 @@ interface PlaygroundInspectorPanelProps {
   config: PlaygroundConfig;
   onConfigChange: (newConfig: PlaygroundConfig) => void;
   onClose?: () => void;
+  planTier: PlanTier;
 }
+
+const TONE_PRESETS = [
+  {
+    value: 0.0,
+    title: "Strict",
+    desc: "Direct facts only, strictly from knowledge documents. Zero guesswork.",
+  },
+  {
+    value: 0.25,
+    title: "Balanced",
+    desc: "Helpful and conversational while remaining accurate. (Recommended)",
+  },
+  {
+    value: 0.5,
+    title: "Friendly",
+    desc: "Warm and approachable phrasing, best for customer engagement.",
+  },
+];
 
 export function PlaygroundInspectorPanel({
   activeTab,
   onTabChange,
   chunks,
-  onToggleChunkInclusion,
-  selectedChunkId,
   config,
   onConfigChange,
   onClose,
+  planTier,
 }: PlaygroundInspectorPanelProps) {
   const [expandedChunkIds, setExpandedChunkIds] = useState<Record<string, boolean>>({});
+  const [isPending, startTransition] = useTransition();
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // Upgrade Modal state
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [restrictedFeature, setRestrictedFeature] = useState<RestrictedFeatureInfo | null>(null);
+
+  const isFree = planTier === "free";
+  const isStarter = planTier === "starter";
+  const isPro = planTier === "pro";
+  const maxInstructionChars = isFree ? 0 : isStarter ? 1000 : 3000;
 
   const toggleExpand = (id: string) => {
     setExpandedChunkIds((prev) => ({
@@ -49,23 +89,53 @@ export function PlaygroundInspectorPanel({
     }));
   };
 
-  const getTemperatureLabel = (temp: number) => {
-    if (temp <= 0.15) return { title: "Strict & Factual", desc: "Precise and strictly grounded in source documents", badge: "0.0 – 0.15" };
-    if (temp <= 0.35) return { title: "Balanced & Direct", desc: "Balanced and concise, optimal for business support", badge: "0.2 – 0.35" };
-    if (temp <= 0.6) return { title: "Friendly & Conversational", desc: "Engaging and polite with natural conversational flow", badge: "0.4 – 0.6" };
-    return { title: "Expressive & Creative", desc: "Creative responses with broader phrasing latitude", badge: "0.65 – 1.0" };
+  const openUpgradeModal = (
+    featureName: string,
+    reason: string,
+    requiredTier: "starter" | "pro" = "starter"
+  ) => {
+    setRestrictedFeature({
+      featureName,
+      requiredTier,
+      reason,
+    });
+    setIsUpgradeModalOpen(true);
   };
 
-  const tempInfo = getTemperatureLabel(config.temperature);
+  const handleSaveSettings = () => {
+    setStatusMessage(null);
+    startTransition(async () => {
+      const result = await updateAssistantSettingsAction({
+        customInstructions: config.systemPrompt,
+        temperature: config.temperature,
+      });
+
+      if (!result.success) {
+        setStatusMessage({
+          type: "error",
+          text: result.error || "Failed to save assistant settings.",
+        });
+      } else {
+        setStatusMessage({
+          type: "success",
+          text: "Saved to live store assistant!",
+        });
+        setTimeout(() => setStatusMessage(null), 4000);
+      }
+    });
+  };
+
+  const currentChars = config.systemPrompt.length;
+  const isOverCharLimit = maxInstructionChars > 0 && currentChars > maxInstructionChars;
 
   return (
-    <div className="relative flex h-full flex-col border-s border-border bg-card transition-colors">
-      {/* ── 2 Clear Tabs ── */}
-      <div className="flex border-b border-border bg-background">
+    <div className="flex h-full flex-col bg-card font-sans border-s border-border">
+      {/* ── Panel Header & Tabs ── */}
+      <div className="flex items-center border-b border-border bg-muted/20">
         <button
           type="button"
           onClick={() => onTabChange("sources")}
-          className={`relative flex flex-1 items-center justify-center gap-2 border-b-2 py-3 font-sans text-xs transition-colors rounded-none ${
+          className={`relative flex flex-1 items-center justify-center gap-2 border-b-2 py-3 font-sans text-xs transition-colors rounded-none cursor-pointer ${
             activeTab === "sources"
               ? "border-primary bg-card font-semibold text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -83,7 +153,7 @@ export function PlaygroundInspectorPanel({
         <button
           type="button"
           onClick={() => onTabChange("settings")}
-          className={`relative flex flex-1 items-center justify-center gap-2 border-b-2 py-3 font-sans text-xs transition-colors rounded-none ${
+          className={`relative flex flex-1 items-center justify-center gap-2 border-b-2 py-3 font-sans text-xs transition-colors rounded-none cursor-pointer ${
             activeTab === "settings"
               ? "border-primary bg-card font-semibold text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -94,20 +164,22 @@ export function PlaygroundInspectorPanel({
         </button>
 
         {onClose && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             onClick={onClose}
-            className="flex items-center justify-center px-3.5 text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors border-s border-border"
+            className="border-s border-border"
             title="Close panel"
           >
             <X className="size-4" />
-          </button>
+          </Button>
         )}
       </div>
 
       {/* ── Tab Content ── */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* ── 1. Referenced Documents Tab (Physical Clipping Look) ── */}
+        {/* ── 1. Referenced Documents Tab ── */}
         {activeTab === "sources" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
@@ -116,7 +188,7 @@ export function PlaygroundInspectorPanel({
                   Verified Knowledge Clippings
                 </h3>
                 <p className="mt-0.5 font-sans text-[11px] text-muted-foreground">
-                  Exact policy paragraphs cited by the assistant
+                  Exact document paragraphs cited by the assistant
                 </p>
               </div>
               <span className="font-mono text-xs font-semibold text-primary">
@@ -135,110 +207,69 @@ export function PlaygroundInspectorPanel({
             ) : (
               <div className="space-y-3">
                 {chunks.map((chunk, index) => {
-                  const matchPct = calibrateSimilarity(chunk.similarity);
-                  const isHigh = matchPct >= 75;
-                  const isSelected = selectedChunkId === chunk.id;
-                  const isExpanded = expandedChunkIds[chunk.id] ?? false;
-                  const fileExt = chunk.documentName?.endsWith(".pdf") ? "PDF" : "DOCX";
+                  const isExpanded = !!expandedChunkIds[chunk.id];
+                  const matchPct = Math.round(chunk.similarity * 100);
+                  const isHigh = matchPct >= 70;
 
                   return (
                     <div
                       key={chunk.id || index}
-                      className={`relative border transition-all shadow-2xs ${
-                        isSelected
-                          ? "border-primary bg-card ring-1 ring-primary/40 shadow-xs"
-                          : chunk.includedInContext
-                          ? "border-border bg-card"
-                          : "border-border/60 bg-muted/20 opacity-60"
-                      }`}
+                      className="border border-border bg-background p-3.5 space-y-2 shadow-2xs"
                     >
-                      {/* Top Match Quality Meter Bar */}
-                      <div className="h-0.5 w-full bg-muted overflow-hidden">
-                        <div
-                          style={{ width: `${matchPct}%` }}
-                          className={`h-full ${isHigh ? "bg-emerald-500" : "bg-amber-500"}`}
-                        />
-                      </div>
-
-                      {/* Clipping Header */}
-                      <div className="flex items-start justify-between border-b border-border/60 p-3 gap-2">
-                        <div className="flex items-start gap-2.5">
-                          <button
-                            type="button"
-                            onClick={() => onToggleChunkInclusion(chunk.id)}
-                            className="mt-0.5 text-muted-foreground hover:text-primary transition-colors"
-                            title={
-                              chunk.includedInContext
-                                ? "Exclude this clipping from the assistant's answer"
-                                : "Include this clipping in the assistant's answer"
-                            }
-                          >
-                            {chunk.includedInContext ? (
-                              <CheckSquare className="size-4 text-primary" />
-                            ) : (
-                              <Square className="size-4" />
-                            )}
-                          </button>
-                          <div>
-                            <div className="flex items-center gap-1.5 mb-1">
-                              <span className="border border-primary/30 bg-primary/10 px-1 py-0.2 font-mono text-[9px] font-bold text-primary">
-                                {fileExt}
-                              </span>
-                              <span className="font-sans text-xs font-semibold text-foreground truncate max-w-[160px]">
-                                {chunk.documentName || "Document"}
-                              </span>
-                            </div>
-                            {chunk.headingPath && (
-                              <span className="font-mono text-[10px] text-muted-foreground block truncate max-w-[210px]">
-                                {chunk.headingPath}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Relevance Tag */}
-                        <div className="text-end shrink-0">
-                          <span
-                            className={`font-mono text-[10px] px-1.5 py-0.5 border ${
-                              isHigh
-                                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
-                                : "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium"
-                            }`}
-                          >
-                            {matchPct}% Match
+                      <div className="flex items-start justify-between gap-2 border-b border-border/40 pb-2">
+                        <div className="min-w-0">
+                          <span className="font-mono text-[10px] text-primary uppercase tracking-wider font-semibold">
+                            Source #{index + 1}
                           </span>
-                        </div>
-                      </div>
-
-                      {/* Content Preview with Highlighter effect */}
-                      <div className="p-3 bg-muted/10">
-                        <p
-                          className={`font-sans text-xs text-foreground/90 leading-relaxed ${
-                            !isExpanded ? "line-clamp-3" : ""
-                          }`}
-                          dir="auto"
-                        >
-                          {chunk.content}
-                        </p>
-
-                        <button
-                          type="button"
-                          onClick={() => toggleExpand(chunk.id)}
-                          className="mt-2.5 flex items-center gap-1 font-sans text-[11px] text-primary hover:underline font-medium"
-                        >
-                          {isExpanded ? (
-                            <>
-                              <ChevronUp className="size-3" />
-                              <span>Show less</span>
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="size-3" />
-                              <span>Show full section text</span>
-                            </>
+                          <h4 className="font-sans text-xs font-semibold text-foreground truncate">
+                            {chunk.documentName || "Verified Document"}
+                          </h4>
+                          {chunk.headingPath && (
+                            <p className="font-mono text-[10px] text-muted-foreground truncate">
+                              {chunk.headingPath}
+                            </p>
                           )}
-                        </button>
+                        </div>
+
+                        <span
+                          className={`font-mono text-[10px] px-1.5 py-0.5 border shrink-0 ${
+                            isHigh
+                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
+                              : "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium"
+                          }`}
+                        >
+                          {matchPct}% Match
+                        </span>
                       </div>
+
+                      <p
+                        className={`font-sans text-xs text-foreground/90 leading-relaxed ${
+                          !isExpanded ? "line-clamp-3" : ""
+                        }`}
+                        dir="auto"
+                      >
+                        {chunk.content}
+                      </p>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => toggleExpand(chunk.id)}
+                        className="mt-1 h-auto p-0 text-[11px] text-primary hover:bg-transparent hover:underline"
+                      >
+                        {isExpanded ? (
+                          <>
+                            <ChevronUp className="size-3" />
+                            <span>Show less</span>
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="size-3" />
+                            <span>Show full section text</span>
+                          </>
+                        )}
+                      </Button>
                     </div>
                   );
                 })}
@@ -247,106 +278,124 @@ export function PlaygroundInspectorPanel({
           </div>
         )}
 
-        {/* ── 2. Assistant Settings Tab (Precision Controls) ── */}
+        {/* ── 2. Assistant Settings Tab ── */}
         {activeTab === "settings" && (
           <div className="space-y-6">
-            {/* Assistant Engine */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Assistant Engine
-                </label>
-                <span className="font-sans text-[11px] text-primary font-medium">Click to change</span>
-              </div>
-              <div className="space-y-2">
-                {AVAILABLE_MODELS.map((model) => {
-                  const isSelected = config.model === model.id;
-                  return (
-                    <button
-                      key={model.id}
-                      type="button"
-                      onClick={() => onConfigChange({ ...config, model: model.id })}
-                      className={`w-full p-3 text-start border transition-all rounded-none shadow-2xs ${
-                        isSelected
-                          ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary/40 shadow-xs"
-                          : "border-border bg-background text-muted-foreground hover:border-border hover:text-foreground"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-sans text-xs font-semibold text-foreground">
-                          {model.name}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="border border-border bg-muted px-1.5 py-0.2 font-mono text-[9px] text-muted-foreground">
-                            {model.speed}
-                          </span>
-                          <span
-                            className={`border px-1.5 py-0.2 font-mono text-[9px] ${
-                              model.badge === "Recommended"
-                                ? "border-primary/40 bg-primary/10 text-primary font-medium"
-                                : "border-border bg-muted text-muted-foreground"
-                            }`}
-                          >
-                            {model.badge}
-                          </span>
-                        </div>
-                      </div>
-                      <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
-                        {model.description}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Stepped Hardware Slider for Tone & Creativity */}
-            <div className="border-t border-border pt-4 space-y-2.5">
+            {/* Tone & Temperature Section */}
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Response Tone & Creativity
-                </label>
+                <div className="flex items-center gap-1.5">
+                  <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Response Tone & Creativity
+                  </label>
+                  {!isPro && (
+                    <span className="inline-flex items-center gap-1 border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-amber-700 dark:text-amber-300 uppercase">
+                      <Lock className="size-2.5" />
+                      Pro Only
+                    </span>
+                  )}
+                  {isPro && (
+                    <span className="inline-flex items-center gap-1 border border-primary/30 bg-primary/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-primary uppercase">
+                      <Sparkles className="size-2.5" />
+                      Pro Unlocked
+                    </span>
+                  )}
+                </div>
                 <span className="font-mono text-xs font-bold text-primary">
-                  {config.temperature}
+                  {config.temperature.toFixed(2)}
                 </span>
               </div>
 
-              {/* High-contrast status pill */}
-              <div className="border border-border bg-background p-2.5 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans text-xs font-semibold text-foreground">
-                    {tempInfo.title}
-                  </span>
-                  <span className="font-mono text-[10px] text-primary border border-primary/30 bg-primary/10 px-1.5 py-0.2">
-                    {tempInfo.badge}
-                  </span>
+              {!isPro ? (
+                /* Non-Pro (Free & Starter): Locked to Default Balanced */
+                <div className="border border-border bg-muted/30 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans text-xs font-semibold text-foreground">
+                      Balanced & Grounded (0.20)
+                    </span>
+                    <span className="inline-flex items-center gap-1 font-mono text-[10px] border border-border bg-card px-1.5 py-0.5 text-muted-foreground">
+                      <Lock className="size-2.5 text-amber-600 dark:text-amber-400" />
+                      <span>Default Mode</span>
+                    </span>
+                  </div>
+                  <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
+                    Custom response tone and sampling temperature tuning are exclusive to the Flagship Pro plan.
+                  </p>
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="outline"
+                    onClick={() =>
+                      openUpgradeModal(
+                        "Response Tone & Creativity",
+                        "Upgrade to Flagship Pro to unlock custom AI tone presets, conversational warmth, and sampling temperature tuning.",
+                        "pro"
+                      )
+                    }
+                    className="w-full mt-1 font-mono text-xs font-bold uppercase tracking-wider border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
+                  >
+                    Upgrade to Flagship Pro
+                  </Button>
                 </div>
-                <span className="font-sans text-[11px] text-muted-foreground mt-0.5 block">
-                  {tempInfo.desc}
-                </span>
-              </div>
+              ) : (
+                /* Pro Plan: Full Unlocked Controls (Presets + Precision Slider) */
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {TONE_PRESETS.map((preset) => {
+                      const isSelected =
+                        Math.abs(config.temperature - preset.value) < 0.05;
+                      return (
+                        <button
+                          key={preset.title}
+                          type="button"
+                          onClick={() =>
+                            onConfigChange({ ...config, temperature: preset.value })
+                          }
+                          className={`p-2.5 text-start border transition-all rounded-none cursor-pointer ${
+                            isSelected
+                              ? "border-primary bg-primary/10 text-foreground"
+                              : "border-border bg-background hover:bg-muted/40 text-muted-foreground"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-sans text-xs font-semibold text-foreground">
+                              {preset.title}
+                            </span>
+                            {isSelected && (
+                              <Check className="size-3 text-primary" />
+                            )}
+                          </div>
+                          <span className="font-mono text-[10px] text-primary block">
+                            {preset.value.toFixed(2)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
-              {/* Slider with discrete stepped rail */}
-              <div className="pt-1">
-                <input
-                  type="range"
-                  min={0.0}
-                  max={1.0}
-                  step={0.05}
-                  value={config.temperature}
-                  onChange={(e) =>
-                    onConfigChange({ ...config, temperature: parseFloat(e.target.value) })
-                  }
-                  className="w-full accent-primary cursor-pointer h-2 bg-muted rounded-none"
-                />
-
-                <div className="flex justify-between font-mono text-[10px] text-muted-foreground mt-1">
-                  <span>0.0 (Strict)</span>
-                  <span>0.25 (Balanced)</span>
-                  <span>0.5 (Friendly)</span>
-                  <span>1.0 (Creative)</span>
+                  <div className="space-y-1.5 pt-1">
+                    <input
+                      type="range"
+                      min={0.0}
+                      max={0.5}
+                      step={0.05}
+                      value={config.temperature}
+                      onChange={(e) =>
+                        onConfigChange({
+                          ...config,
+                          temperature: parseFloat(e.target.value),
+                        })
+                      }
+                      className="w-full accent-primary cursor-pointer h-2 bg-muted rounded-none"
+                    />
+                    <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
+                      <span>0.0 (Strict)</span>
+                      <span>0.25 (Balanced)</span>
+                      <span>0.50 (Friendly)</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
                 Lower values keep the assistant strictly anchored to exact text. Higher values allow
@@ -354,59 +403,152 @@ export function PlaygroundInspectorPanel({
               </p>
             </div>
 
-            {/* Strict Knowledge Base Mode */}
-            <div className="border-t border-border pt-4">
-              <div className="flex items-start gap-2.5 border border-border bg-background p-3 shadow-2xs">
-                <button
-                  type="button"
-                  onClick={() =>
-                    onConfigChange({ ...config, strictGrounding: !config.strictGrounding })
-                  }
-                  className="mt-0.5 text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {config.strictGrounding ? (
-                    <CheckSquare className="size-4 text-primary" />
-                  ) : (
-                    <Square className="size-4" />
-                  )}
-                </button>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="size-3.5 text-primary" />
-                    <span className="font-sans text-xs font-semibold text-foreground">
-                      Strict Knowledge Base Mode
+            {/* Custom Instructions Section */}
+            <div className="border-t border-border pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Custom Store Instructions
+                  </label>
+                  {isFree && (
+                    <span className="inline-flex items-center gap-1 border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-amber-700 dark:text-amber-300 uppercase">
+                      <Lock className="size-2.5" />
+                      Starter
                     </span>
-                  </div>
-                  <p className="mt-1 font-sans text-[11px] text-muted-foreground leading-relaxed">
-                    Ensures the assistant only answers using verified documents. If an answer cannot
-                    be confirmed in your files, it politely informs the customer rather than guessing.
-                  </p>
+                  )}
+                  {isStarter && (
+                    <span className="font-mono text-[9px] border border-border bg-muted px-1.5 py-0.2 text-muted-foreground uppercase">
+                      Starter Plan
+                    </span>
+                  )}
+                  {isPro && (
+                    <span className="inline-flex items-center gap-1 border border-primary/30 bg-primary/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-primary uppercase">
+                      <Sparkles className="size-2.5" />
+                      Pro Plan
+                    </span>
+                  )}
                 </div>
-              </div>
-            </div>
 
-            {/* Custom Instructions */}
-            <div className="border-t border-border pt-4">
-              <div className="flex items-center justify-between mb-2">
-                <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Custom Instructions & Rules
-                </label>
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  {config.systemPrompt.length} chars
+                <span
+                  className={`font-mono text-[10px] ${
+                    isOverCharLimit
+                      ? "text-destructive font-bold"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {currentChars} {maxInstructionChars > 0 ? `/ ${maxInstructionChars}` : ""} chars
                 </span>
               </div>
-              <textarea
-                value={config.systemPrompt}
-                onChange={(e) => onConfigChange({ ...config, systemPrompt: e.target.value })}
-                rows={5}
-                dir="auto"
-                className="w-full border border-border bg-background p-2.5 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors resize-y rounded-none leading-relaxed shadow-2xs"
-                placeholder="Describe how your assistant should greet customers, speak to them, and format its replies..."
-              />
+
+              {/* Free Plan Upgrade Prompt */}
+              {isFree ? (
+                <div className="border border-amber-500/40 bg-amber-500/10 p-3 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <Lock className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <h4 className="font-sans text-xs font-semibold text-foreground">
+                        Custom Brand Instructions (Starter Feature)
+                      </h4>
+                      <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
+                        Customize how your assistant greets customers, what dialect to speak (Saudi, Egyptian, Formal), and specific store policies.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="default"
+                    onClick={() =>
+                      openUpgradeModal(
+                        "Custom Store Instructions",
+                        "Upgrade to Starter to customize your assistant's personality, dialect, and specific store etiquette."
+                      )
+                    }
+                    className="w-full mt-1 font-mono text-xs font-bold uppercase tracking-wider"
+                  >
+                    Upgrade to Starter (490 EGP/mo)
+                  </Button>
+                </div>
+              ) : (
+                <textarea
+                  value={config.systemPrompt}
+                  onChange={(e) =>
+                    onConfigChange({ ...config, systemPrompt: e.target.value })
+                  }
+                  rows={6}
+                  dir="auto"
+                  disabled={isFree}
+                  className="w-full border border-border bg-background p-2.5 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors resize-y rounded-none leading-relaxed shadow-2xs"
+                  placeholder="Describe how your assistant should greet customers, speak to them, and format its replies... (e.g. Speak politely in Egyptian Arabic, never offer unlisted discounts, format return steps in bullet points)."
+                />
+              )}
+
+              {isOverCharLimit && (
+                <p className="font-sans text-[11px] text-destructive flex items-center gap-1 font-medium">
+                  <AlertCircle className="size-3.5 shrink-0" />
+                  <span>
+                    Character limit exceeded by {currentChars - maxInstructionChars} characters.
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {/* Status Feedback Message */}
+            {statusMessage && (
+              <div
+                className={`flex items-center gap-2 p-2.5 text-xs font-sans border ${
+                  statusMessage.type === "success"
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
+                    : "border-destructive/30 bg-destructive/10 text-destructive font-medium"
+                }`}
+              >
+                {statusMessage.type === "success" ? (
+                  <Check className="size-4 shrink-0 text-emerald-500" />
+                ) : (
+                  <AlertCircle className="size-4 shrink-0 text-destructive" />
+                )}
+                <span>{statusMessage.text}</span>
+              </div>
+            )}
+
+            {/* Save to Live Store Assistant Action */}
+            <div className="pt-2 border-t border-border">
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleSaveSettings}
+                disabled={isPending || isOverCharLimit || (isFree && config.systemPrompt.trim().length > 0)}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin" />
+                    <span>Saving Settings...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="size-3.5" />
+                    <span>Save to Live Store Assistant</span>
+                  </>
+                )}
+              </Button>
+              <p className="font-sans text-[10px] text-muted-foreground text-center mt-1.5">
+                Saved changes take effect immediately for both Playground and customer storefronts.
+              </p>
             </div>
           </div>
         )}
       </div>
+
+      {/* Upgrade Plans Modal */}
+      <UpgradePlansModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        restrictedFeature={restrictedFeature}
+        currentTier={planTier}
+        title="Unlock Custom Brand Instructions"
+        subtitle="Give your AI assistant a distinct store personality, language dialect, and customized customer service guidelines."
+      />
     </div>
   );
 }

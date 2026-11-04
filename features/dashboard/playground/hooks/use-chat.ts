@@ -4,6 +4,7 @@ import {
   type PlaygroundMessage,
   type PlaygroundChunk,
 } from "../types";
+import { useRouter } from "next/navigation";
 
 import axios from "axios";
 
@@ -13,6 +14,7 @@ export default function usePlaygroundChat(config: PlaygroundConfig) {
   const [isStreaming, setStreaming] = useState<boolean>(false); // To check if response is currently being received or not
   const abortController = useRef<AbortController | null>(null);
   const messagesRef = useRef<PlaygroundMessage[]>(messages);
+  const router=useRouter()
   messagesRef.current = messages;
 
   const sendMessage = useCallback(
@@ -131,6 +133,9 @@ export default function usePlaygroundChat(config: PlaygroundConfig) {
 
         let message = "Failed to generate a response";
         if (axios.isAxiosError(err)) {
+          if(err.response?.status===402){
+          message="Quota Limit Reached, Please upgrade to continue testing."
+        }
           message = err.response?.data?.error || err.message;
         } else if (err instanceof Error) {
           message = err.message;
@@ -150,6 +155,7 @@ export default function usePlaygroundChat(config: PlaygroundConfig) {
         );
       } finally {
         setStreaming(false);
+        router.refresh()
       }
     },
     [config, isStreaming],
