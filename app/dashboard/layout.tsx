@@ -56,7 +56,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
                 Business
               </span>
               <span className="text-sm font-semibold text-foreground tracking-tight truncate max-w-[200px] sm:max-w-[320px]">
-                {businessName || "My Business"}
+                {businessName}
               </span>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Sans_Arabic, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -15,12 +15,20 @@ export const metadata: Metadata = {
   },
 };
 
-const plex = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic", "latin"],
+const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-plex-arabic",
   display: "swap",
 });
+
+const plexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-latin",
+  display: "swap",
+});
+
 const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
@@ -38,7 +46,7 @@ export default function RootLayout({
       lang="en"
       dir="ltr"
       data-scroll-behavior="smooth"
-      className={`scroll-smooth ${plex.variable} ${mono.variable}`}
+      className={`scroll-smooth ${plexSans.variable} ${plexArabic.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col antialiased">

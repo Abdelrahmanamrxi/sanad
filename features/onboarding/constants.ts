@@ -132,25 +132,8 @@ export const COLOR_PRESETS: ColorPreset[] = [
 ];
 
 // Egypt Only with Major Cities and Commercial Hubs
-export const EGYPT_CITIES = [
-  { cityEn: "Cairo", cityAr: "القاهرة", regionEn: "Greater Cairo", regionAr: "القاهرة الكبرى" },
-  { cityEn: "New Cairo", cityAr: "القاهرة الجديدة", regionEn: "Fifth Settlement", regionAr: "التجمع الخامس" },
-  { cityEn: "Sheikh Zayed", cityAr: "الشيخ زايد", regionEn: "Giza / West Cairo", regionAr: "الجيزة / غرب القاهرة" },
-  { cityEn: "6th of October", cityAr: "السادس من أكتوبر", regionEn: "Giza", regionAr: "الجيزة" },
-  { cityEn: "Alexandria", cityAr: "الإسكندرية", regionEn: "Alexandria Governorate", regionAr: "محافظة الإسكندرية" },
-  { cityEn: "Giza", cityAr: "الجيزة", regionEn: "Giza Governorate", regionAr: "محافظة الجيزة" },
-  { cityEn: "Mansoura", cityAr: "المنصورة", regionEn: "Dakahlia", regionAr: "الدقهلية" },
-  { cityEn: "Tanta", cityAr: "طنطا", regionEn: "Gharbia", regionAr: "الغربية" },
-  { cityEn: "Port Said", cityAr: "بورسعيد", regionEn: "Port Said Governorate", regionAr: "محافظة بورسعيد" },
-  { cityEn: "Ismailia", cityAr: "الإسماعيلية", regionEn: "Ismailia Governorate", regionAr: "محافظة الإسماعيلية" },
-  { cityEn: "Suez", cityAr: "السويس", regionEn: "Suez Governorate", regionAr: "محافظة السويس" },
-  { cityEn: "Zagazig", cityAr: "الزقازيق", regionEn: "Sharkia", regionAr: "الشرقية" },
-  { cityEn: "Assiut", cityAr: "أسيوط", regionEn: "Upper Egypt", regionAr: "صعيد مصر" },
-  { cityEn: "Aswan", cityAr: "أسوان", regionEn: "Upper Egypt", regionAr: "صعيد مصر" },
-  { cityEn: "Luxor", cityAr: "الأقصر", regionEn: "Upper Egypt", regionAr: "صعيد مصر" },
-  { cityEn: "Hurghada", cityAr: "الغردقة", regionEn: "Red Sea", regionAr: "البحر الأحمر" },
-  { cityEn: "Sharm El Sheikh", cityAr: "شرم الشيخ", regionEn: "South Sinai", regionAr: "جنوب سيناء" },
-];
+export { EGYPT_CITIES } from "@/lib/constant";
+
 
 export interface BorderSideConfig {
   top: boolean;

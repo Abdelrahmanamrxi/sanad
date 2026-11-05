@@ -285,7 +285,7 @@ export function PlaygroundInspectorPanel({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <label className="font-sans text-xs font-semibold text-foreground">
                     Response Tone & Creativity
                   </label>
                   {!isPro && (
@@ -332,7 +332,7 @@ export function PlaygroundInspectorPanel({
                         "pro"
                       )
                     }
-                    className="w-full mt-1 font-mono text-xs font-bold uppercase tracking-wider border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
+                    className="w-full mt-1 font-sans text-xs font-semibold tracking-wide border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
                   >
                     Upgrade to Flagship Pro
                   </Button>
@@ -407,7 +407,7 @@ export function PlaygroundInspectorPanel({
             <div className="border-t border-border pt-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <label className="font-sans text-xs font-semibold text-foreground">
                     Custom Store Instructions
                   </label>
                   {isFree && (
@@ -464,7 +464,7 @@ export function PlaygroundInspectorPanel({
                         "Upgrade to Starter to customize your assistant's personality, dialect, and specific store etiquette."
                       )
                     }
-                    className="w-full mt-1 font-mono text-xs font-bold uppercase tracking-wider"
+                    className="w-full mt-1 font-sans text-xs font-semibold tracking-wide"
                   >
                     Upgrade to Starter (490 EGP/mo)
                   </Button>

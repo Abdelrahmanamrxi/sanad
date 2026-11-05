@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { EGYPT_CITIES } from "./constants";
+import { EGYPT_CITIES } from "@/lib/constant";
 
 const CITY_SET = new Set(
   EGYPT_CITIES.map((c) => {
     return c.cityEn;
   }),
 );
-const ARABIC_REGEX = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\s\d\-&.'()]+$/;
+export const ARABIC_REGEX = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\s\d\-&.'()]+$/;
 
 
 const hexColor = z
