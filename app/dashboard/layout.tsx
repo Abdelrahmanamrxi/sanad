@@ -62,7 +62,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
           </div>
           <ModeToggle />
         </header>
-        <main className="flex-1 p-6">{children}</main>
+        <div className="flex-1 p-6 min-w-0">{children}</div>
       </SidebarInset>
     </SidebarProvider>
     </TanstackProvider>

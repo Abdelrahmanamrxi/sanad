@@ -4,7 +4,7 @@ import { KnowledgeBaseView } from "@/features/dashboard/knowledge-base/component
 export const metadata: Metadata = {
   title: "Knowledge Base",
   description:
-    "Manage vector embeddings, inspect chunk partitions, and purge obsolete documentation",
+    "Manage documents, knowledge base for your AI",
 }
 
 export default function KnowledgeBasePage() {

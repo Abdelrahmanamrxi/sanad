@@ -16,6 +16,9 @@ export default async function AccountPage() {
 
   const { supabase, user, businessId, businessName, planTier } = authContext;
 
+  if(!user || !user.email){
+    throw new Error("Failed to load account details")
+  }
   // 1. Fetch business row from public.business table
   const { data: business } = await supabase
     .from("business")
@@ -47,7 +50,7 @@ export default async function AccountPage() {
   const initialData: AccountData = {
     user: {
       id: user.id,
-      email: user.email || "",
+      email: user.email,
       fullName: userFullName,
       createdAt: userCreatedAtFormatted,
     },

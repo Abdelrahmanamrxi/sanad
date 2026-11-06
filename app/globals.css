@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 3rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-plex-latin), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;

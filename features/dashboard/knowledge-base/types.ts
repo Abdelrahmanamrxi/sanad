@@ -1,4 +1,4 @@
-export type DocStatus = "indexed" | "ready" | "processing" | "queued" | "failed";
+export type DocStatus = "active" |"indexed" | "ready" | "processing" | "queued" | "failed";
 
 
 export type MimeType = "docx" | "pdf" | "txt" | "markdown";

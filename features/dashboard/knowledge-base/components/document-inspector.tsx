@@ -70,7 +70,7 @@ export function DocumentInspector({
 
   if (!selectedDoc) {
     return (
-      <div className="border border-border bg-card p-6 lg:col-span-7 flex flex-col justify-between rounded-none min-h-[520px] select-none">
+      <div className="border border-border bg-card p-6 lg:col-span-7 flex flex-col min-h-full justify-between rounded-none select-none">
         {/* Top Header Bar matching active inspector */}
         <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ export function DocumentInspector({
               onClick={() => alert(`Downloading ${selectedDoc.storage_path}`)}
             >
               <Download className="size-3 me-1" />
-              Download
+              Set Active
             </Button>
             <Button
               variant="outline"

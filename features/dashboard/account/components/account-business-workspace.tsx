@@ -86,7 +86,7 @@ export default function AccountBusinessWorkspace({
         </div>
       )}
 
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-4" suppressHydrationWarning>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Business English Name */}
           <div className="space-y-1.5">

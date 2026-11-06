@@ -62,7 +62,7 @@ const AccountProfileSettings = ({
         </div>
       )}
 
-      <form action={formAction}>
+      <form action={formAction} suppressHydrationWarning>
         <div className="flex items-center gap-2 border-b border-border/80 pb-3">
           <User className="size-4 text-primary" />
           <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-foreground">
@@ -94,6 +94,8 @@ const AccountProfileSettings = ({
                 type="email"
                 defaultValue={initialData.user.email}
                 disabled
+                autoComplete="email"
+                suppressHydrationWarning
                 className="w-full border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground cursor-not-allowed select-text font-mono"
               />
             </div>

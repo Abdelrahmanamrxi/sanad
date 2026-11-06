@@ -31,7 +31,7 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
           <div className="flex items-center gap-2">
             <span className="size-2 bg-destructive inline-block" />
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-destructive">
-              Studio Runtime Error
+              Playground Runtime Error
             </span>
           </div>
           <div className="flex size-8 items-center justify-center border border-destructive/30 bg-destructive/10 text-destructive rounded-none">
@@ -45,7 +45,7 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
             Unable to Initialize AI Playground
           </h1>
           <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-            An unexpected error occurred while preparing the simulator session or loading knowledge base vectors.
+            An unexpected error occurred while preparing the AI session or loading knowledge base data.
           </p>
           <p className="font-sans text-xs text-muted-foreground/80 leading-relaxed">
             Our engineering team has been notified via automated telemetry. Please try again or return to the dashboard.

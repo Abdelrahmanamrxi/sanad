@@ -62,6 +62,7 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
         key={state.success ? "password-updated" : "password-initial"}
         action={formAction}
         className="space-y-4 max-w-xl"
+        suppressHydrationWarning
       >
         {/* Current Password */}
         <div className="space-y-1.5">
@@ -73,6 +74,8 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
               type={showCurrent ? "text" : "password"}
               name="currentPassword"
               required
+              autoComplete="current-password"
+              suppressHydrationWarning
               placeholder="••••••••••••"
               className={`w-full border bg-background px-3 py-2 pe-10 text-sm text-foreground focus:outline-none transition-colors ${
                 state.fieldErrors?.currentPassword
@@ -113,6 +116,8 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
                 type={showNew ? "text" : "password"}
                 name="newPassword"
                 required
+                autoComplete="new-password"
+                suppressHydrationWarning
                 placeholder="At least 8 characters"
                 className={`w-full border bg-background px-3 py-2 pe-10 text-sm text-foreground focus:outline-none transition-colors ${
                   state.fieldErrors?.newPassword
@@ -151,6 +156,8 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
                 type={showConfirm ? "text" : "password"}
                 name="confirmPassword"
                 required
+                autoComplete="new-password"
+                suppressHydrationWarning
                 placeholder="Repeat new password"
                 className={`w-full border bg-background px-3 py-2 pe-10 text-sm text-foreground focus:outline-none transition-colors ${
                   state.fieldErrors?.confirmPassword
@@ -183,7 +190,7 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
         <div className="border-t border-border/60 pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground font-mono">
           <div className="flex items-center gap-1.5">
             <Calendar className="size-3 text-muted-foreground" />
-            <span>
+            <span suppressHydrationWarning>
               Account created: {initialData.user.createdAt || "Active Session"}
             </span>
           </div>

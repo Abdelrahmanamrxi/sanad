@@ -55,7 +55,7 @@ export function DocumentLibrary({
     : [];
 
   return (
-    <div className="border border-border bg-card p-4 lg:col-span-5 flex flex-col rounded-none">
+    <div className="border border-border min-h-full bg-card p-4 lg:col-span-5 flex flex-col rounded-none">
       {/* Search & Type Filter Tabs */}
       <div className="flex flex-col gap-3 border-b border-border pb-3.5">
         {/* Search Input */}

@@ -76,6 +76,7 @@ export function AccountView({ initialData }: AccountViewProps) {
             size="sm"
             className="self-start sm:self-auto font-sans text-xs font-semibold"
             render={<Link href="/dashboard/billing" />}
+            nativeButton={false}
           >
             <CreditCard className="size-3.5 text-primary" />
             <span>Manage Billing & Plans</span>
