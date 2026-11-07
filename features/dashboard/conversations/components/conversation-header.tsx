@@ -1,19 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { ConversationItem } from "../types";
+import { ConversationItem, ConversationStatus } from "../types";
 import {
   Mail,
   Phone,
   Building2,
   Check,
   Copy,
-  ExternalLink,
   Globe,
   User,
   CheckCircle2,
-  RotateCcw,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -35,11 +34,14 @@ export function ConversationHeader({
     isPending: isUpdating,
     variables: pendingStatus,
   } = useMutation({
-    mutationFn: async (newStatus: "resolved" | "contacted" | "active") => {
+    mutationFn: async (newStatus: ConversationStatus) => {
       return markResolved(conversation.id, newStatus);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+    onError: (err: unknown) => {
+      console.error("[ConversationHeader] Failed to update status:", err);
     },
   });
 
@@ -49,8 +51,10 @@ export function ConversationHeader({
     setTimeout(() => setCopiedField(null), 1800);
   };
 
-  const isResolved = conversation.status === "resolved";
-  const isLead = conversation.hasLead && conversation.lead;
+  const isAIResolved = conversation.status === "resolved";
+  const isHumanResolved = conversation.status === "human_resolved";
+  const isNeedsAttention = conversation.status === "needs_attention";
+  const isLead = Boolean(conversation.hasLead && conversation.lead);
   const isContacted =
     conversation.status === "contacted" ||
     Boolean(isLead && conversation.lead?.status === "contacted");
@@ -108,52 +112,63 @@ export function ConversationHeader({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        {/* Action Buttons & Status Indicators */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* 1. Leads: Only show "Mark as Contacted" (NO "Mark as Resolved" button) */}
           {isLead && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => updateStatus(isContacted ? "active" : "contacted")}
+              onClick={() => updateStatus(isContacted ? "human_resolved" : "contacted")}
               disabled={isUpdating}
-              className="text-xs rounded-none border-border"
+              className="text-xs rounded-none border-border cursor-pointer"
             >
-              {isUpdating &&
-              (pendingStatus === "contacted" ||
-                (isContacted && pendingStatus === "active")) ? (
+              {isUpdating && pendingStatus === "contacted" ? (
                 <Loader2 className="size-3.5 animate-spin" />
               ) : (
                 <Check
-                  className={cn("size-3.5", isContacted && "text-emerald-600")}
+                  className={cn("size-3.5 me-1", isContacted && "text-emerald-600")}
                 />
               )}
               {isContacted ? "Contacted" : "Mark as Contacted"}
             </Button>
           )}
 
-          <Button
-            variant={isResolved ? "outline" : "default"}
-            size="sm"
-            onClick={() => updateStatus(isResolved ? "active" : "resolved")}
-            disabled={isUpdating}
-            className="text-xs rounded-none"
-          >
-            {isUpdating &&
-            (pendingStatus === "resolved" ||
-              (isResolved && pendingStatus === "active")) ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : isResolved ? (
-              <>
-                <RotateCcw className="size-3.5" />
-                Reopen
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="size-3.5" />
-                Mark as Resolved
-              </>
-            )}
-          </Button>
+          {/* 2. Needs Attention (Needs Review): Button to Mark as Human Resolved */}
+          {!isLead && isNeedsAttention && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => updateStatus("human_resolved")}
+              disabled={isUpdating}
+              className="text-xs rounded-none bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+            >
+              {isUpdating && pendingStatus === "human_resolved" ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <>
+                  <CheckCircle2 className="size-3.5 me-1.5" />
+                  <span>Mark as Human Resolved</span>
+                </>
+              )}
+            </Button>
+          )}
+
+          {/* 3. Human Resolved: Displayed when manually resolved by human */}
+          {!isLead && isHumanResolved && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium border border-primary/30 bg-primary/10 text-primary rounded-none">
+              <CheckCircle2 className="size-3.5" />
+              <span>Human Resolved</span>
+            </span>
+          )}
+
+          {/* 4. AI Resolved: Zero action buttons shown (AI already resolved it) */}
+          {!isLead && isAIResolved && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium border border-success/30 bg-success/10 text-success rounded-none">
+              <CheckCircle2 className="size-3.5" />
+              <span>AI Resolved</span>
+            </span>
+          )}
         </div>
       </div>
 

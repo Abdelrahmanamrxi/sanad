@@ -220,11 +220,18 @@ export function DocumentLibrary({
                           <Clock className="size-2.5 shrink-0" />
                           <span>Queued</span>
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 border border-success/40 bg-success/10 px-1.5 py-px font-semibold text-success uppercase rounded-none">
+                      ) : doc.doc_status === "ready"?(
+                        <span className="inline-flex items-center gap-1 border border-orange-500/20 bg-orange-500/20 px-1.5 py-px font-semibold text-white uppercase rounded-none">
                           <Check className="size-2.5 shrink-0" />
                           <span>
-                            {doc.doc_status === "ready" ? "Ready" : "Indexed"}
+                           Ready
+                          </span>
+                        </span>
+                      ) : (
+                         <span className="inline-flex items-center gap-1 border border-success/40 bg-success/10 px-1.5 py-px font-semibold text-success uppercase rounded-none">
+                          <Check className="size-2.5 shrink-0" />
+                          <span>
+                           Active
                           </span>
                         </span>
                       )}

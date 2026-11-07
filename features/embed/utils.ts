@@ -108,3 +108,31 @@ export function extractPath(urlStr?: string): string {
 // Example:
 // extractPath("https://store.com/summary") => "/summary"
 // extractPath("store.com/products/item-1") => "/products/item-1"
+
+
+export function isGreetingOrSmallTalk(msg: string): boolean {
+  const cleaned = msg
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (cleaned.length === 0) return true;
+  if (cleaned.length <= 3 && !msg.includes("?") && !msg.includes("؟"))
+    return true;
+
+  const smallTalkPatterns = [
+    // English greetings, pleasantries & acknowledgments
+    /^(hi|hello|hey|good (morning|evening|afternoon|day)|greetings|welcome|salam)( there)?$/i,
+    /^(ezayk |3aml eh |aywa|tmm|eshta|mashy|khalas|fahman|shatoor|fol|habibi)?$/i,
+    /^(thanks|thank you|thank you so much|many thanks|thx|ty|bye|goodbye|see you|take care|ok|okay|got it|cool|great|awesome)$/i,
+    // Arabic greetings, pleasantries & acknowledgments
+    /^(مرحبا|مرحباً|مرحب|أهلا|اهلا|أهلاً|اهلاً|أهليـن|اهلين|يا هلا|هلا|هاي|هلو)( (وسهلا|بيك|بك|يا غالي))?$/i,
+    /^(السلام عليكم( ورحمة الله( وبركاته)?)?|سلام عليكم|وعليكم السلام)$/i,
+    /^(صباح (الخير|النور|الورد)|مساء (الخير|النور|الورد))$/i,
+    /^(شكرا|شكراً|مشكور|تسلم|يعطيك (العافيه|العافية)|جزاك الله خير|تمام|اوك|أوك|ماشي|حاضر|طيب|مع السلامة|باي)$/i,
+  ];
+
+  return smallTalkPatterns.some((pattern) => pattern.test(cleaned));
+}

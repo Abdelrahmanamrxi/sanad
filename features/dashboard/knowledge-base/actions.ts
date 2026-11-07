@@ -128,3 +128,22 @@ export async function resyncDocument(documentId: string) {
     );
   }
 }
+
+export async function updateDocumentStatus(
+  status: "active" | "ready",
+  documentId: string,
+) {
+  const { supabase } = await getAuthContext();
+
+  const { error } = await supabase
+    .from("documents")
+    .update({
+      doc_status: status,
+    })
+    .eq("id", documentId);
+
+  if(error){
+    throw new Error("Failed to update document's status")
+  }
+  return true
+}

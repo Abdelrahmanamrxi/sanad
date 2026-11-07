@@ -38,7 +38,7 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
 
   // Subscription Plan Gating
   const sub = await getActiveSubscription(businessId);
-  const currentTier = sub?.planTier || "free";
+  const currentTier = sub?.plan_tier || "free";
 
   // 1. Authorized Domain Count Limits (Free: 1, Starter: 5, Pro: 10)
   if (widget.allowedDomains && widget.allowedDomains.length > 0) {

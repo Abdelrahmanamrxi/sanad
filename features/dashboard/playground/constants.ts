@@ -136,19 +136,26 @@ export const CATEGORIZED_STARTERS: CategorizedStarter[] = [
  * Calibrates dense vector cosine similarity (typically 0.35 - 0.70 in RAG models like BGE-M3)
  * into a human-intuitive relevance score percentage (50% - 98%).
  */
+/**
+ * Calibrates dense vector cosine similarity (0.35 - 0.70)
+ * into a human-intuitive relevance score percentage (70% - 98%).
+ */
 export function calibrateSimilarity(rawScore: number): number {
-  if (typeof rawScore !== "number" || isNaN(rawScore)) return 0;
-
-  const raw = rawScore > 1 ? rawScore / 100 : rawScore;
-
-  if (raw <= 0.3) {
-    return Math.max(10, Math.round(raw * 100));
+  if (typeof rawScore !== "number" || isNaN(rawScore) || rawScore <= 0) {
+    return 75;
   }
 
-  // Maps range [0.32, 0.66] smoothly to [50%, 97%]
-  const minRaw = 0.32;
-  const maxRaw = 0.66;
-  const normalized = 50 + ((raw - minRaw) / (maxRaw - minRaw)) * 47;
+  // Normalize 0-100 if already multiplied
+  const raw = rawScore > 1 ? rawScore / 100 : rawScore;
 
-  return Math.min(99, Math.max(25, Math.round(normalized)));
+  // Practical RAG bounds: 0.35 (baseline match) to 0.70 (exact factual match)
+  const minRaw = 0.35;
+  const maxRaw = 0.70;
+
+  const normalized = Math.max(0, Math.min(1, (raw - minRaw) / (maxRaw - minRaw)));
+
+  // Smooth projection onto 72% - 98%
+  const calibrated = 72 + normalized * 26;
+
+  return Math.min(99, Math.max(50, Math.round(calibrated)));
 }

@@ -57,7 +57,7 @@ export interface ConversationsType {
   visitorId: string;
   channel: "widget" | "test";
   message: string;
-  status: "resolved" | "active" | "escalated" | "contacted";
+  status: "resolved" | "active" | "escalated" | "contacted" | "human_resolved";
   latency: string;
   time: string;
 }

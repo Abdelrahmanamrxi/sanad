@@ -34,3 +34,44 @@ export interface ChatMessage {
     highlightedExcerpt: string;
   };
 }
+
+export interface PersistChatExchangeParams {
+  conversationId: string;
+  businessId: string;
+  userMessage: string;
+  assistantText: string;
+  chunkIds: string[];
+  highestSimilarity: number | null;
+  usage?: { inputTokens?: number; outputTokens?: number };
+  latencyMs: number;
+  priorMessagesCount: number;
+}
+
+
+export interface StatusResolutionParams {
+  highestSimilarity: number | null;
+  hasChunks: boolean;
+  requestedEscalation: boolean;
+  isSmallTalk: boolean;
+  currentStatus?: string | null;
+  hasLead?: boolean | null;
+  similarityThreshold?: number;
+}
+
+export interface BotConfig {
+  assistantName: string;
+  customInstructions: string;
+  effectiveTemperature: number;
+}
+
+
+export interface RetrievedContext {
+  context: string;
+  chunkIds: string[];
+  highestSimilarity: number | null;
+  citationPayload: {
+    documentTitle: string;
+    page?: string;
+    highlightedExcerpt?: string;
+  } | null;
+}

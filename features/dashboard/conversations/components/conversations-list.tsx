@@ -17,6 +17,7 @@ import { formatChatTimestamp } from "../utils";
 
 interface ConversationsListProps {
   conversations: ConversationItem[];
+  allConversations?: ConversationItem[];
   selectedId: string;
   onSelect: (id: string) => void;
   activeTab: FilterTab;
@@ -30,6 +31,7 @@ interface ConversationsListProps {
 
 export function ConversationsList({
   conversations,
+  allConversations,
   selectedId,
   onSelect,
   activeTab,
@@ -40,15 +42,17 @@ export function ConversationsList({
   isError = false,
   onRetry,
 }: ConversationsListProps) {
+  const sourceForCounts = allConversations || conversations;
   const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: "all", label: "All", count: conversations.length },
-    { key: "leads", label: "Leads", count: conversations.filter((c) => c.hasLead).length },
+    { key: "all", label: "All", count: sourceForCounts.length },
+    { key: "leads", label: "Leads", count: sourceForCounts.filter((c) => c.hasLead).length },
     {
       key: "needs_attention",
       label: "Needs Review",
-      count: conversations.filter((c) => c.status === "needs_attention").length,
+      count: sourceForCounts.filter((c) => c.status === "needs_attention").length,
     },
-    { key: "resolved", label: "Resolved", count: conversations.filter((c) => c.status === "resolved").length },
+    { key: "resolved", label: "AI Resolved", count: sourceForCounts.filter((c) => c.status === "resolved").length },
+    { key: "human_resolved", label: "Human Resolved", count: sourceForCounts.filter((c) => c.status === "human_resolved").length },
   ];
 
   return (
@@ -61,7 +65,7 @@ export function ConversationsList({
               Conversations
             </h2>
             <span className="text-xs font-mono font-medium px-1.5 py-0.5 bg-muted text-muted-foreground border border-border">
-              {isLoading ? "..." : conversations.length}
+              {isLoading ? "..." : sourceForCounts.length}
             </span>
           </div>
         </div>
@@ -79,7 +83,7 @@ export function ConversationsList({
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1 border-b border-border/60 pb-1">
+        <div className="flex items-center gap-1 border-b border-border/60 overflow-x-auto overflow-y-hidden no-scrollbar">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.key;
             return (
@@ -87,7 +91,7 @@ export function ConversationsList({
                 key={tab.key}
                 onClick={() => onTabChange(tab.key)}
                 className={cn(
-                  "px-2.5 py-1 text-xs font-medium tracking-tight transition-colors flex items-center gap-1.5 border-b-2 -mb-[5px] rounded-none cursor-pointer",
+                  "px-2.5 py-1.5 text-xs font-medium tracking-tight transition-colors flex items-center gap-1.5 border-b-2 -mb-px rounded-none cursor-pointer whitespace-nowrap shrink-0",
                   isActive
                     ? "border-primary text-primary font-semibold"
                     : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
@@ -140,23 +144,19 @@ export function ConversationsList({
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="p-3 border border-border/60 bg-muted/15 flex flex-col gap-2 rounded-none animate-pulse"
+                className="p-3 border border-border/50 bg-background/50 space-y-2 animate-pulse"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="h-3 w-28 bg-muted/70 rounded-none" />
-                  <div className="h-2.5 w-12 bg-muted/50 rounded-none" />
+                <div className="flex justify-between">
+                  <div className="h-3 w-28 bg-muted rounded-none" />
+                  <div className="h-2.5 w-12 bg-muted/60 rounded-none" />
                 </div>
-                <div className="h-3.5 w-4/5 bg-muted/80 rounded-none" />
+                <div className="h-3.5 w-3/4 bg-muted/80 rounded-none" />
                 <div className="h-2.5 w-1/2 bg-muted/50 rounded-none" />
-                <div className="flex items-center gap-2 pt-0.5">
-                  <div className="h-3 w-16 bg-muted/60 rounded-none" />
-                  <div className="h-3 w-24 bg-muted/40 rounded-none" />
-                </div>
               </div>
             ))}
           </div>
         ) : conversations.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-xs">
+          <div className="p-8 text-center text-xs font-mono text-muted-foreground">
             No conversations match your filter criteria.
           </div>
         ) : (
@@ -185,7 +185,7 @@ export function ConversationsList({
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
                         <User className="size-3" />
-                        Visitor # {conv.visitorId.slice(0,13)}
+                        Visitor # {conv.visitorId.slice(0, 13)}
                       </span>
                     )}
 
@@ -216,7 +216,7 @@ export function ConversationsList({
                 </div>
 
                 {/* Status & Origin Page chips */}
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
                   {conv.status === "needs_attention" && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 border border-amber-500/20 rounded-none">
                       <AlertTriangle className="size-2.5" />
@@ -232,7 +232,13 @@ export function ConversationsList({
                   {conv.status === "resolved" && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 border border-emerald-500/20 rounded-none">
                       <CheckCircle2 className="size-2.5" />
-                      Resolved
+                      AI Resolved
+                    </span>
+                  )}
+                  {conv.status === "human_resolved" && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 border border-primary/30 rounded-none">
+                      <CheckCircle2 className="size-2.5" />
+                      Human Resolved
                     </span>
                   )}
                   {conv.status === "active" && !conv.hasLead && (

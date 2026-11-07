@@ -48,7 +48,7 @@ export function PlaygroundHeader({
       strictGrounding: preset.strictGrounding,
     });
   };
-  console.log(config)
+ 
   return (
     <div className="relative flex flex-col gap-3 border-b border-border bg-card p-4 transition-colors">
       {/* Corner crosshair accents for architectural craft */}

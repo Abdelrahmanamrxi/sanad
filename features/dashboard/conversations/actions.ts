@@ -3,6 +3,7 @@ import { getAuthContext } from "@/lib/auth";
 import {
   type FilterTab,
   type ConversationItemAPI,
+  type ConversationStatus,
   ConversationItem,
   ConversationMessage,
   ConversationSource,
@@ -213,15 +214,24 @@ export const getMessages = async ({
   };
 };
 
-export const markResolved=async(conversationId:string,type:"resolved" | "contacted"|"active")=>{
-    const{supabase}=await getAuthContext()
+export const markResolved = async (
+  conversationId: string,
+  type: ConversationStatus
+) => {
+  const { supabase, businessId } = await getAuthContext();
 
-    const{data,error}=await supabase.from("conversations").update({
-        status:type
-    }).eq("id",conversationId).select("id")
+  const { data, error } = await supabase
+    .from("conversations")
+    .update({
+      status: type,
+    })
+    .eq("id", conversationId)
+    .eq("business_id", businessId)
+    .select("id");
 
-    if(error){
-        throw new Error("Failed to update conversation")
-    }
-    return {data,success:true}
-}
+  if (error) {
+    console.error("[markResolved] Failed to update conversation:", error);
+    throw new Error(error.message || "Failed to update conversation");
+  }
+  return { data, success: true };
+};

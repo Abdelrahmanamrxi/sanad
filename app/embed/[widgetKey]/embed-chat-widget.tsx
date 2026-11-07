@@ -31,7 +31,7 @@ import { WidgetLauncher } from "@/features/embed/components/widget-launcher";
 export function EmbedChatWidget({
   widgetKey,
   config,
-  initialOpen = false,
+  initialOpen = true,
   showBranding = true,
   planTier = "free",
   hostDomain,
@@ -421,7 +421,8 @@ export function EmbedChatWidget({
             sessionTokenRef.current = null;
             setSessionToken(null);
           }
-          const errorMsg = getFriendlyErrorMessage(null, res.status, isRtl);
+          const errorData = await res.json().catch(() => null);
+          const errorMsg = errorData?.message || getFriendlyErrorMessage(null, res.status, isRtl);
           throw new Error(errorMsg);
         }
 

@@ -63,22 +63,26 @@ export default function RecentConversations({
               <div className="flex items-center gap-4 shrink-0">
                 <span
                   className={`border px-2 py-0.5 text-[10px] font-medium uppercase font-mono ${
-                    conv.status === "active"
+                    conv.status === "resolved"
                       ? "border-success/30 bg-success/10 text-success"
-                      : conv.status === "resolved"
+                      : conv.status === "human_resolved"
                         ? "border-primary/40 bg-primary/10 text-primary"
                         : conv.status === "escalated"
                           ? "border-destructive/30 bg-destructive/10 text-destructive"
-                          : "border-border bg-muted text-muted-foreground"
+                          : conv.status === "contacted"
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                            : "border-border bg-muted text-muted-foreground"
                   }`}
                 >
                   {conv.status === "escalated"
                     ? "Needs Attention"
-                    : conv.status === "active"
+                    : conv.status === "resolved"
                       ? "AI Resolved"
-                      : conv.status === "resolved"
+                      : conv.status === "human_resolved"
                         ? "Human Resolved"
-                        : "Contacted"}
+                        : conv.status === "contacted"
+                          ? "Contacted"
+                          : "In Progress"}
                 </span>
                 <span className="font-mono text-[11px] text-muted-foreground w-16 text-end">
                   {conv.time}

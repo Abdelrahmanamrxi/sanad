@@ -1,8 +1,8 @@
-import 'server-only'
+import "server-only";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { PLANS, PlanTier, isOverLimit } from "../plans";
-import AppError from '@/http/error';
-import { SubscriptionRow } from '../types';
+import AppError from "@/http/error";
+import { SubscriptionRow,SubscriptionDBRow } from "../types";
 
 export interface QuotaCheckResult {
   allowed: boolean;
@@ -10,57 +10,18 @@ export interface QuotaCheckResult {
   messagesUsed: number;
   messageLimit: number;
   periodEnd: string;
-  subscription:SubscriptionRow
+  subscription: SubscriptionRow;
 }
 
 export async function getActiveSubscription(businessId: string) {
-  let { data: sub } = await supabaseAdminClient
-    .from("subscriptions")
-    .select("*")
-    .eq("business_id", businessId)
-    .maybeSingle();
-
-  // If no subscription row exists yet, auto-provision default free tier
-  if (!sub) {
-    const { data: newSub, error: insertError } = await supabaseAdminClient
-      .from("subscriptions")
-      .insert({
-        business_id: businessId,
-        plan_tier: "free",
-      })
-      .select("*")
-      .single();
-
-    if (insertError || !newSub) {
-      console.error("[Usage] Failed to provision default subscription:", insertError);
-      throw new AppError("Error while retrieving active subscription", 500);
-    }
-    sub = newSub;
+   const { data: sub, error } = await supabaseAdminClient
+    .rpc("get_or_renew_subscription", { target_business_id: businessId })
+    .single();
+  if (error || !sub) {
+    console.error("[Usage] Failed to get or renew subscription atomically:", error);
+    throw new AppError("Error while retrieving active subscription", 500);
   }
-
-  // Auto Advance the 30 day billing if billing's expired
-  const now = new Date();
-  if (new Date(sub.current_period_end) < now) {
-    const newStart = now.toISOString();
-    const newEnd = new Date(
-      now.getTime() + 30 * 24 * 60 * 60 * 1000,
-    ).toISOString();
-
-    const { data: refreshedSub, error: updateError } = await supabaseAdminClient
-      .from("subscriptions")
-      .update({
-        current_period_start: newStart,
-        current_period_end: newEnd,
-      })
-      .eq("id", sub.id)
-      .select()
-      .single();
-
-    if (!updateError && refreshedSub) {
-      sub = refreshedSub;
-    }
-  }
-  return sub;
+  return sub as SubscriptionDBRow;
 }
 
 /**
@@ -73,7 +34,7 @@ export async function checkUsageLimit(
   const sub = await getActiveSubscription(businessId);
   const tier = sub.plan_tier as PlanTier;
   const plan = PLANS[tier];
-  console.log(sub)
+
   // Fetch current cycle usage record (if none exists yet, 0 messages used so far)
   const { data: cycle, error: cycleError } = await supabaseAdminClient
     .from("usage_cycles")
@@ -95,16 +56,14 @@ export async function checkUsageLimit(
     messagesUsed,
     messageLimit: plan.messages,
     periodEnd: sub.current_period_end,
-    subscription:{
-      currentPeriodStart:sub.current_period_start,
-      currentPeriodEnd:sub.current_period_end,
-      status:sub.status,
-      businessId
-    }
-    
+    subscription: {
+      currentPeriodStart: sub.current_period_start,
+      currentPeriodEnd: sub.current_period_end,
+      status: sub.status,
+      businessId,
+    },
   };
 }
-
 
 /**
  * 3. Atomically increments the cycle counter and token usage via your PL/pgSQL function.
@@ -124,6 +83,6 @@ export async function recordMessageUsage(params: {
     inc_tokens_out: params.tokensOut,
   });
   if (error) {
-    throw new AppError("Failed to increment usage cycle",500)
+    throw new AppError("Failed to increment usage cycle", 500);
   }
 }

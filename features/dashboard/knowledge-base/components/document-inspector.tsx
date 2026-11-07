@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   TrendingUp,
-  ThumbsDown,
+  EyeOff,
+  X,
+  Eye,
   Sparkles,
   ArrowUpRight,
   AlertTriangle,
@@ -13,10 +15,8 @@ import {
   Search,
   RefreshCw,
   Trash2,
-  Download,
   AlertCircle,
   HelpCircle,
-  CheckCircle2,
   Loader2,
   FileSearch,
   ArrowRight,
@@ -26,7 +26,7 @@ import { formatBytes, getFileName, getFormatBadge } from "../mock-data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChunkCard } from "./chunk-card";
 import { Button } from "@/components/ui/button";
-import { resyncDocument } from "../actions";
+import { resyncDocument, updateDocumentStatus } from "../actions";
 import DocumentInspectorSkeleton from "./loading/document-inspector-skeleton";
 interface DocumentInspectorProps {
   selectedDoc: DocumentItem | null;
@@ -44,7 +44,9 @@ export function DocumentInspector({
   const [activeTab, setActiveTab] = useState<
     "performance" | "content" | "chunks"
   >("performance");
+
   const queryClient = useQueryClient();
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const { mutate: resyncMutate, isPending: isResyncPending } = useMutation({
     mutationFn: async () => {
@@ -53,12 +55,30 @@ export function DocumentInspector({
       return resyncDocument(selectedDoc.id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents"], exact:false });
+      queryClient.invalidateQueries({ queryKey: ["documents"], exact: false });
       if (selectedDoc)
-        queryClient.invalidateQueries({ queryKey: ["chunks", selectedDoc.id] ,exact:false});
+        queryClient.invalidateQueries({
+          queryKey: ["chunks", selectedDoc.id],
+          exact: false,
+        });
     },
+    onError: (err) => {
+    setActionError(err instanceof Error ? err.message : "Failed to re-sync document");
+  },
   });
 
+  const { mutate: DocStatusMutate, isPending: DocStatusPending } = useMutation({
+    mutationFn: async (status: "active" | "ready") => {
+      if (!selectedDoc) throw new Error("No Document Selected");
+      return updateDocumentStatus(status, selectedDoc.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"], exact: false });
+    },
+    onError:(err)=>{
+      setActionError(err instanceof Error ? err.message : "Failed to update document's status")
+    }
+  });
   const [chunkSearch, setChunkSearch] = useState("");
   const [copiedChunkId, setCopiedChunkId] = useState<string | null>(null);
 
@@ -147,14 +167,41 @@ export function DocumentInspector({
     );
   });
 
+
+  
+
+
   // Extract unique detected headings
   const detectedHeadings = Array.from(
     new Set(chunks.map((c) => c.heading_path).filter(Boolean)),
   ) as string[];
 
+  const isBusyOrFailed =
+    DocStatusPending ||
+    selectedDoc.doc_status === "processing" ||
+    selectedDoc.doc_status === "queued" ||
+    selectedDoc.doc_status === "failed";
+
   return (
     <div className="border border-border bg-card p-5 lg:col-span-7 flex flex-col rounded-none select-none">
       {/* ── Document Header & Global Actions ── */}
+      {actionError && (
+  <div className="mb-3 flex items-center justify-between border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive rounded-none font-sans">
+    <div className="flex items-center gap-2">
+      <AlertTriangle className="size-3.5 shrink-0" />
+      <span>{actionError}</span>
+    </div>
+    <button 
+      type="button" 
+      onClick={() => setActionError(null)} 
+      className="cursor-pointer hover:opacity-70 p-0.5"
+    >
+      <X className="size-3.5" />
+    </button>
+  </div>
+)}
+
+
       <div className="border-b border-border pb-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 pe-2">
@@ -176,11 +223,34 @@ export function DocumentInspector({
             <Button
               variant="outline"
               size="xs"
-              className="font-mono text-xs cursor-pointer"
-              onClick={() => alert(`Downloading ${selectedDoc.storage_path}`)}
+              disabled={isBusyOrFailed}
+              onClick={() => {
+                DocStatusMutate(
+                  selectedDoc.doc_status === "active" ? "ready" : "active",
+                );
+              }}
+              className={`font-mono text-xs cursor-pointer rounded-none transition-colors ${
+                selectedDoc.doc_status === "active"
+                  ? "text-muted-foreground hover:text-destructive hover:border-destructive/50"
+                  : "border-primary/50 text-primary hover:bg-primary/10"
+              }`}
             >
-              <Download className="size-3 me-1" />
-              Set Active
+              {DocStatusPending ? (
+                <>
+                  <Loader2 className="size-3 animate-spin me-1" />
+                  <span>Updating...</span>
+                </>
+              ) : selectedDoc.doc_status === "active" ? (
+                <>
+                  <EyeOff className="size-3 me-1" />
+                  <span>Hide from AI</span>
+                </>
+              ) : (
+                <>
+                  <Eye className="size-3 me-1" />
+                  <span>Enable for AI</span>
+                </>
+              )}
             </Button>
             <Button
               variant="outline"
@@ -312,9 +382,6 @@ export function DocumentInspector({
           {/* Performance Metrics Cards */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             {/* Citations */}
-           
-
-        
           </div>
 
           {/* Cold Document Alert (Never Retrieved) */}

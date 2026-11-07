@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from "react";
 import { ConversationItem, FilterTab } from "../types";
-import { MOCK_CONVERSATIONS } from "../mock-data";
 import { ConversationsList } from "./conversations-list";
 import { ConversationHeader } from "./conversation-header";
 import { ConversationThread } from "./conversation-thread";
@@ -18,13 +17,13 @@ export function ConversationsView() {
   const title = useDebounce(searchQuery, 400);
  
   const { data, error, isPending, refetch } = useQuery({
-    queryKey: ["conversations", activeTab, title],
+    queryKey: ["conversations", title],
     queryFn: () =>
       getConversations({
-        filter: activeTab,
+        filter: "all",
         title,
         cursor: null,
-        limit: 30,
+        limit: 50,
       }),
   });
 
@@ -37,6 +36,8 @@ export function ConversationsView() {
       if (activeTab === "needs_attention" && conv.status !== "needs_attention")
         return false;
       if (activeTab === "resolved" && conv.status !== "resolved") return false;
+      if (activeTab === "human_resolved" && conv.status !== "human_resolved")
+        return false;
 
       // Search query filter
       if (searchQuery.trim()) {
@@ -69,6 +70,7 @@ export function ConversationsView() {
       <div className="w-full md:w-[340px] lg:w-[380px] shrink-0 h-full overflow-hidden">
         <ConversationsList
           conversations={filteredConversations}
+          allConversations={conversations}
           selectedId={currentConversation?.id || ""}
           onSelect={(id) => setSelectedId(id)}
           activeTab={activeTab}

@@ -37,19 +37,19 @@ export async function getStatCardsData(
       .select("*", { count: "exact", head: true })
       .eq("business_id", businessId),
 
-    // AI-resolved conversations (status = 'active' means AI completely resolved it)
-    supabase
-      .from("conversations")
-      .select("*", { count: "exact", head: true })
-      .eq("business_id", businessId)
-      .eq("status", "active"),
-
-    // Human-resolved conversations (status = 'resolved' means operator resolved it)
+    // AI-resolved conversations (status = 'resolved' means AI resolved it autonomously)
     supabase
       .from("conversations")
       .select("*", { count: "exact", head: true })
       .eq("business_id", businessId)
       .eq("status", "resolved"),
+
+    // Human-resolved conversations (status = 'human_resolved' means human operator resolved it)
+    supabase
+      .from("conversations")
+      .select("*", { count: "exact", head: true })
+      .eq("business_id", businessId)
+      .eq("status", "human_resolved"),
 
     // Total visitors
     supabase
@@ -217,14 +217,16 @@ export async function getRecentConversationsData(
     const anonId = (conv.visitors as unknown as { anon_id?: string })?.anon_id;
     const latestMsg = msgMap.get(conv.id);
 
-    const statusMapped: "resolved" | "active" | "escalated" | "contacted" =
+    const statusMapped: "resolved" | "active" | "escalated" | "contacted" | "human_resolved" =
       conv.status === "needs_attention"
         ? "escalated"
-        : conv.status === "active"
-          ? "active"
+        : conv.status === "human_resolved"
+          ? "human_resolved"
           : conv.status === "contacted"
             ? "contacted"
-            : "resolved";
+            : conv.status === "resolved"
+              ? "resolved"
+              : "active";
 
     const latencyFormatted =
       latestMsg?.latency_ms !== null && latestMsg?.latency_ms !== undefined

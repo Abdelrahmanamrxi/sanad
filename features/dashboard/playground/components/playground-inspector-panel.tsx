@@ -23,6 +23,7 @@ import type {
 } from "../types";
 import { PlanTier } from "@/features/billing";
 import { updateAssistantSettingsAction } from "../actions";
+import { calibrateSimilarity } from "../constants";
 import UpgradePlansModal, {
   type RestrictedFeatureInfo,
 } from "@/features/billing/components/upgrade-plans-modal";
@@ -208,7 +209,7 @@ export function PlaygroundInspectorPanel({
               <div className="space-y-3">
                 {chunks.map((chunk, index) => {
                   const isExpanded = !!expandedChunkIds[chunk.id];
-                  const matchPct = Math.round(chunk.similarity * 100);
+                  const matchPct = calibrateSimilarity(chunk.similarity)
                   const isHigh = matchPct >= 70;
 
                   return (

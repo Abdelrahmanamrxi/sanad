@@ -1,6 +1,6 @@
-export type ConversationStatus = "active" | "needs_attention" | "resolved" | "contacted";
+export type ConversationStatus = "active" | "needs_attention" | "resolved" | "contacted" | "human_resolved";
 export type LeadStatus = "new" | "contacted" | "closed";
-export type FilterTab = "all" | "leads" | "needs_attention" | "resolved";
+export type FilterTab = "all" | "leads" | "needs_attention" | "resolved" | "human_resolved";
 
 export interface ConversationLead {
   name: string;
@@ -30,18 +30,18 @@ export interface ConversationMessage {
     phone?: string;
   };
 }
-export interface ConversationItemAPI{
-  id:string,
-  title:string,
-  channel:"widget" | "widget",
-  status:ConversationStatus,
-  has_lead:boolean,
-  lead?:ConversationLead[],
-  origin_page:string,
-  summary?:string,
-  last_message_at:string,
-  visitor_id:string,
-  started_at:string
+export interface ConversationItemAPI {
+  id: string;
+  title: string;
+  channel: "widget" | "widget";
+  status: ConversationStatus;
+  has_lead: boolean;
+  lead?: ConversationLead[];
+  origin_page: string;
+  summary?: string;
+  last_message_at: string;
+  visitor_id: string;
+  started_at: string;
 }
 export interface ConversationItem {
   id: string;

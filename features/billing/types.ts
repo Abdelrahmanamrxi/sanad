@@ -22,3 +22,11 @@ export interface SubscriptionRow {
   status:"active" | "past_due"| 'canceled'| 'trialing',
   businessId:string
 }
+
+export interface SubscriptionDBRow{
+  current_period_start:string,
+  current_period_end:string,
+  status:"active" | "past_due"| 'canceled'| 'trialing',
+  business_id:string,
+  plan_tier:"free" | "starter" | "pro"
+}
