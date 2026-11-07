@@ -88,42 +88,11 @@ export default function WidgetStudioView({
       };
     }
 
-    // 2. Custom Assistant Name Check (Free uses default Sanad Assistant, Starter/Pro can customize)
-    if (planTier === "free" && cfg.botName) {
-      const trimmed = cfg.botName.trim().toLowerCase();
-      const isDefault =
-        trimmed === "" ||
-        trimmed === "sanad ai" ||
-        trimmed === "sanad assistant" ||
-        trimmed === "sanad ai support" ||
-        trimmed === "مساعد سند الذكي" ||
-        trimmed === "سند";
-
-      if (!isDefault) {
-        return {
-          featureName: "Custom Assistant Name",
-          requiredTier: "starter",
-          reason:
-            "Free plan uses the default 'Sanad Assistant'. Upgrade to Starter to brand your assistant with your store or clinic name.",
-        };
-      }
-    }
-
-    // 3. Document Highlight Card Check (Requires PRO plan)
-    if (planTier !== "pro" && cfg.citationStyle === "document-snippet") {
-      return {
-        featureName: "Document Highlight Cards",
-        requiredTier: "pro",
-        reason:
-          "Document Highlight Cards with high-visibility excerpts require the Growth (Pro) plan. Upgrade to display verified source cards in your chat widget.",
-      };
-    }
-
     return null;
   };
 
   const handleSave = async () => {
-    // Subscription Gating: check if user is on free/starter plan and selected higher tier design feature
+    // Subscription Gating: check if user is on free/starter plan and selected higher tier feature
     const restricted = checkPlanRestrictedFeature(config);
     if (restricted) {
       setRestrictedFeature(restricted);
@@ -147,7 +116,15 @@ export default function WidgetStudioView({
     try {
       setIsSaving(true);
       setSaveError(null);
-      await saveWidgetSettings(config);
+      
+      // On free tier, safely normalize botName so downgraded/free plans never get blocked
+      const payload: WidgetConfig = {
+        ...config,
+        botName: planTier === "free" ? "AI Assistant" : (config.botName || "AI Assistant"),
+      };
+
+      await saveWidgetSettings(payload);
+      setConfig(payload);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2500);
     } catch (err: unknown) {
@@ -169,6 +146,12 @@ export default function WidgetStudioView({
 
   const handleResetDefaults = () => {
     setConfig(DEFAULT_WIDGET_CONFIG);
+  };
+
+  const previewConfig: WidgetConfig = {
+    ...config,
+    botName: planTier === "free" ? "AI Assistant" : (config.botName || "AI Assistant"),
+    citationStyle: planTier === "pro" ? (config.citationStyle || "document-snippet") : "none",
   };
 
   return (
@@ -340,7 +323,7 @@ export default function WidgetStudioView({
 
         {/* Right Column: Live Interactive Storefront Sandbox (Hidden on mobile, 8 cols on xl, 7 cols on lg) */}
         <div className="hidden lg:flex flex-col lg:col-span-7 xl:col-span-8 h-full overflow-hidden">
-          <WidgetViewPanel config={config} />
+          <WidgetViewPanel config={previewConfig} />
         </div>
       </div>
 
@@ -375,7 +358,7 @@ export default function WidgetStudioView({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h2 className="font-heading text-sm font-semibold truncate text-foreground">
-                    {config.botName || "Sanad Assistant"}
+                    {previewConfig.botName || "AI Assistant"}
                   </h2>
                   <span className="border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground shrink-0">
                     Live Preview

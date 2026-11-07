@@ -58,49 +58,34 @@ export async function saveWidgetSettings(widget: Partial<WidgetConfig>) {
     }
   }
 
-  // 2. Custom Assistant Name (Free uses default Sanad Assistant, Starter/Pro can customize)
-  if (currentTier === "free" && widget.botName !== undefined) {
-    const trimmed = widget.botName.trim();
-    const isDefaultName =
-      trimmed === "" ||
-      trimmed.toLowerCase() === "sanad ai" ||
-      trimmed.toLowerCase() === "sanad assistant" ||
-      trimmed.toLowerCase() === "sanad ai support" ||
-      trimmed === "مساعد سند الذكي" ||
-      trimmed === "سند";
-
-    if (!isDefaultName) {
-      throw new Error(
-        "Customizing the assistant name requires a Starter plan or higher. Free plan uses default 'Sanad Assistant'.",
-      );
-    }
+  // 2. Custom Assistant Name (Free tier always defaults to AI Assistant without blocking saves)
+  if (currentTier === "free") {
+    dbUpdate.bot_name = "AI Assistant";
   }
 
   // 3. Document Highlight Card Gating (Requires Pro plan)
   if (currentTier !== "pro" && widget.citationStyle === "document-snippet") {
-    throw new Error(
-      "Document Highlight Cards require a Pro plan. Upgrade to Growth (Pro) to enable rich verified source cards.",
-    );
+    // Gracefully fallback to standard citation for non-pro plans instead of failing save
+    dbUpdate.citation_style = "none";
   }
 
   // 4. Custom Instructions Gating
   if (widget.customInstructions !== undefined) {
     const trimmed = widget.customInstructions.trim();
-    if (currentTier === "free" && trimmed.length > 0) {
-      throw new Error("Custom instructions require a Starter plan or higher.");
-    }
-    if (currentTier === "starter" && trimmed.length > 1000) {
-      throw new Error("Starter plan allows up to 1,000 characters for custom instructions.");
-    }
-    if (currentTier === "pro" && trimmed.length > 3000) {
-      throw new Error("Pro plan allows up to 3,000 characters for custom instructions.");
+    if (currentTier === "free") {
+      dbUpdate.custom_instructions = "";
+    } else if (currentTier === "starter") {
+      dbUpdate.custom_instructions = trimmed.slice(0, 1000);
+    } else if (currentTier === "pro") {
+      dbUpdate.custom_instructions = trimmed.slice(0, 3000);
     }
   }
 
   // 5. Temperature Gating (Pro only)
   if (widget.temperature !== undefined) {
-    if (currentTier !== "pro" && Math.abs(widget.temperature - 0.2) > 0.01) {
-      throw new Error("Customizing response tone & temperature requires the Flagship Pro plan.");
+    if (currentTier !== "pro") {
+      // Gracefully enforce default temperature (0.2) for non-pro tiers instead of blocking appearance saves
+      dbUpdate.temperature = 0.2;
     }
   }
 

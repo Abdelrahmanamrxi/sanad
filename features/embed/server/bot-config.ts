@@ -16,8 +16,8 @@ export async function getWidgetBotConfig(
 
   const isFreePlan = planTier === "free";
   const assistantName = isFreePlan
-    ? "Sanad AI"
-    : widgetSettings?.bot_name?.trim() || "Sanad AI";
+    ? "AI Assistant"
+    : widgetSettings?.bot_name?.trim() || "AI Assistant";
 
   const maxInstructionChars =
     planTier === "starter" ? 1000 : planTier === "pro" ? 3000 : 0;

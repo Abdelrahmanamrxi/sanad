@@ -67,6 +67,11 @@ export function EmbedChatWidget({
 
   // Pro plan gating: Document Highlight Card is restricted to Pro plan
   const isPro = planTier === "pro";
+  const isFree = planTier === "free";
+  const effectiveBotName = isFree
+    ? "AI Assistant"
+    : config.botName?.trim() || "AI Assistant";
+
   const rawCitationStyle = config.citationStyle || "none";
   const citationStyle =
     rawCitationStyle === "document-snippet" && !isPro
@@ -660,7 +665,7 @@ export function EmbedChatWidget({
 
             {/* Header */}
             <WidgetHeader
-              botName={config.botName}
+              botName={effectiveBotName}
               subtitle={config.subtitle}
               primaryColor={primaryColor}
               primaryText={primaryText}
@@ -729,7 +734,7 @@ export function EmbedChatWidget({
                       className="font-heading text-xs font-bold"
                       style={{ color: bgText }}
                     >
-                      {config.botName || "Sanad AI Assistant"}
+                      {effectiveBotName}
                     </p>
                     <p
                       className="font-mono text-[9px] mt-0.5 opacity-70"

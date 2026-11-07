@@ -139,7 +139,7 @@ export const DESIGN_ARCHETYPES: StyleArchetype[] = [
 ];
 
 export const DEFAULT_WIDGET_CONFIG: WidgetConfig = {
-  botName: "عيادة النور",
+  botName: "AI Assistant",
   subtitle: "بترد في ثواني",
   primaryColor: "#0E4741",
   secondaryColor: "#E2D9C8",
