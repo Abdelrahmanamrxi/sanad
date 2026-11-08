@@ -30,6 +30,7 @@ import { BUSINESS_SECTORS, EGYPT_CITIES, STEP_FIELDS } from "../constants";
 import { BusinessType, ColorPreset } from "../types";
 import { cn } from "@/lib/utils";
 import logo from "@/public/sanad_logo.png";
+import logoDark from "@/public/sanad_logo_dark.png";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldError } from "@/components/ui/field";
@@ -215,7 +216,15 @@ export function LiveStudioOnboarding() {
               alt="Sanad Logo"
               width={26}
               height={26}
-              className="rounded-none object-contain"
+              className="rounded-none object-contain dark:hidden"
+              priority
+            />
+            <Image
+              src={logoDark}
+              alt="Sanad Logo"
+              width={26}
+              height={26}
+              className="rounded-none object-contain hidden dark:block"
               priority
             />
             <span className="font-heading font-bold text-base tracking-tight text-foreground">

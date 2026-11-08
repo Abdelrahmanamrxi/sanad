@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import logo from "../../../public/sanad_logo.png";
+import logoDark from "../../../public/sanad_logo_dark.png";
 import { User, userSchema } from "../schemas/auth";
 import { signUp, verifyOtp, resendOTP } from "../actions";
 
@@ -323,7 +324,14 @@ export function SignupForm({
                 src={logo}
                 alt="Sanad سند"
                 height={36}
-                className="h-8 w-auto object-contain"
+                className="h-8 w-auto object-contain dark:hidden"
+                priority
+              />
+              <Image
+                src={logoDark}
+                alt="Sanad سند"
+                height={36}
+                className="h-8 w-auto object-contain hidden dark:block"
                 priority
               />
               <span className="sr-only">Sanad سند</span>

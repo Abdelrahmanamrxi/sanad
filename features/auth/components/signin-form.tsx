@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import logo from "../../../public/sanad_logo.png";
+import logoDark from "../../../public/sanad_logo_dark.png";
 import { Eye, EyeOff, ArrowRight, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
 import { signInSchema, type SignInInput } from "../schemas/auth";
 import { signIn } from "../actions";
@@ -79,7 +80,14 @@ export function SignInForm({
           src={logo}
           alt="Sanad سند"
           height={32}
-          className="h-8 w-auto object-contain rounded-none"
+          className="h-8 w-auto object-contain rounded-none dark:hidden"
+          priority
+        />
+        <Image
+          src={logoDark}
+          alt="Sanad سند"
+          height={32}
+          className="h-8 w-auto object-contain rounded-none hidden dark:block"
           priority
         />
         <span className="sr-only">Sanad سند</span>

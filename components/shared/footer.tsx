@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import { Activity, ShieldCheck } from "lucide-react";
 import { footerLinks } from "@/features/marketing/lib/navigation";
 import logo from "../../public/sanad_logo.png";
+import logoDark from "../../public/sanad_logo_dark.png";
 
 export default function Footer() {
   return (
@@ -43,7 +44,13 @@ export default function Footer() {
                   src={logo}
                   alt="Sanad سند"
                   height={38}
-                  className="h-8 sm:h-9 w-auto object-contain"
+                  className="h-8 sm:h-9 w-auto object-contain dark:hidden"
+                />
+                <Image
+                  src={logoDark}
+                  alt="Sanad سند"
+                  height={38}
+                  className="h-8 sm:h-9 w-auto object-contain hidden dark:block"
                 />
               </motion.div>
             </Link>

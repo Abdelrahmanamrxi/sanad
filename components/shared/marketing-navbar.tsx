@@ -8,6 +8,7 @@ import { Sun, Moon, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { navLinks } from "@/features/marketing/lib/navigation";
 import logo from "../../public/sanad_logo.png";
+import logoDark from "../../public/sanad_logo_dark.png";
 
 function subscribeTheme(callback: () => void) {
   const observer = new MutationObserver(callback);
@@ -85,7 +86,14 @@ export default function MarketingNavbar() {
                   src={logo}
                   alt="Sanad سند"
                   height={38}
-                  className="h-8 sm:h-9 w-auto object-contain"
+                  className="h-8 sm:h-9 w-auto object-contain dark:hidden"
+                  priority
+                />
+                <Image
+                  src={logoDark}
+                  alt="Sanad سند"
+                  height={38}
+                  className="h-8 sm:h-9 w-auto object-contain hidden dark:block"
                   priority
                 />
               </motion.div>

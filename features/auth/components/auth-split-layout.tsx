@@ -19,6 +19,7 @@ import {
   Check,
 } from "lucide-react";
 import logo from "../../../public/sanad_logo.png";
+import logoDark from "../../../public/sanad_logo_dark.png";
 
 interface AuthSplitLayoutProps {
   children: React.ReactNode;
@@ -202,7 +203,14 @@ export function AuthSplitLayout({
               src={logo}
               alt="Sanad سند"
               height={42}
-              className="h-9 xl:h-10 w-auto object-contain"
+              className="h-9 xl:h-10 w-auto object-contain dark:hidden"
+              priority
+            />
+            <Image
+              src={logoDark}
+              alt="Sanad سند"
+              height={42}
+              className="h-9 xl:h-10 w-auto object-contain hidden dark:block"
               priority
             />
           </Link>
