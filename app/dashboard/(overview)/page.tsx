@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getAuthContext } from "@/lib/auth";
 import DashboardStatCards from "@/features/dashboard/overview/components/stat-cards";
-import RecentConversations from "@/features/dashboard/overview/components/recent-convesations";
+import RecentConversations from "@/features/dashboard/overview/components/recent-conversations";
 import {
   DailyTrafficLoader,
   DailyTrafficSkeleton,

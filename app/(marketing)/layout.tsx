@@ -1,6 +1,6 @@
 import React from "react";
-import MarketingNavbar from "@/components/shared/MarketingNavbar";
-import Footer from "@/components/shared/Footer";
+import MarketingNavbar from "@/components/shared/marketing-navbar";
+import Footer from "@/components/shared/footer";
 
 
 export default function MarketingLayout({children}:{children:React.ReactNode}){

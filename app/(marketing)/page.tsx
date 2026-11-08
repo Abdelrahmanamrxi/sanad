@@ -1,9 +1,9 @@
-import HeroSection from "@/features/marketing/components/HeroSection"
-import Features from "@/features/marketing/components/Features"
-import InteractiveDemo from "@/features/marketing/components/InteractiveDemo"
-import Usecases from "@/features/marketing/components/Usecases"
-import Pricing from "@/features/marketing/components/Pricing"
-import FAQ from "@/features/marketing/components/FAQ"
+import HeroSection from "@/features/marketing/components/hero-section"
+import Features from "@/features/marketing/components/features"
+import InteractiveDemo from "@/features/marketing/components/interactive-demo"
+import Usecases from "@/features/marketing/components/usecases"
+import Pricing from "@/features/marketing/components/pricing"
+import FAQ from "@/features/marketing/components/faq"
 
 export default function LandingPage() {
   return (

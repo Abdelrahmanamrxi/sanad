@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { LiveStudioOnboarding } from "@/features/onboarding/components/LiveStudioOnboarding";
+import { LiveStudioOnboarding } from "@/features/onboarding/components/live-studio-onboarding";
 import createClient from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 

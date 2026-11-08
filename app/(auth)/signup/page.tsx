@@ -1,5 +1,5 @@
 import { SignupForm } from "@/features/auth/components/signup-form";
-import { AuthSplitLayout } from "@/features/auth/components/AuthSplitLayout";
+import { AuthSplitLayout } from "@/features/auth/components/auth-split-layout";
 import { type Metadata } from "next";
 export const metadata:Metadata={
     title:"Sign up",

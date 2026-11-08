@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { SignInForm } from "@/features/auth/components/signin-form";
-import { AuthSplitLayout } from "@/features/auth/components/AuthSplitLayout";
+import { AuthSplitLayout } from "@/features/auth/components/auth-split-layout";
 
 export const metadata: Metadata = {
   title: "Sign in | Sanad AI",

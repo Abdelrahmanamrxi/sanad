@@ -23,9 +23,9 @@ import {
   Moon,
   MessageSquare,
 } from "lucide-react";
-import { SectorCard } from "./SectorCard";
-import { ChatStylingControls } from "./ChatStylingControls";
-import { LiveStudioChatPreview } from "./LiveStudioChatPreview";
+import { SectorCard } from "./sector-card";
+import { ChatStylingControls } from "./chat-styling-controls";
+import { LiveStudioChatPreview } from "./live-studio-chat-preview";
 import { BUSINESS_SECTORS, EGYPT_CITIES, STEP_FIELDS } from "../constants";
 import { BusinessType, ColorPreset } from "../types";
 import { cn } from "@/lib/utils";
