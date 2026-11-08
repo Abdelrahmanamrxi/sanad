@@ -1,6 +1,7 @@
 import { handle } from "@/http/async-handler";
 import { groq } from "@ai-sdk/groq";
-import { sovereign } from "@/lib/ai/providers/openai";
+import { sovereign } from "@/lib/ai/providers/sovereign";
+import { CHAT_MODEL } from "@/lib/ai/models";
 import { streamText, createTextStreamResponse } from "ai";
 import { getAuthContext } from "@/lib/auth";
 import { z } from "zod";
@@ -15,7 +16,7 @@ import {
 import AppError from "@/http/error";
 
 const defaultSystemPresets = {
-  model: "SovereignEG/Qwen3.8-27B-FP8",
+  model: CHAT_MODEL,
   systemPrompt: "You are Sanad AI, a verified customer support specialist.",
   temperature: 0.2,
   strictGrounding: true,
@@ -34,7 +35,7 @@ const chatRequestSchema = z.object({
     .default([]),
   systemPresets: z
     .object({
-      model: z.string().default("SovereignEG/Qwen3.8-27B-FP8"),
+      model: z.string().default(CHAT_MODEL),
       systemPrompt: z
         .string()
         .default("You are Sanad AI, a verified customer support specialist."),
@@ -95,7 +96,7 @@ export const POST = handle(async (req) => {
     : `Answer questions helpfully based on the context and general domain knowledge.`;
 
   const result = streamText({
-    model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
+    model: sovereign.chat(CHAT_MODEL),
     system: `${systemPresets.systemPrompt}
     ${groundingInstructions}
     === VERIFIED DOCUMENT CONTEXT ===

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { streamText, createTextStreamResponse } from "ai";
 import { handle } from "@/http/async-handler";
 import AppError from "@/http/error";
-import { sovereign } from "@/lib/ai/providers/openai";
+import { sovereign } from "@/lib/ai/providers/sovereign";
+import { CHAT_MODEL } from "@/lib/ai/models";
 import { verifyWidgetSession } from "@/features/embed/server/token";
 import { checkUsageLimit } from "@/features/billing/services/usage";
 import { chatRequestSchema } from "@/features/embed/schemas/chat"
@@ -100,7 +101,7 @@ export const POST = handle(async (req) => {
 
   // 6. Stream grounded response with LLM
   const result = streamText({
-    model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
+    model: sovereign.chat(CHAT_MODEL),
     system: `You are ${botConfig.assistantName}, a professional customer support AI specialist for an online storefront.
 Base your responses strictly and directly on the verified store context below.
 Provide direct, clear, and helpful answers. Avoid unnecessary filler.

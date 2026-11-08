@@ -4,7 +4,8 @@ import { type PersistChatExchangeParams } from "../types";
 import { resolveConversationStatus } from "./conversation-status";
 import { recordMessageUsage } from "@/features/billing/services/usage";
 import { getConversationTitleAndSummary } from "./conversation-summary";
-import { sovereign } from "@/lib/ai/providers/openai";
+import { sovereign } from "@/lib/ai/providers/sovereign";
+import { CHAT_MODEL } from "@/lib/ai/models";
 /**
  * Persists messages, resolves AI resolution status, records usage, and generates summary
  */
@@ -92,7 +93,7 @@ export async function persistChatExchangeAndStatus({
       userMessage,
       assistantResponse: assistantText,
       conversationId,
-      model: sovereign.chat("SovereignEG/Qwen3.8-27B-FP8"),
+      model: sovereign.chat(CHAT_MODEL),
     });
   }
 }
