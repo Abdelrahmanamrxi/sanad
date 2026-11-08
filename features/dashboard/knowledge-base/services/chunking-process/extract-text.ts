@@ -1,3 +1,4 @@
+import "server-only";
 import { extractText, getDocumentProxy } from "unpdf";
 import mammoth from "mammoth";
 import { NonRetriableError } from "inngest";

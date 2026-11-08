@@ -1,3 +1,4 @@
+import "server-only";
 import { isGreetingOrSmallTalk } from "../utils";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { type PersistChatExchangeParams } from "../types";

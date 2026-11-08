@@ -1,3 +1,4 @@
+import "server-only";
 import { groq, GROQ_MODEL } from "@/lib/ai/providers/groq";
 
 export async function generateSuggestions(chunk: string): Promise<string[]> {

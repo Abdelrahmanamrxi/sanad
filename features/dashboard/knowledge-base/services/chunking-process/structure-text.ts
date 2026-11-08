@@ -1,5 +1,4 @@
-
-
+import "server-only";
 import { parseHtmlTable } from "./table-parser";
 
 export type SectionBlock = {

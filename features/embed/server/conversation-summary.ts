@@ -1,3 +1,4 @@
+import "server-only";
 import { generateText, type LanguageModel } from "ai";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import * as Sentry from "@sentry/nextjs";

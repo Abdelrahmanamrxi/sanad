@@ -1,3 +1,4 @@
+import "server-only";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { RetrieveChunks } from "@/features/dashboard/knowledge-base/services/retrieval/retrieve-chunk";
 import { formatChunks } from "@/features/dashboard/knowledge-base/services/retrieval/retrieve-chunk";

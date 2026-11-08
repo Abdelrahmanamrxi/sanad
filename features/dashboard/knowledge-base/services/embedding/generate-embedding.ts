@@ -1,3 +1,4 @@
+import "server-only";
 export const EMBEDDING_MODEL = process.env.CF_EMBEDDING_MODEL!;
 
 const CF_URL = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/baai/bge-m3`;

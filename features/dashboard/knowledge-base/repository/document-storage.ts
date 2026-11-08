@@ -1,3 +1,4 @@
+import "server-only";
 // features/dashboard/knowledge-base/services/documents.ts
 import type { SupabaseClient } from "@supabase/supabase-js";
 

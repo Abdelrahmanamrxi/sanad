@@ -1,3 +1,4 @@
+import "server-only";
 import createClient from "@/lib/supabase/server";
 import { generateEmbedding } from "../embedding/generate-embedding";
 import type { SupabaseClient } from "@supabase/supabase-js";

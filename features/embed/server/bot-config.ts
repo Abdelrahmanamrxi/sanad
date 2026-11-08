@@ -1,3 +1,4 @@
+import "server-only";
 import { type BotConfig } from "../types";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 

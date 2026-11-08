@@ -1,3 +1,4 @@
+import "server-only";
 import { fileSchema } from "../schemas/file";
 import AppError from "@/lib/http/error";
 

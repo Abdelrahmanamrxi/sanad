@@ -1,3 +1,4 @@
+import "server-only";
 import pino from "pino"
 
 // Check if environment is a development env

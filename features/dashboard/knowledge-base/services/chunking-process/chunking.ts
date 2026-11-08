@@ -1,3 +1,4 @@
+import "server-only";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { mergeSections, parseMarkdownSections } from "./structure-text";
 import { chunkTableRows } from "./table-parser";
