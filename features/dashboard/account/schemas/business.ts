@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ARABIC_REGEX } from "@/features/onboarding/schema";
-import { EGYPT_CITIES } from "@/lib/constant";
+import { EGYPT_CITIES } from "@/lib/constants";
 
 export const CITY_SET = new Set(
   EGYPT_CITIES.map((c) => {

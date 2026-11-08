@@ -5,7 +5,7 @@ import AppError from "@/http/error";
 import { sovereign } from "@/lib/ai/providers/openai";
 import { verifyWidgetSession } from "@/features/embed/server/token";
 import { checkUsageLimit } from "@/features/billing/services/usage";
-import { chatRequestSchema } from "@/features/embed/schema/chat"
+import { chatRequestSchema } from "@/features/embed/schemas/chat"
 import { checkWidgetRateLimit } from "@/features/embed/server/rate-limiter";
 import { buildRetrievalQuery } from "@/features/embed/server/knowledge-retrieval";
 import { getWidgetBotConfig } from "@/features/embed/server/bot-config";

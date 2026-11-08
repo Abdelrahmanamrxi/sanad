@@ -7,8 +7,8 @@ import {
   AccountSecurityState,
 } from "./types";
 import { revalidatePath } from "next/cache";
-import { businessSchema } from "./schema/business";
-import { passwordSchema } from "./schema/password";
+import { businessSchema } from "./schemas/business";
+import { passwordSchema } from "./schemas/password";
 import { z } from "zod";
 
 export async function updateAccountLanguage(

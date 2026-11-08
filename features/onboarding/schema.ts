@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EGYPT_CITIES } from "@/lib/constant";
+import { EGYPT_CITIES } from "@/lib/constants";
 
 const CITY_SET = new Set(
   EGYPT_CITIES.map((c) => {

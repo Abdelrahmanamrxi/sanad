@@ -132,7 +132,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
 ];
 
 // Egypt Only with Major Cities and Commercial Hubs
-export { EGYPT_CITIES } from "@/lib/constant";
+export { EGYPT_CITIES } from "@/lib/constants";
 
 
 export interface BorderSideConfig {

@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { type AccountData, type AccountBusinessState } from "../types";
 import { useState, useActionState } from "react";
-import { EGYPT_CITIES } from "@/lib/constant";
+import { EGYPT_CITIES } from "@/lib/constants";
 import { updateBusinessWorkspace } from "../actions";
 
 interface AccountBusinessWorkspaceProps {
