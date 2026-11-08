@@ -182,10 +182,10 @@ export default function MarketingNavbar() {
               </AnimatePresence>
             </Button>
 
-            {/* Log In Button */}
-            <Link href="/login">
+            {/* Sign In Button */}
+            <Link href="/signin">
               <Button variant="ghost" size="sm">
-                Log in
+                Sign in
               </Button>
             </Link>
 
@@ -291,12 +291,12 @@ export default function MarketingNavbar() {
               {/* Mobile CTA Buttons using shadcn Button */}
               <div className="pt-1 flex flex-col gap-2">
                 <Link
-                  href="/login"
+                  href="/signin"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full"
                 >
                   <Button variant="outline" className="w-full">
-                    Log in
+                    Sign in
                   </Button>
                 </Link>
                 <Link
