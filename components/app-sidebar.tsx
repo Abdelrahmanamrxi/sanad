@@ -3,9 +3,7 @@
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
 import type { PlanTier } from "@/features/billing/plans";
 import {
   Sidebar,
@@ -18,40 +16,12 @@ import {
   MessagesCircle,
   Columns3Cog,
   LayoutDashboard,
-  GalleryVerticalEndIcon,
-  AudioLinesIcon,
-  TerminalIcon,
   TerminalSquareIcon,
-  BotIcon,
   BookOpenIcon,
-  Settings2Icon,
   Building2,
 } from "lucide-react";
 
-// This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: <GalleryVerticalEndIcon />,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: <AudioLinesIcon />,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: <TerminalIcon />,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Overview",

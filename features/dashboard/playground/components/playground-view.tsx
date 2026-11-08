@@ -7,9 +7,6 @@ import { PlaygroundInputBar } from "./playground-input-bar";
 import { PlaygroundInspectorPanel } from "./playground-inspector-panel";
 import { DEFAULT_CONFIG, AVAILABLE_MODELS } from "../constants";
 import usePlaygroundChat from "../hooks/use-chat";
-import {
-  initialMockChunks,
-} from "../mock-data";
 import type {
   PlaygroundConfig,
   PlaygroundChunk,
@@ -63,9 +60,7 @@ export function PlaygroundView({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<InspectorTab>("sources");
-  const [selectedChunkId, setSelectedChunkId] = useState<string | null>(
-    initialMockChunks[0]?.id || null,
-  );
+  const [selectedChunkId, setSelectedChunkId] = useState<string | null>(null);
   const [activeKbPrompt, setActiveKbPrompt] = useState<string | null>(
     initialQuery || null,
   );
