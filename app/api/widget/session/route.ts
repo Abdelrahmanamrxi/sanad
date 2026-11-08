@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { handle } from "@/http/async-handler";
-import AppError from "@/http/error";
+import { handle } from "@/lib/http/async-handler";
+import AppError from "@/lib/http/error";
 import { signWidgetSession } from "@/features/embed/server/token";
 import {
   validateWidgetAccess,

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { streamText, createTextStreamResponse } from "ai";
-import { handle } from "@/http/async-handler";
-import AppError from "@/http/error";
+import { handle } from "@/lib/http/async-handler";
+import AppError from "@/lib/http/error";
 import { sovereign } from "@/lib/ai/providers/sovereign";
 import { CHAT_MODEL } from "@/lib/ai/models";
 import { verifyWidgetSession } from "@/features/embed/server/token";

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth";
-import AppError from "@/http/error";
+import AppError from "@/lib/http/error";
 import {
   getActiveSubscription,
   checkUsageLimit,

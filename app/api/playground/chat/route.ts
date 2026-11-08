@@ -1,4 +1,4 @@
-import { handle } from "@/http/async-handler";
+import { handle } from "@/lib/http/async-handler";
 import { groq } from "@ai-sdk/groq";
 import { sovereign } from "@/lib/ai/providers/sovereign";
 import { CHAT_MODEL } from "@/lib/ai/models";
@@ -13,7 +13,7 @@ import {
   RetrieveChunks,
   formatChunks,
 } from "@/features/dashboard/knowledge-base/services/retrieval/retrieve-chunk";
-import AppError from "@/http/error";
+import AppError from "@/lib/http/error";
 
 const defaultSystemPresets = {
   model: CHAT_MODEL,

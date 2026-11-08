@@ -1,7 +1,7 @@
 import "server-only";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { PLANS, PlanTier, isOverLimit } from "../plans";
-import AppError from "@/http/error";
+import AppError from "@/lib/http/error";
 import { SubscriptionRow,SubscriptionDBRow } from "../types";
 
 export interface QuotaCheckResult {

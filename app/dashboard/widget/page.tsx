@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { WidgetStudioView } from "@/features/dashboard/widget/components";
 import { getAuthContext } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AppError from "@/http/error";
+import AppError from "@/lib/http/error";
 import {
   toWidgetConfig,
   WidgetConfig,

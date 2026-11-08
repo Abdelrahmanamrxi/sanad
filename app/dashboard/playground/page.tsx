@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PlaygroundView } from "@/features/dashboard/playground/components";
 import { checkUsageLimit, getActiveSubscription } from "@/features/billing/services/usage";
 import { getAuthContext } from "@/lib/auth";
-import AppError from "@/http/error";
+import AppError from "@/lib/http/error";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {

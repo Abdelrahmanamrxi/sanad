@@ -1,5 +1,5 @@
 import createClient from "./supabase/server";
-import AppError from "../http/error";
+import AppError from "./http/error";
 import type { PlanTier } from "@/features/billing/plans";
 import { cache } from "react";
 export const getAuthContext = cache(async () => {

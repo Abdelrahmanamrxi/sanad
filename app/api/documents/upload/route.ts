@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { handle } from "@/http/async-handler";
+import { handle } from "@/lib/http/async-handler";
 import { getAuthContext } from "@/lib/auth";
 import { parseUpload } from "@/features/dashboard/knowledge-base/services/parse-upload";
 import { uploadDocument } from "@/features/dashboard/knowledge-base/services/upload-document";

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { supabaseAdminClient } from "@/lib/supabase/admin";
-import AppError from "@/http/error";
+import AppError from "@/lib/http/error";
 import { getHostname } from "@/lib/utils";
 import { getActiveSubscription } from "@/features/billing/services/usage";
 import { PLANS, type PlanTier } from "@/features/billing/plans";

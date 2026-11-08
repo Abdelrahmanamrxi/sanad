@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import AppError from "@/http/error";
+import AppError from "@/lib/http/error";
 import {
   buildStoragePath,
   uploadToStorage,
