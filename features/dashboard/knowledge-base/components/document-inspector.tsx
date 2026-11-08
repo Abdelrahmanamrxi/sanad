@@ -22,7 +22,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import type { DocumentItem, ChunkItem } from "../types";
-import { formatBytes, getFileName, getFormatBadge } from "../mock-data";
+import { formatBytes, getFileName, getFormatBadge } from "../utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChunkCard } from "./chunk-card";
 import { Button } from "@/components/ui/button";

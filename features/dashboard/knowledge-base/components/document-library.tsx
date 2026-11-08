@@ -15,7 +15,7 @@ import {
   getFileName,
   getFileIcon,
   getFormatBadge,
-} from "../mock-data";
+} from "../utils";
 
 interface DocumentLibraryProps {
   documents: DocumentItem[];

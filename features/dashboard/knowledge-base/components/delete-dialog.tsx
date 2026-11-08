@@ -3,7 +3,7 @@
 import React from "react"
 import { AlertCircle } from "lucide-react"
 import type { DocumentItem } from "../types"
-import { getFileName } from "../mock-data"
+import { getFileName } from "../utils"
 
 interface DeleteSingleModalProps {
   document: DocumentItem | null

@@ -11,7 +11,7 @@ import {
 import {
   initialDocuments as defaultInitialDocuments,
   mockChunksByDocId as defaultMockChunks,
-} from "../mock-data";
+} from "../__fixtures__/mock-data";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchDocumentDetails,
