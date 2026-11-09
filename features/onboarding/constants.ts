@@ -143,9 +143,8 @@ export interface BorderSideConfig {
   width: number;
 }
 
-export const STEP_FIELDS:Record<number,(keyof OnboardingType)[]>={
-    1:["businessNameEn","businessNameAr"],
-    2:["businessType"],
-    3:["city","district"],
-    4:["botName","primaryColor","secondaryColor","chatBgColor","borderRadius","cornerRadius"]
-}
+export const STEP_FIELDS: Record<number, (keyof OnboardingType)[]> = {
+  1: ["businessNameEn", "businessNameAr"],
+  2: ["businessType"],
+  3: ["city", "district"],
+};

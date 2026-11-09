@@ -86,6 +86,7 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
             <button
               type="button"
               onClick={() => setShowCurrent((prev) => !prev)}
+              onMouseDown={(e) => e.preventDefault()}
               tabIndex={-1}
               aria-label={showCurrent ? "Hide password" : "Show password"}
               className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -128,6 +129,7 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
               <button
                 type="button"
                 onClick={() => setShowNew((prev) => !prev)}
+                onMouseDown={(e) => e.preventDefault()}
                 tabIndex={-1}
                 aria-label={showNew ? "Hide password" : "Show password"}
                 className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -168,6 +170,7 @@ export default function AccountSecurity({ initialData }: AccountSecurityProps) {
               <button
                 type="button"
                 onClick={() => setShowConfirm((prev) => !prev)}
+                onMouseDown={(e) => e.preventDefault()}
                 tabIndex={-1}
                 aria-label={showConfirm ? "Hide password" : "Show password"}
                 className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"

@@ -18,7 +18,14 @@ import {
 import { Input } from "@/components/ui/input";
 import logo from "../../../public/sanad_logo.png";
 import logoDark from "../../../public/sanad_logo_dark.png";
-import { Eye, EyeOff, ArrowRight, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  ArrowRight,
+  AlertCircle,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { signInSchema, type SignInInput } from "../schemas/auth";
 import { signIn } from "../actions";
 
@@ -68,7 +75,10 @@ export function SignInForm({
 
   return (
     <div
-      className={cn("flex flex-col pt-6 md:pt-0 gap-4 sm:gap-5 w-full", className)}
+      className={cn(
+        "flex flex-col pt-6 md:pt-0 gap-4 sm:gap-5 w-full",
+        className,
+      )}
       {...props}
     >
       {/* Mobile-only logo */}
@@ -110,8 +120,12 @@ export function SignInForm({
           <div className="flex items-start gap-2.5 p-3 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-none animate-in fade-in duration-150">
             <CheckCircle2 className="size-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
             <div className="space-y-0.5">
-              <p className="font-semibold leading-snug">Signed in successfully!</p>
-              <p className="text-[11px] opacity-90">Redirecting to your workspace...</p>
+              <p className="font-semibold leading-snug">
+                Signed in successfully!
+              </p>
+              <p className="text-[11px] opacity-90">
+                Redirecting to your workspace...
+              </p>
             </div>
           </div>
         )}
@@ -142,17 +156,23 @@ export function SignInForm({
               })}
               className={cn(
                 "h-11 sm:h-10 text-base md:text-sm border border-border bg-background px-3 focus-visible:border-primary rounded-none",
-                errors.email && "border-destructive focus-visible:border-destructive"
+                errors.email &&
+                  "border-destructive focus-visible:border-destructive",
               )}
             />
             {errors.email?.message && (
-              <FieldError className="text-xs">{errors.email.message}</FieldError>
+              <FieldError className="text-xs">
+                {errors.email.message}
+              </FieldError>
             )}
           </Field>
 
           {/* Password */}
           <Field>
-            <FieldLabel htmlFor="signin-password" className="text-xs sm:text-sm">
+            <FieldLabel
+              htmlFor="signin-password"
+              className="text-xs sm:text-sm"
+            >
               Password
             </FieldLabel>
             <div className="relative">
@@ -167,14 +187,18 @@ export function SignInForm({
                 })}
                 className={cn(
                   "h-11 sm:h-10 text-base md:text-sm border border-border bg-background px-3 pe-10 focus-visible:border-primary rounded-none",
-                  errors.password && "border-destructive focus-visible:border-destructive"
+                  errors.password &&
+                    "border-destructive focus-visible:border-destructive",
                 )}
               />
               <button
                 type="button"
+                tabIndex={-1}
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-none"
                 title={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <EyeOff className="size-4" />
@@ -184,7 +208,9 @@ export function SignInForm({
               </button>
             </div>
             {errors.password?.message && (
-              <FieldError className="text-xs">{errors.password.message}</FieldError>
+              <FieldError className="text-xs">
+                {errors.password.message}
+              </FieldError>
             )}
           </Field>
 

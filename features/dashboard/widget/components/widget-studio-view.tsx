@@ -107,7 +107,7 @@ export default function WidgetStudioView({
 
     if (cleanDomains.length === 0) {
       setSaveError(
-        "At least one allowed domain is required (e.g. yourstore.com or store.salla.sa)",
+        "At least one allowed domain is required (e.g. yourstore.com ), Add it to make the widget work on your website.",
       );
       setTimeout(() => setSaveError(null), 6000);
       return;
@@ -154,6 +154,7 @@ export default function WidgetStudioView({
     citationStyle: planTier === "pro" ? (config.citationStyle || "document-snippet") : "none",
   };
 
+ 
   return (
     <div className="relative flex min-h-0 lg:min-h-[820px] h-[calc(100vh-6.5rem)] flex-col border border-border bg-card shadow-xs overflow-hidden">
       {/* Corner crosshairs for architectural craft */}

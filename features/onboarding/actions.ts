@@ -27,14 +27,14 @@ export async function createBusiness(formValues:OnboardingType):Promise<Onboardi
         return { success: false, error: businessError?.message || "Failed to create business workspace." };
     }
 
-    // 2. Insert initial widget settings for this business
+    // 2. Insert initial widget settings for this business with clean defaults
     const { error: widgetError } = await supabase.from("widget_settings").insert({
         business_id: business.id,
-        primary_color: formValues.primaryColor,
-        secondary_color: formValues.secondaryColor,
-        background_color: formValues.chatBgColor,
-        border_radius: formValues.borderRadius,
-        corner_radius: formValues.cornerRadius,
+        primary_color: formValues.primaryColor || "#0F5C55",
+        secondary_color: formValues.secondaryColor || "#D3E6E2",
+        background_color: formValues.chatBgColor || "#FFFFFF",
+        border_radius: formValues.borderRadius ?? 0,
+        corner_radius: formValues.cornerRadius ?? 0,
         bot_name: formValues.botName?.trim() || (formValues.businessNameEn ? `${formValues.businessNameEn} Support` : "Sanad AI Support"),
     });
 

@@ -182,3 +182,10 @@ body:has([data-sanad-embed]),
   background: var(--muted-foreground);
 }
 
+/* Disable native browser password reveal and clear icons */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+

@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { Check, Loader, Mail, ArrowLeft } from "lucide-react";
+import { Check, Loader, Mail, ArrowLeft, EyeOff, Eye } from "lucide-react";
 import {
   Field,
   FieldDescription,
@@ -32,7 +32,8 @@ export function SignupForm({
   // Form States
   const [serverError, setServerError] = useState<string | null>();
   const [step, setStep] = useState<"form" | "otp" | "success">("form");
-
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword,setShowConfirm]=useState<boolean>(false)
   // OTP States
   const [otp, setCode] = useState<string>("");
   const [otpError, setOTPError] = useState<string | null>("");
@@ -45,6 +46,7 @@ export function SignupForm({
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<User>({
     resolver: zodResolver(userSchema),
@@ -84,6 +86,16 @@ export function SignupForm({
       const result = await signUp(data);
 
       if (!result.success) {
+        if (result.fieldErrors) {
+          Object.entries(result.fieldErrors).forEach(([field, messages]) => {
+            if (messages && messages[0]) {
+              setError(field as keyof User, {
+                type: "server",
+                message: messages[0],
+              });
+            }
+          });
+        }
         if (result.error) {
           setServerError(result.error);
         }
@@ -120,7 +132,9 @@ export function SignupForm({
       }
       setStep("success");
     } catch (err) {
-      setOTPError("A network error occurred. Please check your connection and try again.");
+      setOTPError(
+        "A network error occurred. Please check your connection and try again.",
+      );
     } finally {
       setVerifying(false);
     }
@@ -145,7 +159,9 @@ export function SignupForm({
       setResendSuccess(true);
       setResendCooldown(60);
     } catch (err) {
-      setOTPError("A network error occurred while resending. Please try again.");
+      setOTPError(
+        "A network error occurred while resending. Please try again.",
+      );
     } finally {
       setIsResending(false);
     }
@@ -166,12 +182,20 @@ export function SignupForm({
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className={cn("border border-border bg-card p-6 sm:p-8 text-center space-y-4 shadow-xs", className)}
+        className={cn(
+          "border border-border bg-card p-6 sm:p-8 text-center space-y-4 shadow-xs",
+          className,
+        )}
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 14 }}
+          transition={{
+            delay: 0.15,
+            type: "spring",
+            stiffness: 200,
+            damping: 14,
+          }}
           className="size-12 bg-success/15 border border-success/30 flex items-center justify-center mx-auto"
         >
           <Check className="size-5 text-success" />
@@ -203,7 +227,13 @@ export function SignupForm({
   if (step === "otp") {
     const email = watch("email");
     return (
-      <div className={cn("flex flex-col gap-4 sm:gap-5 text-start w-full", className)} {...props}>
+      <div
+        className={cn(
+          "flex flex-col gap-4 sm:gap-5 text-start w-full",
+          className,
+        )}
+        {...props}
+      >
         {/* Header & Icon */}
         <div className="space-y-1.5 sm:space-y-2">
           <div className="size-9 sm:size-10 border border-border bg-secondary flex items-center justify-center text-secondary-foreground">
@@ -214,7 +244,10 @@ export function SignupForm({
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground leading-normal break-words">
             We sent a 6-digit verification code to{" "}
-            <span className="font-semibold text-foreground break-all">{email}</span>.
+            <span className="font-semibold text-foreground break-all">
+              {email}
+            </span>
+            .
           </p>
         </div>
 
@@ -236,7 +269,10 @@ export function SignupForm({
         {/* Form */}
         <form onSubmit={handleVerifyOTP} className="space-y-4">
           <Field>
-            <FieldLabel htmlFor="otp-input" className="text-xs uppercase tracking-wider text-muted-foreground">
+            <FieldLabel
+              htmlFor="otp-input"
+              className="text-xs uppercase tracking-wider text-muted-foreground"
+            >
               Verification Code
             </FieldLabel>
             <input
@@ -312,7 +348,13 @@ export function SignupForm({
 
   // STEP 1: INITIAL SIGNUP FORM
   return (
-    <div className={cn("flex flex-col pt-10 md:pt-0 gap-3.5 sm:gap-4 w-full", className)} {...props}>
+    <div
+      className={cn(
+        "flex flex-col pt-10 md:pt-0 gap-3.5 sm:gap-4 w-full",
+        className,
+      )}
+      {...props}
+    >
       <form onSubmit={handleSubmit(signUpSubmit)} noValidate>
         <FieldGroup className="gap-3.5 sm:gap-4">
           <div className="flex flex-col gap-1.5">
@@ -357,7 +399,9 @@ export function SignupForm({
               Email
             </FieldLabel>
             <Input
-              {...register("email")}
+              {...register("email", {
+                onChange: () => setServerError(null),
+              })}
               id="email"
               type="email"
               placeholder="m@example.com"
@@ -366,23 +410,41 @@ export function SignupForm({
               aria-invalid={!!errors.email}
               className="h-11 sm:h-10 text-base md:text-sm"
             />
-            {errors.email?.message && <FieldError>{errors.email.message}</FieldError>}
+            {errors.email?.message && (
+              <FieldError>{errors.email.message}</FieldError>
+            )}
           </Field>
 
           <Field data-invalid={!!errors.password}>
             <FieldLabel htmlFor="password" className="text-xs sm:text-sm">
               Password
             </FieldLabel>
-            <Input
-              {...register("password")}
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              required
-              aria-invalid={!!errors.password}
-              className="h-11 sm:h-10 text-base md:text-sm"
-            />
-
+            <div className="relative">
+              <Input
+                {...register("password")}
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                required
+                aria-invalid={!!errors.password}
+                className="h-11 sm:h-10 text-base md:text-sm pe-10"
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-none"
+                title={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
             {/* Sleek 2-Column Real-time Password Checklist */}
             {(password.length > 0 || errors.password) && (
               <div className="border border-border/80 bg-muted/20 p-2 sm:p-2.5 mt-1 space-y-1.5">
@@ -395,7 +457,9 @@ export function SignupForm({
                       key={idx}
                       className={cn(
                         "flex items-center gap-1.5 transition-colors",
-                        req.met ? "text-success font-medium" : "text-muted-foreground"
+                        req.met
+                          ? "text-success font-medium"
+                          : "text-muted-foreground",
                       )}
                     >
                       {req.met ? (
@@ -412,18 +476,38 @@ export function SignupForm({
           </Field>
 
           <Field data-invalid={!!errors.confirmPassword}>
-            <FieldLabel htmlFor="confirm-password" className="text-xs sm:text-sm">
+            <FieldLabel
+              htmlFor="confirm-password"
+              className="text-xs sm:text-sm"
+            >
               Confirm Password
             </FieldLabel>
-            <Input
-              {...register("confirmPassword")}
-              id="confirm-password"
-              type="password"
-              placeholder="••••••••"
-              required
-              aria-invalid={!!errors.confirmPassword}
-              className="h-11 sm:h-10 text-base md:text-sm"
-            />
+            <div className="relative">
+              <Input
+                {...register("confirmPassword")}
+                id="confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="••••••••"
+                required
+                aria-invalid={!!errors.confirmPassword}
+                className="h-11 sm:h-10 text-base md:text-sm pe-10"
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setShowConfirm(!showConfirmPassword)}
+                className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-none"
+                title={showConfirmPassword ? "Hide password" : "Show password"}
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
             {errors.confirmPassword?.message && (
               <FieldError>{errors.confirmPassword.message}</FieldError>
             )}
@@ -446,8 +530,14 @@ export function SignupForm({
 
           <FieldDescription className="px-1 text-center text-[11px] sm:text-xs leading-relaxed -mt-1 sm:mt-0">
             By creating an account, you agree to our{" "}
-            <a href="#" className="underline hover:text-foreground">Terms of Service</a> and{" "}
-            <a href="#" className="underline hover:text-foreground">Privacy Policy</a>.
+            <a href="#" className="underline hover:text-foreground">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="#" className="underline hover:text-foreground">
+              Privacy Policy
+            </a>
+            .
           </FieldDescription>
         </FieldGroup>
       </form>

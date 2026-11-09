@@ -122,21 +122,32 @@ export function AuthSplitLayout({
             <div className="space-y-1.5 text-xs text-muted-foreground pt-0.5">
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
-                <span className="leading-tight">Only answers from the files, menus, and prices you upload</span>
+                <span className="leading-tight">
+                  Only answers from the files, menus, and prices you upload
+                </span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
-                <span className="leading-tight">Takes 1 minute to add to any website or store</span>
+                <span className="leading-tight">
+                  Takes 1 minute to add to any website or store
+                </span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
-                <span className="leading-tight">Unanswered questions go to your inbox so you can train it easily</span>
+                <span className="leading-tight">
+                  Unanswered questions go to your inbox so you can train it
+                  easily
+                </span>
               </div>
             </div>
 
             <div className="border-t border-border/60 pt-2 flex items-center justify-between text-[11px] text-muted-foreground italic">
-              <span className="truncate pe-2">&ldquo;Answers our patients 24/7 without guessing.&rdquo;</span>
-              <span className="font-semibold text-foreground not-italic shrink-0">Dokki Dental</span>
+              <span className="truncate pe-2">
+                &ldquo;Answers our patients 24/7 without guessing.&rdquo;
+              </span>
+              <span className="font-semibold text-foreground not-italic shrink-0">
+                Dokki Dental
+              </span>
             </div>
           </div>
         </div>
@@ -229,7 +240,8 @@ export function AuthSplitLayout({
                 Welcome back to Sanad.
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Your AI customer assistant is active, answering customer questions in Egyptian Arabic &amp; English using your files.
+                Your AI customer assistant is active, answering customer
+                questions in Egyptian Arabic &amp; English using your files.
               </p>
             </div>
 
@@ -254,9 +266,7 @@ export function AuthSplitLayout({
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">
                     Factual Accuracy
                   </div>
-                  <div className="text-xl font-bold text-highlight">
-                    100%
-                  </div>
+                  <div className="text-xl font-bold text-highlight">100%</div>
                   <div className="text-xs text-muted-foreground">
                     From your files only
                   </div>
@@ -266,9 +276,7 @@ export function AuthSplitLayout({
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">
                     Reply Speed
                   </div>
-                  <div className="text-xl font-bold text-primary">
-                    &lt; 1s
-                  </div>
+                  <div className="text-xl font-bold text-primary">&lt; 1s</div>
                   <div className="text-xs text-muted-foreground">
                     Instant answers
                   </div>
@@ -279,7 +287,9 @@ export function AuthSplitLayout({
               <div className="p-3.5 border border-border/80 bg-background/80 space-y-2 rounded-none">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>Sample Customer Question</span>
-                  <span className="text-primary font-medium">Answered from files</span>
+                  <span className="text-primary font-medium">
+                    Answered from files
+                  </span>
                 </div>
 
                 <div className="space-y-2 text-xs">
@@ -293,7 +303,8 @@ export function AuthSplitLayout({
                   {/* AI Response */}
                   <div className="bg-primary/10 border border-primary/25 p-2.5 text-foreground text-end dir-rtl space-y-1.5">
                     <p className="font-sans leading-relaxed">
-                      &ldquo;أهلاً بك! نعم، متوفر استشاري باطنة في فرع التجمع الخامس يومياً من ١١:٠٠ ص حتى ٩:٠٠ م.&rdquo;
+                      &ldquo;أهلاً بك! نعم، متوفر استشاري باطنة في فرع التجمع
+                      الخامس يومياً من ١١:٠٠ ص حتى ٩:٠٠ م.&rdquo;
                     </p>
                     <span className="text-[11px] text-primary block tracking-wide text-start dir-ltr font-medium">
                       Source: Clinic_Schedule.pdf
@@ -310,7 +321,8 @@ export function AuthSplitLayout({
                 Your business files. An AI chatbot. Zero hallucinations.
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Tailored for clinics, restaurants, gyms, and shops in Egypt &amp; MENA.
+                Tailored for clinics, restaurants, gyms, and shops in Egypt
+                &amp; MENA.
               </p>
             </div>
 
@@ -325,7 +337,8 @@ export function AuthSplitLayout({
                     1. Upload your documents
                   </span>
                   <p className="text-muted-foreground text-xs sm:text-sm pt-0.5">
-                    Price lists, menus, or FAQs. The bot only answers from your files.
+                    Price lists, menus, or FAQs. The bot only answers from your
+                    files.
                   </p>
                 </div>
               </div>
@@ -359,7 +372,8 @@ export function AuthSplitLayout({
                     </span>
                   </div>
                   <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                    If the bot doesn&apos;t know an answer, it lands in your inbox. You answer once, and the bot learns it permanently.
+                    If the bot doesn&apos;t know an answer, it lands in your
+                    inbox. You answer once, and the bot learns it permanently.
                   </p>
                 </div>
               </div>

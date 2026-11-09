@@ -2,3 +2,4 @@ export * from "./conversations-view";
 export * from "./conversations-list";
 export * from "./conversation-header";
 export * from "./conversation-thread";
+export * from "./conversations-empty-state";

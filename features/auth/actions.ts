@@ -3,6 +3,7 @@ import type { User } from "./schemas/auth";
 import { userSchema, signInSchema } from "./schemas/auth";
 import { redirect } from "next/navigation";
 import createClient from "@/lib/supabase/server";
+import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { type AuthResult, type VerifyOTPResult } from "./types";
 
 export async function signUp(user: User): Promise<AuthResult> {
@@ -14,9 +15,36 @@ export async function signUp(user: User): Promise<AuthResult> {
       fieldErrors: parseInfo.error.flatten().fieldErrors,
     };
   }
+
+  const cleanEmail = parseInfo.data.email.trim().toLowerCase();
+
+  // 1. Check if user already exists BEFORE calling supabase.auth.signUp.
+  // Calling signUp with an existing email causes Supabase to send a verification code
+  // and returns empty identities without an error under email enumeration protection.
+  try {
+    const { data: linkData, error: linkError } =
+      await supabaseAdminClient.auth.admin.generateLink({
+        type: "recovery",
+        email: cleanEmail,
+      });
+
+    if (!linkError && linkData?.user) {
+      return {
+        success: false,
+        fieldErrors: {
+          email: [
+            "An account with this email already exists. Please sign in instead.",
+          ],
+        },
+      };
+    }
+  } catch (checkErr) {
+    console.error("Error pre-checking user email existence:", checkErr);
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
-    email: parseInfo.data.email,
+  const { data, error } = await supabase.auth.signUp({
+    email: cleanEmail,
     password: parseInfo.data.password,
   });
 
@@ -27,8 +55,23 @@ export async function signUp(user: User): Promise<AuthResult> {
     if (error.code === "over_email_send_rate_limit") {
       return { success: false, error: "Too many attempts. Try again later." };
     }
-    return { success: false, error: "Something went wrong. Try again." };
+    if (
+      error.code === "user_already_exists" ||
+      error.message?.toLowerCase().includes("already registered")
+    ) {
+      return {
+        success: false,
+        error: "An account with this email already exists. Please sign in instead.",
+        fieldErrors: {
+          email: [
+            "An account with this email already exists. Please sign in instead.",
+          ],
+        },
+      };
+    }
+    return { success: false, error: error.message || "Something went wrong. Try again." };
   }
+
 
   return { success: true };
 }

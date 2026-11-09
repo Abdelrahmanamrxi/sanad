@@ -5,6 +5,7 @@ import { ConversationItem, FilterTab } from "../types";
 import { ConversationsList } from "./conversations-list";
 import { ConversationHeader } from "./conversation-header";
 import { ConversationThread } from "./conversation-thread";
+import { ConversationsEmptyState } from "./conversations-empty-state";
 import { MessageSquare, AlertCircle, RefreshCw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import useDebounce from "@/hooks/use-debounce";
@@ -15,8 +16,8 @@ export function ConversationsView() {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const title = useDebounce(searchQuery, 400);
- 
-  const { data, error, isPending, refetch } = useQuery({
+
+  const { data, error, isPending, isRefetching, refetch } = useQuery({
     queryKey: ["conversations", title],
     queryFn: () =>
       getConversations({
@@ -63,6 +64,89 @@ export function ConversationsView() {
     if (found) return found;
     return filteredConversations[0] || conversations[0] || null;
   }, [conversations, filteredConversations, selectedId]);
+
+  // 1. Initial Loading Skeleton
+  if (isPending) {
+    return (
+      <div className="h-[calc(100vh-6.5rem)] min-h-[550px] border border-border bg-card flex flex-col md:flex-row overflow-hidden rounded-none shadow-xs">
+        {/* Left Column Skeleton */}
+        <div className="w-full md:w-[340px] lg:w-[380px] shrink-0 h-full border-r border-border p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="h-6 w-32 bg-muted/60 rounded-none animate-pulse" />
+            <div className="h-5 w-8 bg-muted/50 rounded-none animate-pulse" />
+          </div>
+          <div className="h-8 w-full bg-muted/40 rounded-none animate-pulse" />
+          <div className="flex gap-2">
+            <div className="h-6 w-12 bg-muted/50 rounded-none animate-pulse" />
+            <div className="h-6 w-16 bg-muted/50 rounded-none animate-pulse" />
+            <div className="h-6 w-20 bg-muted/50 rounded-none animate-pulse" />
+          </div>
+          <div className="space-y-3 pt-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="p-3 border border-border/40 bg-muted/20 space-y-2 rounded-none animate-pulse"
+              >
+                <div className="flex justify-between">
+                  <div className="h-3.5 w-28 bg-muted/60 rounded-none" />
+                  <div className="h-3 w-12 bg-muted/40 rounded-none" />
+                </div>
+                <div className="h-3 w-44 bg-muted/40 rounded-none" />
+                <div className="h-2.5 w-20 bg-muted/30 rounded-none" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column Skeleton */}
+        <div className="flex-1 min-w-0 flex flex-col h-full bg-background p-6 space-y-4 animate-pulse">
+          <div className="h-10 w-1/3 bg-muted/60 rounded-none" />
+          <div className="h-16 w-full bg-muted/30 border border-border/40 rounded-none" />
+          <div className="space-y-4 pt-6 flex-1">
+            <div className="h-12 w-2/5 ms-auto bg-muted/50 rounded-none" />
+            <div className="h-20 w-3/5 me-auto bg-muted/40 rounded-none" />
+            <div className="h-14 w-1/2 ms-auto bg-muted/50 rounded-none" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Query Error State
+  if (error && conversations.length === 0) {
+    return (
+      <div className="h-[calc(100vh-6.5rem)] min-h-[550px] border border-border bg-card flex flex-col items-center justify-center p-8 text-center space-y-4 rounded-none shadow-xs">
+        <div className="size-12 bg-destructive/10 border border-destructive/30 flex items-center justify-center rounded-none text-destructive">
+          <AlertCircle className="size-6" />
+        </div>
+        <div className="space-y-1.5 max-w-sm">
+          <h3 className="font-heading font-semibold text-base text-foreground">
+            Failed to load conversations
+          </h3>
+          <p className="text-xs text-muted-foreground font-sans leading-relaxed">
+            {(error as Error)?.message ||
+              "An error occurred while loading your inbox. Please check your connection and try again."}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="h-9 px-4 bg-primary text-primary-foreground text-xs font-mono uppercase font-semibold tracking-wider inline-flex items-center gap-2 hover:bg-primary/90 transition-colors rounded-none cursor-pointer"
+        >
+          <RefreshCw className="size-3.5" />
+          <span>Try Again</span>
+        </button>
+      </div>
+    );
+  }
+
+  // 3. Fallback Empty State: No Conversations in Workspace Yet
+  if (conversations.length === 0) {
+    return (
+      <ConversationsEmptyState
+      />
+    );
+  }
 
   return (
     <div className="h-[calc(100vh-6.5rem)] min-h-[550px] border border-border bg-card flex flex-col md:flex-row overflow-hidden rounded-none shadow-xs">
