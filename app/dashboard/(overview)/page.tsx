@@ -28,11 +28,11 @@ export default async function DashboardPage() {
     getStatCardsData(supabase, businessId),
     getRecentConversationsData(supabase, businessId),
   ]);
-
+  
   return (
     <div className="flex flex-col gap-6 w-full max-w-full min-w-0">
       {/* ── Row 1: Core Stat Cards (Instant Paint) ── */}
-      <DashboardStatCards stats={stats} />
+     <DashboardStatCards stats={stats} /> 
 
       {/* ── Row 2: Daily Traffic (Pro Only — Streams independently or locks instantly) ── */}
       <Suspense fallback={<DailyTrafficSkeleton />}>

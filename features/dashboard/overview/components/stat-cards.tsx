@@ -1,14 +1,17 @@
+import Link from "next/link";
 import {
   Clock,
   Users,
   CheckCircle2,
   MessageSquare,
   Sparkles,
+  ArrowRight,
+  Bot,
+  Code2,
 } from "lucide-react";
 import { SingleCardProps, StatProps } from "../types";
 
 function StatCard({ item, icon: Icon }: SingleCardProps) {
- 
   return (
     <div className="relative border border-border bg-card p-4 min-w-0 flex flex-col justify-between shadow-2xs">
       <div>
@@ -25,6 +28,7 @@ function StatCard({ item, icon: Icon }: SingleCardProps) {
           <span className="font-mono text-2xl sm:text-3xl font-bold tracking-tight text-foreground truncate">
             {item.value}
           </span>
+
           {item.delta && (
             <span
               className={`font-mono text-xs font-semibold shrink-0 px-1.5 py-0.5 border ${
@@ -33,7 +37,7 @@ function StatCard({ item, icon: Icon }: SingleCardProps) {
                   : "border-destructive/30 bg-destructive/10 text-destructive"
               }`}
             >
-              {item.delta}
+              {item.delta} This week
             </span>
           )}
         </div>
@@ -63,6 +67,40 @@ function StatCard({ item, icon: Icon }: SingleCardProps) {
 }
 
 export default function DashboardStatCards({ stats }: { stats: StatProps }) {
+  const convCount =
+    typeof stats.conversations.value === "number"
+      ? stats.conversations.value
+      : parseInt(String(stats.conversations.value).replace(/,/g, ""), 10) || 0;
+
+  const visCount =
+    typeof stats.visitors.value === "number"
+      ? stats.visitors.value
+      : parseInt(String(stats.visitors.value).replace(/,/g, ""), 10) || 0;
+
+  const isZeroState = convCount === 0 && visCount === 0;
+
+  const adjustedStats: StatProps = isZeroState
+    ? {
+        ...stats,
+        conversations: {
+          ...stats.conversations,
+          description: "Awaiting first customer chat",
+        },
+        visitors: {
+          ...stats.visitors,
+          description: "No website visitors tracked yet",
+        },
+        resolutionRate: {
+          ...stats.resolutionRate,
+          description: "Calculated after first conversation",
+        },
+        avgResponse: {
+          ...stats.avgResponse,
+          description: "Measured from live AI queries",
+        },
+      }
+    : stats;
+
   return (
     <div className="space-y-4 w-full min-w-0">
       {/* ── Section Header ── */}
@@ -82,19 +120,67 @@ export default function DashboardStatCards({ stats }: { stats: StatProps }) {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-mono text-muted-foreground bg-muted/40 border border-border px-2.5 py-1">
-          <span className="size-1.5 bg-emerald-500 rounded-none inline-block animate-pulse" />
-          <span>Live Sync Active</span>
-        </div>
+        {isZeroState ? (
+          <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-sans text-muted-foreground bg-muted/40 border border-border px-2.5 py-1">
+            <span className="size-1.5 bg-amber-500 rounded-none inline-block animate-pulse" />
+            <span>Awaiting Website Traffic</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-sans text-muted-foreground bg-muted/40 border border-border px-2.5 py-1">
+            <span className="size-1.5 bg-emerald-500 rounded-none inline-block animate-pulse" />
+            <span>Live Sync Active</span>
+          </div>
+        )}
       </div>
 
       {/* ── 4 Stat Cards Grid ── */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 w-full min-w-0">
-        <StatCard item={stats.conversations} icon={MessageSquare} />
-        <StatCard item={stats.visitors} icon={Users} />
-        <StatCard item={stats.resolutionRate} icon={CheckCircle2} />
-        <StatCard item={stats.avgResponse} icon={Clock} />
+        <StatCard item={adjustedStats.conversations} icon={MessageSquare} />
+        <StatCard item={adjustedStats.visitors} icon={Users} />
+        <StatCard item={adjustedStats.resolutionRate} icon={CheckCircle2} />
+        <StatCard item={adjustedStats.avgResponse} icon={Clock} />
       </div>
+
+      {/* ── Fallback Callout: Both Conversations & Visitors === 0 ── */}
+      {isZeroState && (
+        <div className="border border-border bg-card p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none shadow-2xs">
+          <div className="flex items-start gap-3.5 min-w-0">
+            <div className="size-10 border border-primary/30 bg-primary/10 text-primary flex items-center justify-center shrink-0 rounded-none mt-0.5">
+              <Code2 className="size-5 stroke-[1.75]" />
+            </div>
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-heading font-semibold  text-xs sm:text-sm text-foreground">
+                   Connect your website widget
+                </h3>
+                <span className="text-[10px] font-sans uppercase tracking-wider px-1.5 py-0.5 border border-primary/30 bg-primary/10 text-primary font-medium">
+                  Setup Required
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground font-sans leading-relaxed max-w-xl">
+                You currently have 0 visitors and 0 conversations logged. Embed the Sanad widget snippet on your website to start streaming visitor sessions, customer inquiries, and AI response.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/dashboard/widget"
+              className="h-9 px-4 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-sans uppercase font-semibold tracking-wider inline-flex items-center gap-1.5 rounded-none transition-colors cursor-pointer"
+            >
+              <span>Get Embed Code</span>
+              <ArrowRight className="size-3.5" />
+            </Link>
+            <Link
+              href="/dashboard/playground"
+              className="h-9 px-3.5 border border-border bg-background hover:bg-muted/50 text-foreground text-xs font-sans uppercase font-semibold tracking-wider inline-flex items-center gap-1.5 rounded-none transition-colors cursor-pointer"
+            >
+              <Bot className="size-3.5" />
+              <span>Playground</span>
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,11 @@
-import { ChevronRight, MessageSquare } from "lucide-react";
+import {
+  ChevronRight,
+  MessageSquare,
+  MessageSquareCode,
+  ArrowRight,
+  Bot,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import { ConversationsType } from "../types";
 
@@ -11,16 +18,16 @@ export default function RecentConversations({
     <div className="border border-border bg-card p-5">
       <div className="flex items-center justify-between border-b border-border pb-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-sm font-semibold text-foreground font-heading">
             Recent Conversations
           </h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 text-xs text-muted-foreground font-sans">
             Latest live customer interactions handled by the Sanad AI assistant
           </p>
         </div>
         <Link
           href="/dashboard/conversations"
-          className="flex items-center gap-0.5 text-xs font-medium text-primary hover:underline"
+          className="flex items-center gap-0.5 text-xs font-medium text-primary hover:underline font-sans"
         >
           View all
           <ChevronRight className="size-3.5" />
@@ -28,14 +35,40 @@ export default function RecentConversations({
       </div>
 
       {conversations.length === 0 ? (
-        <div className="py-8 text-center border border-border/40 bg-muted/20 my-2">
-          <MessageSquare className="size-6 text-muted-foreground/50 mx-auto mb-2" />
-          <p className="font-mono text-xs text-muted-foreground">
-            No conversations recorded yet.
+        <div className="py-10 px-4 text-center border border-border/50 bg-background/50 my-3 rounded-none">
+          <div className="size-11 border border-primary/30 bg-primary/10 text-primary flex items-center justify-center rounded-none mx-auto mb-3">
+            <MessageSquareCode className="size-5.5 stroke-[1.75]" />
+          </div>
+
+          <h3 className="font-heading font-semibold text-sm text-foreground mb-1">
+            No live customer conversations yet
+          </h3>
+          <p className="font-sans text-xs text-muted-foreground max-w-md mx-auto leading-relaxed mb-5">
+            Customer questions, price inquiries, and automated AI responses from
+            your website widget will stream into this feed in real time.
           </p>
-          <p className="font-sans text-[11px] text-muted-foreground/80 mt-0.5">
-            Live customer chats from your website widget will appear here.
-          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <Link
+              href="/dashboard/widget"
+              className="h-8.5 px-3.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-sans uppercase font-semibold tracking-wider inline-flex items-center gap-1.5 rounded-none transition-colors cursor-pointer"
+            >
+              <span>Configure & Embed Widget</span>
+              <ArrowRight className="size-3" />
+            </Link>
+            <Link
+              href="/dashboard/playground"
+              className="h-8.5 px-3 border border-border bg-card hover:bg-muted/50 text-foreground text-xs font-sans uppercase font-semibold tracking-wider inline-flex items-center gap-1.5 rounded-none transition-colors cursor-pointer"
+            >
+              <Bot className="size-3.5" />
+              <span>Test AI Assistant</span>
+            </Link>
+          </div>
+
+          <div className="mt-5 pt-3 border-t border-border/40 inline-flex items-center gap-2 text-[10px] font-sans text-muted-foreground uppercase tracking-wider">
+            <Sparkles className="size-3 text-primary" />
+            <span>1-Minute Embed · Egyptian Arabic & English Supported</span>
+          </div>
         </div>
       ) : (
         <div className="divide-y divide-border">
@@ -46,13 +79,13 @@ export default function RecentConversations({
             >
               <div className="min-w-0 flex-1 pe-6">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-semibold text-foreground">
+                  <span className="font-sans text-xs font-semibold text-foreground">
                     {conv.visitorId}
                   </span>
-                  <span className="border border-border bg-muted px-1.5 py-px font-mono text-[10px] text-muted-foreground uppercase">
+                  <span className="border border-border bg-muted px-1.5 py-px font-sans text-[10px] text-muted-foreground uppercase">
                     {conv.channel}
                   </span>
-                  <span className="font-mono text-[10px] text-muted-foreground">
+                  <span className="font-sans text-[10px] text-muted-foreground">
                     latency: {conv.latency}
                   </span>
                 </div>
