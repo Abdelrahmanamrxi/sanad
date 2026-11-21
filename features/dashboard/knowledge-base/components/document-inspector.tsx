@@ -28,6 +28,8 @@ import { ChunkCard } from "./chunk-card";
 import { Button } from "@/components/ui/button";
 import { resyncDocument, updateDocumentStatus } from "../actions";
 import DocumentInspectorSkeleton from "./loading/document-inspector-skeleton";
+import { useTranslation } from "react-i18next";
+
 interface DocumentInspectorProps {
   selectedDoc: DocumentItem | null;
   chunks: ChunkItem[];
@@ -41,6 +43,7 @@ export function DocumentInspector({
   onDeleteSingle,
   isPending,
 }: DocumentInspectorProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<
     "performance" | "content" | "chunks"
   >("performance");
@@ -63,8 +66,8 @@ export function DocumentInspector({
         });
     },
     onError: (err) => {
-    setActionError(err instanceof Error ? err.message : "Failed to re-sync document");
-  },
+      setActionError(err instanceof Error ? err.message : "Failed to re-sync document");
+    },
   });
 
   const { mutate: DocStatusMutate, isPending: DocStatusPending } = useMutation({
@@ -75,9 +78,9 @@ export function DocumentInspector({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"], exact: false });
     },
-    onError:(err)=>{
-      setActionError(err instanceof Error ? err.message : "Failed to update document's status")
-    }
+    onError: (err) => {
+      setActionError(err instanceof Error ? err.message : "Failed to update document's status");
+    },
   });
   const [chunkSearch, setChunkSearch] = useState("");
   const [copiedChunkId, setCopiedChunkId] = useState<string | null>(null);
@@ -96,12 +99,12 @@ export function DocumentInspector({
           <div className="flex items-center gap-2">
             <Layers className="size-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold tracking-tight text-foreground font-sans">
-              Document Inspector
+              {t("dashboard.knowledgeBase.header.title", "Document Inspector")}
             </h2>
           </div>
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 border border-border bg-muted/50 text-[10px] font-mono uppercase tracking-wider text-muted-foreground rounded-none">
             <span className="size-1.5 bg-muted-foreground/50 shrink-0" />
-            Idle
+            {t("dashboard.knowledgeBase.inspector.idle", "Idle")}
           </span>
         </div>
 
@@ -112,30 +115,31 @@ export function DocumentInspector({
               <FileSearch className="size-6 stroke-[1.5]" />
             </div>
             <div className="absolute -bottom-1 -end-1 size-4 border border-primary bg-primary text-primary-foreground flex items-center justify-center rounded-none">
-              <ArrowRight className="size-2.5 stroke-[2]" />
+              <ArrowRight className="size-2.5 stroke-[2] rtl:rotate-180" />
             </div>
           </div>
 
           <h3 className="text-sm font-bold text-foreground tracking-tight font-sans">
-            No Document Selected
+            {t("dashboard.knowledgeBase.inspector.noDocSelected", "No Document Selected")}
           </h3>
 
           <p className="text-xs text-muted-foreground mt-1.5 max-w-sm leading-relaxed font-sans">
-            Select a document from the left library to inspect its vector
-            partitions, token metrics, full content tree, and query citation
-            performance.
+            {t(
+              "dashboard.knowledgeBase.inspector.noDocSelectedDesc",
+              "Select a document from the left library to inspect its vector partitions, token metrics, full content tree, and query citation performance."
+            )}
           </p>
 
           <div className="mt-5 flex items-center gap-2 text-[11px] font-mono text-muted-foreground border border-dashed border-border/80 bg-background/50 px-3 py-1.5 rounded-none">
             <span className="size-1.5 bg-primary shrink-0" />
-            <span>Click any item in the library to inspect</span>
+            <span>{t("dashboard.knowledgeBase.inspector.clickToInspect", "Click any item in the library to inspect")}</span>
           </div>
         </div>
 
         {/* Bottom subtle bar */}
         <div className="border-t border-border pt-2 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-          <span>Workspace / Inspector</span>
-          <span>Awaiting Selection</span>
+          <span>{t("dashboard.knowledgeBase.inspector.breadcrumb", "Workspace / Inspector")}</span>
+          <span>{t("dashboard.knowledgeBase.inspector.awaitingSelection", "Awaiting Selection")}</span>
         </div>
       </div>
     );
@@ -167,10 +171,6 @@ export function DocumentInspector({
     );
   });
 
-
-  
-
-
   // Extract unique detected headings
   const detectedHeadings = Array.from(
     new Set(chunks.map((c) => c.heading_path).filter(Boolean)),
@@ -186,21 +186,20 @@ export function DocumentInspector({
     <div className="border border-border bg-card p-5 lg:col-span-7 flex flex-col rounded-none select-none">
       {/* ── Document Header & Global Actions ── */}
       {actionError && (
-  <div className="mb-3 flex items-center justify-between border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive rounded-none font-sans">
-    <div className="flex items-center gap-2">
-      <AlertTriangle className="size-3.5 shrink-0" />
-      <span>{actionError}</span>
-    </div>
-    <button 
-      type="button" 
-      onClick={() => setActionError(null)} 
-      className="cursor-pointer hover:opacity-70 p-0.5"
-    >
-      <X className="size-3.5" />
-    </button>
-  </div>
-)}
-
+        <div className="mb-3 flex items-center justify-between border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive rounded-none font-sans">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-3.5 shrink-0" />
+            <span>{actionError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionError(null)}
+            className="cursor-pointer hover:opacity-70 p-0.5"
+          >
+            <X className="size-3.5" />
+          </button>
+        </div>
+      )}
 
       <div className="border-b border-border pb-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -238,17 +237,17 @@ export function DocumentInspector({
               {DocStatusPending ? (
                 <>
                   <Loader2 className="size-3 animate-spin me-1" />
-                  <span>Updating...</span>
+                  <span>{t("dashboard.knowledgeBase.inspector.updating", "Updating...")}</span>
                 </>
               ) : selectedDoc.doc_status === "active" ? (
                 <>
                   <EyeOff className="size-3 me-1" />
-                  <span>Hide from AI</span>
+                  <span>{t("dashboard.knowledgeBase.inspector.hideFromAi", "Hide from AI")}</span>
                 </>
               ) : (
                 <>
                   <Eye className="size-3 me-1" />
-                  <span>Enable for AI</span>
+                  <span>{t("dashboard.knowledgeBase.inspector.enableForAi", "Enable for AI")}</span>
                 </>
               )}
             </Button>
@@ -259,22 +258,24 @@ export function DocumentInspector({
                 isResyncPending || selectedDoc.doc_status === "processing"
               }
               onClick={() => resyncMutate()}
-              className="font-mono text-xs cursor-pointer"
+              className="font-mono text-xs cursor-pointer rounded-none"
             >
               <RefreshCw
                 className={`size-3 me-1 ${isResyncPending ? "animate-spin" : ""}`}
               />
-              {isResyncPending ? "Re-syncing..." : "Re-sync"}
+              {isResyncPending
+                ? t("dashboard.knowledgeBase.inspector.resyncing", "Re-syncing...")
+                : t("dashboard.knowledgeBase.inspector.resync", "Re-sync")}
             </Button>
 
             <Button
               variant="destructive"
               size="xs"
               onClick={() => onDeleteSingle(selectedDoc)}
-              className="font-mono text-xs cursor-pointer"
+              className="font-mono text-xs cursor-pointer rounded-none"
             >
               <Trash2 className="size-3 me-1" />
-              Delete
+              {t("dashboard.knowledgeBase.inspector.delete", "Delete")}
             </Button>
           </div>
         </div>
@@ -283,7 +284,7 @@ export function DocumentInspector({
         <div className="mt-3.5 grid grid-cols-2 gap-2 border-t border-border/60 pt-3 sm:grid-cols-4 text-xs font-mono">
           <div className="border border-border bg-background p-2 rounded-none">
             <span className="block text-[9px] uppercase text-muted-foreground">
-              Status
+              {t("dashboard.knowledgeBase.inspector.stats.status", "Status")}
             </span>
             <span
               className={`text-xs font-bold uppercase ${
@@ -298,16 +299,19 @@ export function DocumentInspector({
 
           <div className="border border-border bg-background p-2 rounded-none">
             <span className="block text-[9px] uppercase text-muted-foreground">
-              Total Chunks
+              {t("dashboard.knowledgeBase.inspector.stats.totalChunks", "Total Chunks")}
             </span>
             <span className="text-xs font-bold text-foreground">
-              {selectedDoc.stats.total_chunks} partitions
+              {t("dashboard.knowledgeBase.inspector.stats.partitions", {
+                count: selectedDoc.stats.total_chunks,
+                defaultValue: `${selectedDoc.stats.total_chunks} partitions`,
+              })}
             </span>
           </div>
 
           <div className="border border-border bg-background p-2 rounded-none">
             <span className="block text-[9px] uppercase text-muted-foreground">
-              File Size
+              {t("dashboard.knowledgeBase.inspector.stats.fileSize", "File Size")}
             </span>
             <span className="text-xs font-bold text-foreground">
               {formatBytes(Number(selectedDoc && selectedDoc.file_size))}
@@ -322,40 +326,45 @@ export function DocumentInspector({
           <button
             type="button"
             onClick={() => setActiveTab("performance")}
-            className={`px-3 py-1.5 border-b-2 transition-colors font-medium rounded-none flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 border-b-2 transition-colors font-medium rounded-none flex items-center gap-1.5 cursor-pointer ${
               activeTab === "performance"
                 ? "border-primary text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <TrendingUp className="size-3.5" />
-            <span>Usage & Performance</span>
+            <span>{t("dashboard.knowledgeBase.inspector.tabs.performance", "Usage & Performance")}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("content")}
-            className={`px-3 py-1.5 border-b-2 transition-colors font-medium rounded-none flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 border-b-2 transition-colors font-medium rounded-none flex items-center gap-1.5 cursor-pointer ${
               activeTab === "content"
                 ? "border-primary text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <FileText className="size-3.5" />
-            <span>Document Content</span>
+            <span>{t("dashboard.knowledgeBase.inspector.tabs.content", "Document Content")}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("chunks")}
-            className={`px-3 py-1.5 border-b-2 transition-colors font-medium rounded-none flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 border-b-2 transition-colors font-medium rounded-none flex items-center gap-1.5 cursor-pointer ${
               activeTab === "chunks"
                 ? "border-primary text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <Layers className="size-3.5" />
-            <span>Raw Chunks {isPending ? "(...)" : `(${chunks.length})`}</span>
+            <span>
+              {t("dashboard.knowledgeBase.inspector.tabs.chunks", {
+                count: chunks.length,
+                defaultValue: `Raw Chunks ${isPending ? "(...)" : `(${chunks.length})`}`,
+              })}
+            </span>
             {isPending && (
               <Loader2 className="size-3 animate-spin text-primary" />
             )}
@@ -367,7 +376,7 @@ export function DocumentInspector({
             <Search className="absolute start-2 top-1.5 size-3 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Filter chunks..."
+              placeholder={t("dashboard.knowledgeBase.inspector.tabs.filterChunks", "Filter chunks...")}
               value={chunkSearch}
               onChange={(e) => setChunkSearch(e.target.value)}
               className="w-full border border-border bg-background py-1 ps-6 pe-2 text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none rounded-none font-mono"
@@ -379,23 +388,22 @@ export function DocumentInspector({
       {/* ── TAB 1: Usage & Performance ("How is this document performing?") ── */}
       {activeTab === "performance" && (
         <div className="mt-4 flex flex-col gap-4 max-h-[calc(100vh-380px)] overflow-y-auto pe-1">
-          {/* Performance Metrics Cards */}
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-            {/* Citations */}
-          </div>
-
           {/* Cold Document Alert (Never Retrieved) */}
           {isColdDoc && (
             <div className="border border-highlight/40 bg-highlight/5 p-3.5 rounded-none flex items-start gap-3">
               <AlertTriangle className="size-4 text-highlight shrink-0 mt-0.5" />
               <div className="text-xs">
                 <span className="font-semibold text-foreground font-sans">
-                  Never retrieved in the last 30 days
+                  {t(
+                    "dashboard.knowledgeBase.inspector.performanceTab.coldDocTitle",
+                    "Never retrieved in the last 30 days"
+                  )}
                 </span>
                 <p className="text-muted-foreground mt-0.5 leading-relaxed font-sans">
-                  This document has not been cited in any customer responses. It
-                  may contain obsolete terms or lack specific headings that
-                  match frequent customer inquiries.
+                  {t(
+                    "dashboard.knowledgeBase.inspector.performanceTab.coldDocDesc",
+                    "This document has not been cited in any customer responses. It may contain obsolete terms or lack specific headings that match frequent customer inquiries."
+                  )}
                 </p>
               </div>
             </div>
@@ -407,22 +415,33 @@ export function DocumentInspector({
               <div className="flex items-center gap-2">
                 <Sparkles className="size-4 text-primary" />
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground font-mono">
-                  Questions This Document Answers
+                  {t(
+                    "dashboard.knowledgeBase.inspector.performanceTab.questionsAnswersTitle",
+                    "Questions This Document Answers"
+                  )}
                 </h3>
               </div>
               <span className="text-[11px] font-mono text-muted-foreground">
-                Generated at ingestion
+                {t(
+                  "dashboard.knowledgeBase.inspector.performanceTab.generatedAtIngestion",
+                  "Generated at ingestion"
+                )}
               </span>
             </div>
 
             <p className="text-xs text-muted-foreground mb-3 leading-relaxed font-sans">
-              Click any question below to test retrieval and prompt answers live
-              in the Playground:
+              {t(
+                "dashboard.knowledgeBase.inspector.performanceTab.clickToTest",
+                "Click any question below to test retrieval and prompt answers live in the Playground:"
+              )}
             </p>
 
             {(selectedDoc.suggested_questions ?? []).length === 0 ? (
               <p className="text-xs text-muted-foreground font-mono py-2">
-                No suggested questions generated for this document.
+                {t(
+                  "dashboard.knowledgeBase.inspector.performanceTab.noQuestions",
+                  "No suggested questions generated for this document."
+                )}
               </p>
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -433,7 +452,7 @@ export function DocumentInspector({
                     className="group flex items-center gap-1.5 border border-border bg-card px-2.5 py-1.5 text-xs text-foreground hover:border-primary hover:bg-muted/50 transition-colors rounded-none"
                   >
                     <span className="font-sans text-[11px]">{question}</span>
-                    <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+                    <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-primary shrink-0 transition-colors rtl:rotate-180" />
                   </Link>
                 ))}
               </div>
@@ -446,7 +465,10 @@ export function DocumentInspector({
               <div className="flex items-center gap-2 border-b border-border/60 pb-2.5 mb-3">
                 <HelpCircle className="size-4 text-muted-foreground" />
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground font-mono">
-                  Top Customer Questions Answered
+                  {t(
+                    "dashboard.knowledgeBase.inspector.performanceTab.topQuestionsTitle",
+                    "Top Customer Questions Answered"
+                  )}
                 </h3>
               </div>
 
@@ -460,7 +482,10 @@ export function DocumentInspector({
                       {q.query}
                     </span>
                     <span className="font-mono text-[11px] text-muted-foreground shrink-0 border border-border bg-muted px-1.5 py-0.5 rounded-none">
-                      {q.count} citations
+                      {t("dashboard.knowledgeBase.inspector.performanceTab.citationsCount", {
+                        count: q.count,
+                        defaultValue: `${q.count} citations`,
+                      })}
                     </span>
                   </div>
                 ))}
@@ -477,7 +502,12 @@ export function DocumentInspector({
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2 border border-primary/20 bg-primary/5 p-2.5 text-xs text-primary rounded-none font-mono">
                 <Loader2 className="size-3.5 animate-spin shrink-0" />
-                <span>Loading parsed document content & section tree...</span>
+                <span>
+                  {t(
+                    "dashboard.knowledgeBase.inspector.contentTab.loadingContent",
+                    "Loading parsed document content & section tree..."
+                  )}
+                </span>
               </div>
               <div className="border border-border bg-background p-4 rounded-none animate-pulse space-y-3">
                 <div className="h-3.5 w-36 bg-muted rounded-none" />
@@ -500,7 +530,10 @@ export function DocumentInspector({
               {detectedHeadings.length > 0 && (
                 <div className="border border-border bg-background p-3.5 rounded-none">
                   <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-2">
-                    Detected Section Outline
+                    {t(
+                      "dashboard.knowledgeBase.inspector.contentTab.detectedOutline",
+                      "Detected Section Outline"
+                    )}
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {detectedHeadings.map((heading, i) => (
@@ -536,7 +569,12 @@ ${chunks.map((c) => `### ${c.heading_path || `Partition ${c.chunk_index + 1}`}\n
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2 border border-primary/20 bg-primary/5 p-2.5 text-xs text-primary rounded-none font-mono">
                 <Loader2 className="size-3.5 animate-spin shrink-0" />
-                <span>Fetching vector partitions & chunk embeddings...</span>
+                <span>
+                  {t(
+                    "dashboard.knowledgeBase.inspector.chunksTab.fetchingChunks",
+                    "Fetching vector partitions & chunk embeddings..."
+                  )}
+                </span>
               </div>
               {Array.from({ length: 3 }).map((_, idx) => (
                 <div
@@ -563,7 +601,12 @@ ${chunks.map((c) => `### ${c.heading_path || `Partition ${c.chunk_index + 1}`}\n
             <div className="border border-destructive/40 bg-destructive/5 p-4 text-xs text-destructive rounded-none">
               <div className="flex items-center gap-2 font-semibold">
                 <AlertCircle className="size-4 shrink-0" />
-                <span>Document Ingestion Failed</span>
+                <span>
+                  {t(
+                    "dashboard.knowledgeBase.inspector.chunksTab.failedIngestion",
+                    "Document Ingestion Failed"
+                  )}
+                </span>
               </div>
               <p className="mt-1.5 font-mono text-[11px] leading-relaxed">
                 {selectedDoc.error_message}
@@ -571,7 +614,10 @@ ${chunks.map((c) => `### ${c.heading_path || `Partition ${c.chunk_index + 1}`}\n
             </div>
           ) : filteredChunks.length === 0 ? (
             <div className="border border-dashed border-border p-6 text-center text-xs text-muted-foreground rounded-none">
-              No vector chunks match your search query.
+              {t(
+                "dashboard.knowledgeBase.inspector.chunksTab.noMatchingChunks",
+                "No vector chunks match your search query."
+              )}
             </div>
           ) : (
             filteredChunks.map((chunk) => (

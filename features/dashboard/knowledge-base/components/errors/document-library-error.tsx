@@ -4,10 +4,12 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { AlertCircle, RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 function DocumentLibraryFallback({ error, resetErrorBoundary }: FallbackProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const digest = (error as { digest?: string })?.digest;
   if (
@@ -22,11 +24,11 @@ function DocumentLibraryFallback({ error, resetErrorBoundary }: FallbackProps) {
       {/* Top Header matching DocumentLibrary */}
       <div className="flex items-center justify-between border-b border-border pb-3">
         <h2 className="text-sm font-semibold tracking-tight text-foreground font-sans">
-          Document Library
+          {t("dashboard.knowledgeBase.errors.libraryTitle", "Document Library")}
         </h2>
         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 border border-destructive/30 bg-destructive/10 text-destructive text-[11px] font-mono uppercase tracking-wider rounded-none font-medium">
           <span className="size-1.5 bg-destructive shrink-0" />
-          Error
+          {t("dashboard.knowledgeBase.errors.errorBadge", "Error")}
         </span>
       </div>
 
@@ -37,11 +39,14 @@ function DocumentLibraryFallback({ error, resetErrorBoundary }: FallbackProps) {
         </div>
 
         <h3 className="text-sm font-semibold text-foreground tracking-tight font-sans">
-          Couldn&apos;t load documents
+          {t("dashboard.knowledgeBase.errors.libraryFailed", "Couldn't load documents")}
         </h3>
 
         <p className="text-xs text-muted-foreground mt-1 max-w-xs leading-relaxed font-sans">
-          Something went wrong while fetching this section. Please try again.
+          {t(
+            "dashboard.knowledgeBase.errors.libraryFailedDesc",
+            "Something went wrong while fetching this section. Please try again."
+          )}
         </p>
 
         <Button
@@ -54,14 +59,14 @@ function DocumentLibraryFallback({ error, resetErrorBoundary }: FallbackProps) {
           className="cursor-pointer mt-4 font-sans"
         >
           <RotateCcw className="size-3.5 me-1.5" />
-          Try again
+          {t("dashboard.knowledgeBase.errors.tryAgain", "Try again")}
         </Button>
       </div>
 
       {/* Subtle bottom border line to balance the card frame */}
       <div className="border-t border-border pt-2 text-start">
         <span className="text-[10px] font-mono text-muted-foreground">
-          Workspace / Documents
+          {t("dashboard.knowledgeBase.errors.breadcrumbDocuments", "Workspace / Documents")}
         </span>
       </div>
     </div>

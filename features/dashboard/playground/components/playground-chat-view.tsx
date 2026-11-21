@@ -23,6 +23,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import type { PlaygroundMessage, PlaygroundChunk } from "../types";
 import { CATEGORIZED_STARTERS, calibrateSimilarity } from "../constants";
+import { useTranslation } from "react-i18next";
 
 interface PlaygroundChatViewProps {
   messages: PlaygroundMessage[];
@@ -47,6 +48,7 @@ export function PlaygroundChatView({
   onFeedbackChange,
   isLimitReached
 }: PlaygroundChatViewProps) {
+  const { t, i18n } = useTranslation();
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [feedbackState, setFeedbackState] = useState<Record<string, "positive" | "negative">>({});
 
@@ -122,7 +124,10 @@ export function PlaygroundChatView({
                 </div>
                 <div>
                   <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
-                    Question Selected From Knowledge Base
+                    {t(
+                      "dashboard.playground.banner.questionFromKb",
+                      "Question Selected From Knowledge Base"
+                    )}
                   </span>
                   <p className="mt-1 font-sans text-sm font-medium text-foreground" dir="auto">
                     {activeKbPrompt}
@@ -135,17 +140,17 @@ export function PlaygroundChatView({
                   type="button"
                   onClick={() => onRunKbPrompt(activeKbPrompt)}
                   disabled={isRunning}
-                  className="flex items-center gap-1.5 border border-primary bg-primary px-3 py-1.5 font-sans text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 rounded-none shadow-2xs"
+                  className="flex items-center gap-1.5 border border-primary bg-primary px-3 py-1.5 font-sans text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 rounded-none shadow-2xs cursor-pointer"
                 >
                   <Zap className="size-3" />
-                  <span>Test Question</span>
+                  <span>{t("dashboard.playground.banner.testQuestion", "Test Question")}</span>
                 </button>
                 <button
                   type="button"
                   onClick={onDismissKbPrompt}
-                  className="border border-border bg-background px-2.5 py-1.5 font-sans text-xs text-muted-foreground hover:text-foreground transition-colors rounded-none"
+                  className="border border-border bg-background px-2.5 py-1.5 font-sans text-xs text-muted-foreground hover:text-foreground transition-colors rounded-none cursor-pointer"
                 >
-                  Dismiss
+                  {t("dashboard.playground.banner.dismiss", "Dismiss")}
                 </button>
               </div>
             </div>
@@ -158,55 +163,72 @@ export function PlaygroundChatView({
             {/* Studio Badge */}
             <div className="flex items-center gap-2 border border-border bg-card px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-4 shadow-2xs">
               <span className="size-1.5 bg-emerald-500 inline-block animate-pulse" />
-              <span>Sanad Grounded Studio // Evaluation Sandbox</span>
+              <span>
+                {t(
+                  "dashboard.playground.empty.badge",
+                  "Sanad Grounded Studio // Evaluation Sandbox"
+                )}
+              </span>
             </div>
 
             <div className="relative flex size-14 items-center justify-center border border-primary/40 bg-card shadow-xs text-primary mb-3">
               <Bot className="size-7" />
-              <span className="absolute -top-1 -right-1 size-2 bg-emerald-500 ring-2 ring-card" />
+              <span className="absolute -top-1 -end-1 size-2 bg-emerald-500 ring-2 ring-card" />
             </div>
 
             <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground font-sans">
-              Test Customer Inquiries in Real Time
+              {t(
+                "dashboard.playground.empty.title",
+                "Test Customer Inquiries in Real Time"
+              )}
             </h2>
             <p className="mt-2 max-w-lg text-xs sm:text-sm text-muted-foreground font-sans leading-relaxed">
-              Verify how Sanad answers questions using only your approved knowledge base documents,
-              strictly citing source clauses and matching your desired tone.
+              {t(
+                "dashboard.playground.empty.desc",
+                "Verify how Sanad answers questions using only your approved knowledge base documents, strictly citing source clauses and matching your desired tone."
+              )}
             </p>
 
             {/* Quick Test Starter Pills (Clean & Non-cluttered) */}
-         {!isLimitReached &&   (
-           <div className="mt-8 w-full max-w-2xl text-start">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Quick Verification Inquiries:
-                </span>
-                <span className="text-[10px] font-sans text-muted-foreground hidden sm:inline">
-                  Click to test instantly
-                </span>
-              </div>
+            {!isLimitReached && (
+              <div className="mt-8 w-full max-w-2xl text-start">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {t(
+                      "dashboard.playground.empty.quickInquiries",
+                      "Quick Verification Inquiries:"
+                    )}
+                  </span>
+                  <span className="text-[10px] font-sans text-muted-foreground hidden sm:inline">
+                    {t(
+                      "dashboard.playground.empty.clickToTest",
+                      "Click to test instantly"
+                    )}
+                  </span>
+                </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {CATEGORIZED_STARTERS.map((item, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => onSelectStarterQuery(item.query)}
-                    className="group flex flex-col justify-between border border-border bg-card p-3.5 text-start hover:border-primary hover:bg-muted/30 transition-all rounded-none shadow-2xs"
-                  >
-                    <div className="flex items-center justify-between font-mono text-[10px] text-primary font-semibold uppercase tracking-wider mb-1.5">
-                      <span className="border-b border-primary/30 pb-0.5">{item.category}</span>
-                      <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                    <p className="text-xs text-foreground font-sans leading-relaxed line-clamp-2" dir="auto">
-                      {item.query}
-                    </p>
-                  </button>
-                ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {CATEGORIZED_STARTERS.map((item, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => onSelectStarterQuery(item.query)}
+                      className="group flex flex-col justify-between border border-border bg-card p-3.5 text-start hover:border-primary hover:bg-muted/30 transition-all rounded-none shadow-2xs cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between font-mono text-[10px] text-primary font-semibold uppercase tracking-wider mb-1.5">
+                        <span className="border-b border-primary/30 pb-0.5">
+                          {i18n.language === "ar" ? item.categoryAr || item.category : item.category}
+                        </span>
+                        <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </div>
+                      <p className="text-xs text-foreground font-sans leading-relaxed line-clamp-2" dir="auto">
+                        {item.query}
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </div>
-             
-            
-            </div>)}
+            )}
           </div>
         )}
 
@@ -224,7 +246,9 @@ export function PlaygroundChatView({
                       <div className="flex size-5 items-center justify-center border border-border bg-muted font-mono text-[10px] text-muted-foreground">
                         <User className="size-3 text-muted-foreground" />
                       </div>
-                      <span className="font-sans text-xs">Customer Inquiry</span>
+                      <span className="font-sans text-xs">
+                        {t("dashboard.playground.chat.customerInquiry", "Customer Inquiry")}
+                      </span>
                     </div>
                     <span>{msg.createdAt}</span>
                   </div>
@@ -248,10 +272,12 @@ export function PlaygroundChatView({
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-foreground">Sanad Assistant</span>
+                        <span className="font-semibold text-foreground">
+                          {t("dashboard.playground.chat.sanadAssistant", "Sanad Assistant")}
+                        </span>
                         <span className="size-1.5 bg-emerald-500 inline-block" />
                         <span className="border border-border bg-background px-1.5 py-0.2 font-mono text-[9px] text-muted-foreground">
-                          Verified Grounding
+                          {t("dashboard.playground.chat.verifiedGrounding", "Verified Grounding")}
                         </span>
                       </div>
                     </div>
@@ -260,24 +286,28 @@ export function PlaygroundChatView({
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono">
                       <Clock className="size-3 text-muted-foreground" />
-                      <span>{msg.metrics?.latencyMs ? `${msg.metrics.latencyMs}ms` : "Instant"}</span>
+                      <span>
+                        {msg.metrics?.latencyMs
+                          ? `${msg.metrics.latencyMs}ms`
+                          : t("dashboard.playground.chat.instant", "Instant")}
+                      </span>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => handleCopy(msg.id, msg.content)}
                       className="flex items-center gap-1 border border-border bg-background px-2 py-1 font-sans text-[11px] text-muted-foreground hover:text-foreground transition-colors rounded-none shadow-2xs cursor-pointer"
-                      title="Copy response text"
+                      title={t("dashboard.playground.chat.copy", "Copy")}
                     >
                       {copiedMessageId === msg.id ? (
                         <>
                           <Check className="size-3 text-emerald-500" />
-                          <span>Copied</span>
+                          <span>{t("dashboard.playground.chat.copied", "Copied")}</span>
                         </>
                       ) : (
                         <>
                           <Copy className="size-3" />
-                          <span>Copy</span>
+                          <span>{t("dashboard.playground.chat.copy", "Copy")}</span>
                         </>
                       )}
                     </button>
@@ -379,10 +409,18 @@ export function PlaygroundChatView({
                     <div className="flex items-center justify-between mb-2.5">
                       <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                         <FileText className="size-3.5 text-primary" />
-                        <span>Referenced Sources ({msg.retrievedChunks.length}):</span>
+                        <span>
+                          {t("dashboard.playground.chat.referencedSources", {
+                            count: msg.retrievedChunks.length,
+                            defaultValue: `Referenced Sources (${msg.retrievedChunks.length}):`,
+                          })}
+                        </span>
                       </span>
                       <span className="text-[10px] font-sans text-muted-foreground">
-                        Click to view clause in Settings & Sources panel
+                        {t(
+                          "dashboard.playground.chat.clickToView",
+                          "Click to view clause in Settings & Sources panel"
+                        )}
                       </span>
                     </div>
 
@@ -416,11 +454,13 @@ export function PlaygroundChatView({
                 <div className="mt-4 flex flex-wrap items-center justify-between border-t border-border/60 pt-3 gap-2 font-sans text-[11px] text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>Answer grounded in verified documents</span>
+                    <span>
+                      {t(
+                        "dashboard.playground.chat.groundedInDocs",
+                        "Answer grounded in verified documents"
+                      )}
+                    </span>
                   </div>
-
-                  {/* Accuracy Feedback Buttons */}
-                 
                 </div>
               </div>
             </div>
@@ -453,21 +493,41 @@ export function PlaygroundChatView({
                     <path d="M8 2 A 6 6 0 0 1 14 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 </div>
-                <span>SEARCHING DOCUMENTS & WRITING ANSWER...</span>
+                <span>
+                  {t(
+                    "dashboard.playground.thinking.searching",
+                    "SEARCHING DOCUMENTS & WRITING ANSWER..."
+                  )}
+                </span>
               </div>
 
               <div className="space-y-2 font-sans text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <span className="size-1.5 bg-primary inline-block" />
-                  <span>Reading verified policy documents from your knowledge base...</span>
+                  <span>
+                    {t(
+                      "dashboard.playground.thinking.step1",
+                      "Reading verified policy documents from your knowledge base..."
+                    )}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="size-1.5 bg-primary/70 inline-block" />
-                  <span>Matching customer question to exact clauses...</span>
+                  <span>
+                    {t(
+                      "dashboard.playground.thinking.step2",
+                      "Matching customer question to exact clauses..."
+                    )}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="size-1.5 bg-primary/40 inline-block" />
-                  <span>Formulating a clear, helpful response...</span>
+                  <span>
+                    {t(
+                      "dashboard.playground.thinking.step3",
+                      "Formulating a clear, helpful response..."
+                    )}
+                  </span>
                 </div>
               </div>
             </div>

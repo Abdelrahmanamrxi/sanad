@@ -16,6 +16,7 @@ import {
   getFileIcon,
   getFormatBadge,
 } from "../utils";
+import { useTranslation } from "react-i18next";
 
 interface DocumentLibraryProps {
   documents: DocumentItem[];
@@ -40,6 +41,7 @@ export function DocumentLibrary({
   selectedDocId,
   onSelectDoc,
 }: DocumentLibraryProps) {
+  const { t } = useTranslation();
   
 
   // Filtered documents
@@ -63,7 +65,10 @@ export function DocumentLibrary({
           <Search className="absolute start-2.5 top-2.5 size-3.5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search documents by filename..."
+            placeholder={t(
+              "dashboard.knowledgeBase.library.searchPlaceholder",
+              "Search documents by filename..."
+            )}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full border border-border bg-background py-1.5 ps-8 pe-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none rounded-none font-mono"
@@ -75,68 +80,68 @@ export function DocumentLibrary({
           <button
             type="button"
             onClick={() => onTypeFilterChange("all")}
-            className={`px-2 py-0.5 transition-colors rounded-none ${
+            className={`px-2 py-0.5 transition-colors rounded-none cursor-pointer ${
               typeFilter === "all"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            All ({documents.length})
+            {t("dashboard.knowledgeBase.library.filterAll", {
+              count: documents.length,
+              defaultValue: `All (${documents.length})`,
+            })}
           </button>
           <button
             type="button"
             onClick={() => onTypeFilterChange("pdf")}
-            className={`px-2 py-0.5 transition-colors rounded-none ${
+            className={`px-2 py-0.5 transition-colors rounded-none cursor-pointer ${
               typeFilter === "pdf"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            PDF
+            {t("dashboard.knowledgeBase.library.filterPdf", "PDF")}
           </button>
           <button
             type="button"
             onClick={() => onTypeFilterChange("docx")}
-            className={`px-2 py-0.5 transition-colors rounded-none ${
+            className={`px-2 py-0.5 transition-colors rounded-none cursor-pointer ${
               typeFilter === "docx"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            DOCX
+            {t("dashboard.knowledgeBase.library.filterDocx", "DOCX")}
           </button>
           <button
             type="button"
             onClick={() => onTypeFilterChange("txt")}
-            className={`px-2 py-0.5 transition-colors rounded-none ${
+            className={`px-2 py-0.5 transition-colors rounded-none cursor-pointer ${
               typeFilter === "txt"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            TXT
+            {t("dashboard.knowledgeBase.library.filterTxt", "TXT")}
           </button>
           <button
             type="button"
             onClick={() => onTypeFilterChange("markdown")}
-            className={`px-2 py-0.5 transition-colors rounded-none ${
+            className={`px-2 py-0.5 transition-colors rounded-none cursor-pointer ${
               typeFilter === "markdown"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            MD
+            {t("dashboard.knowledgeBase.library.filterMd", "MD")}
           </button>
         </div>
-
-        {/* Bulk Selection Action Bar */}
-      
       </div>
       {!isPending ? (
         <div className="mt-3 flex flex-col gap-2 max-h-[calc(100vh-280px)] overflow-y-auto pe-1">
           {filteredDocs.length === 0 ? (
             <div className="border border-dashed border-border p-6 text-center text-xs text-muted-foreground rounded-none">
-              No matching documents found.
+              {t("dashboard.knowledgeBase.library.noMatchingDocs", "No matching documents found.")}
             </div>
           ) : (
             filteredDocs.map((doc) => {
@@ -182,8 +187,8 @@ export function DocumentLibrary({
                         e.stopPropagation();
                         onDeleteSingle(doc);
                       }}
-                      className="shrink-0 p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-none"
-                      title="Delete Document"
+                      className="shrink-0 p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-none cursor-pointer"
+                      title={t("dashboard.knowledgeBase.library.deleteDoc", "Delete Document")}
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -200,7 +205,10 @@ export function DocumentLibrary({
                       </span>
                       <span className="text-border">|</span>
                       <span className="text-muted-foreground">
-                        {doc.stats?.total_chunks ?? 0} chunks
+                        {t("dashboard.knowledgeBase.library.chunksCount", {
+                          count: doc.stats?.total_chunks ?? 0,
+                          defaultValue: `${doc.stats?.total_chunks ?? 0} chunks`,
+                        })}
                       </span>
                     </div>
 
@@ -208,31 +216,27 @@ export function DocumentLibrary({
                       {doc.doc_status === "failed" ? (
                         <span className="inline-flex items-center gap-1 border border-destructive/40 bg-destructive/10 px-1.5 py-px font-semibold text-destructive uppercase rounded-none">
                           <AlertCircle className="size-2.5 shrink-0" />
-                          <span>Failed</span>
+                          <span>{t("dashboard.knowledgeBase.library.status.failed", "Failed")}</span>
                         </span>
                       ) : doc.doc_status === "processing" ? (
                         <span className="inline-flex items-center gap-1.5 border border-primary/50 bg-primary/20 text-primary px-2 py-0.5 font-bold uppercase tracking-wider rounded-none shadow-xs">
                           <Loader2 className="size-3 animate-spin shrink-0 text-primary" />
-                          <span>Processing</span>
+                          <span>{t("dashboard.knowledgeBase.library.status.processing", "Processing")}</span>
                         </span>
                       ) : doc.doc_status === "queued" ? (
                         <span className="inline-flex items-center gap-1 border border-highlight/40 bg-highlight/10 text-highlight-foreground dark:text-highlight px-1.5 py-px font-semibold uppercase rounded-none">
                           <Clock className="size-2.5 shrink-0" />
-                          <span>Queued</span>
+                          <span>{t("dashboard.knowledgeBase.library.status.queued", "Queued")}</span>
                         </span>
-                      ) : doc.doc_status === "ready"?(
+                      ) : doc.doc_status === "ready" ? (
                         <span className="inline-flex items-center gap-1 border border-orange-500/20 bg-orange-500/20 px-1.5 py-px font-semibold text-white uppercase rounded-none">
                           <Check className="size-2.5 shrink-0" />
-                          <span>
-                           Ready
-                          </span>
+                          <span>{t("dashboard.knowledgeBase.library.status.ready", "Ready")}</span>
                         </span>
                       ) : (
-                         <span className="inline-flex items-center gap-1 border border-success/40 bg-success/10 px-1.5 py-px font-semibold text-success uppercase rounded-none">
+                        <span className="inline-flex items-center gap-1 border border-success/40 bg-success/10 px-1.5 py-px font-semibold text-success uppercase rounded-none">
                           <Check className="size-2.5 shrink-0" />
-                          <span>
-                           Active
-                          </span>
+                          <span>{t("dashboard.knowledgeBase.library.status.active", "Active")}</span>
                         </span>
                       )}
                     </div>

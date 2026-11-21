@@ -9,7 +9,10 @@ import {
   ConversationSource,
 } from "./types";
 import { calculatePerceivedMatch } from "./utils";
-
+import { generateEmbedding } from "../knowledge-base/services/embedding/generate-embedding";
+import { chunkMarkdown } from "../knowledge-base/services/chunking-process/chunking";
+import { EMBEDDING_MODEL } from "../knowledge-base/services/embedding/generate-embedding";
+import { supabaseAdminClient } from "@/lib/supabase/admin";
 export const getConversations = async ({
   filter,
   title,
@@ -129,9 +132,7 @@ export const getMessages = async ({
   // 1. Gather all unique chunk IDs cited across the messages
   const chunkIds = [
     ...new Set(
-      (rawMessages ?? [])
-        .flatMap((m) => m.sources || [])
-        .filter(Boolean),
+      (rawMessages ?? []).flatMap((m) => m.sources || []).filter(Boolean),
     ),
   ];
 
@@ -216,7 +217,7 @@ export const getMessages = async ({
 
 export const markResolved = async (
   conversationId: string,
-  type: ConversationStatus
+  type: ConversationStatus,
 ) => {
   const { supabase, businessId } = await getAuthContext();
 
@@ -235,3 +236,144 @@ export const markResolved = async (
   }
   return { data, success: true };
 };
+
+export async function getActiveDocuments(): Promise<{
+  success: boolean;
+  documents?: Array<{
+    name: string;
+    id: string;
+    current_index_version?: string | null;
+  }>;
+  message?: string;
+}> {
+  const { supabase, businessId } = await getAuthContext();
+
+  const { data: documents, error } = await supabase
+    .from("documents")
+    .select("name, id, current_index_version")
+    .eq("business_id", businessId)
+    .eq("doc_status", "active");
+
+  if (error || !documents) {
+    return {
+      success: false,
+      message: error?.message || "Failed to load documents",
+    };
+  }
+  if (documents.length <= 0) {
+    return {
+      success: false,
+      message:
+        "There must be a document for the citation to be added to the Knowledge base",
+    };
+  }
+  return {
+    success: true,
+    documents,
+  };
+}
+
+export async function AddNewCitation(formData: {
+  conversationId: string;
+  documentId: string;
+  answer: string;
+  domain: string;
+  inquiry: string;
+  currentIndexVersion: string;
+}): Promise<{ success: boolean; message?: string }> {
+  const { supabase, businessId } = await getAuthContext();
+
+  const inquiry = formData.inquiry;
+  const answer = formData.answer;
+  const domain = formData.domain;
+
+  const markDownText = `# ${domain.trim()}\n\n## ${inquiry.trim()}\n\n${answer.trim()}`;
+
+  const chunks = await chunkMarkdown(markDownText);
+
+  if (!chunks || chunks.length === 0) {
+    return { success: false, message: "Failed to process data" };
+  }
+
+  let indexVersion = formData.currentIndexVersion;
+  if (!indexVersion) {
+    const { data: docData } = await supabaseAdminClient
+      .from("documents")
+      .select("current_index_version")
+      .eq("id", formData.documentId)
+      .eq("business_id", businessId)
+      .single();
+
+    indexVersion = docData?.current_index_version || crypto.randomUUID();
+  }
+
+  // Retrieve highest chunk Index to avoid unique constraint chunk index violations
+
+  const { data: lastChunk } = await supabaseAdminClient
+    .from("chunks")
+    .select("chunk_index")
+    .eq("document_id", formData.documentId)
+    .eq("index_version", indexVersion)
+    .order("chunk_index", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  // Index we are going to start at (1+ last previous indexed value)
+  const startIndex = (lastChunk?.chunk_index ?? -1) + 1;
+
+  const textsToEmbed = chunks.map((c) =>
+    c.headingPath ? `${c.headingPath}\n\n${c.content}` : c.content,
+  );
+  const embeddings = await generateEmbedding(textsToEmbed);
+
+  if(!embeddings){
+    return {
+      success:false,
+      message:"Failed to understand context."
+    }
+  }
+  const rows = chunks.map((c, i) => ({
+    document_id: formData.documentId,
+    business_id: businessId,
+    chunk_index: startIndex + i,
+    content: c.content,
+    heading_path: c.headingPath,
+    embedding: embeddings[i],
+    embedding_model: EMBEDDING_MODEL,
+    index_version: indexVersion,
+    metadata: {
+      char_count: c.content.length,
+      source_type: "manual_citation",
+    },
+  }));
+
+
+  const { error: insertError } = await supabaseAdminClient
+    .from("chunks")
+    .insert(rows);
+
+  if(insertError){
+    console.error("[AddNewCitation] Failed to insert chunks:", insertError);
+    return {
+      success:false,
+      message: insertError.message || "Failed to update citation data."
+    }
+  }
+
+  const { error: updateError } = await supabase
+    .from("conversations")
+    .update({ status: "resolved" })
+    .eq("id", formData.conversationId)
+    .eq("business_id", businessId);
+
+  if (updateError) {
+    return {
+      success: false,
+      message: "Citation saved, but failed to update conversation status.",
+    };
+  }
+
+  return {
+    success: true,
+  };
+}

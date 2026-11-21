@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatChatTimestamp } from "../utils";
+import { useTranslation } from "react-i18next";
 
 interface ConversationsListProps {
   conversations: ConversationItem[];
@@ -27,7 +28,7 @@ interface ConversationsListProps {
   isLoading?: boolean;
   isError?: boolean;
   onRetry?: () => void;
-  setKnowledgeState:React.Dispatch<React.SetStateAction<boolean>>
+  setKnowledgeState: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function ConversationsList({
@@ -42,29 +43,30 @@ export function ConversationsList({
   isLoading = false,
   isError = false,
   onRetry,
-  setKnowledgeState
+  setKnowledgeState,
 }: ConversationsListProps) {
+  const { t } = useTranslation();
   const sourceForCounts = allConversations || conversations;
   const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: "all", label: "All", count: sourceForCounts.length },
-    { key: "leads", label: "Leads", count: sourceForCounts.filter((c) => c.hasLead).length },
+    { key: "all", label: t("dashboard.conversations.tabs.all", "All"), count: sourceForCounts.length },
+    { key: "leads", label: t("dashboard.conversations.tabs.leads", "Leads"), count: sourceForCounts.filter((c) => c.hasLead).length },
     {
       key: "needs_attention",
-      label: "Needs Review",
+      label: t("dashboard.conversations.tabs.needs_attention", "Needs Review"),
       count: sourceForCounts.filter((c) => c.status === "needs_attention").length,
     },
-    { key: "resolved", label: "AI Resolved", count: sourceForCounts.filter((c) => c.status === "resolved").length },
-    { key: "human_resolved", label: "Human Resolved", count: sourceForCounts.filter((c) => c.status === "human_resolved").length },
+    { key: "resolved", label: t("dashboard.conversations.tabs.resolved", "AI Resolved"), count: sourceForCounts.filter((c) => c.status === "resolved").length },
+    { key: "human_resolved", label: t("dashboard.conversations.tabs.human_resolved", "Human Resolved"), count: sourceForCounts.filter((c) => c.status === "human_resolved").length },
   ];
 
   return (
-    <div className="flex flex-col h-full bg-card border-r border-border">
+    <div className="flex flex-col h-full bg-card border-e border-border">
       {/* Top Header & Search */}
       <div className="p-4 border-b border-border space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="font-heading font-bold text-base text-foreground tracking-tight">
-              Conversations
+              {t("dashboard.conversations.title", "Conversations")}
             </h2>
             <span className="text-xs font-mono font-medium px-1.5 py-0.5 bg-muted text-muted-foreground border border-border">
               {isLoading ? "..." : sourceForCounts.length}
@@ -77,7 +79,7 @@ export function ConversationsList({
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
-            placeholder="Search topic, visitor, or email..."
+            placeholder={t("dashboard.conversations.searchPlaceholder", "Search topic, visitor, or email...")}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full bg-background border border-border ps-9 pe-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary rounded-none"
@@ -125,10 +127,10 @@ export function ConversationsList({
             </div>
             <div className="space-y-1">
               <p className="text-xs font-semibold text-foreground">
-                Failed to load conversations
+                {t("dashboard.conversations.empty.loadFailed", "Failed to load conversations")}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                An error occurred while loading your conversation inbox.
+                {t("dashboard.conversations.empty.networkError", "An error occurred while loading your conversation inbox.")}
               </p>
             </div>
             {onRetry && (
@@ -137,7 +139,7 @@ export function ConversationsList({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono bg-muted/60 hover:bg-muted border border-border text-foreground transition-colors cursor-pointer rounded-none"
               >
                 <RefreshCw className="size-3" />
-                <span>Retry</span>
+                <span>{t("dashboard.conversations.thread.retry", "Retry")}</span>
               </button>
             )}
           </div>
@@ -159,7 +161,7 @@ export function ConversationsList({
           </div>
         ) : conversations.length === 0 ? (
           <div className="p-8 text-center text-xs font-mono text-muted-foreground">
-            No conversations match your filter criteria.
+            {t("dashboard.conversations.empty.noFilterResults", "No conversations match your filter criteria.")}
           </div>
         ) : (
           conversations.map((conv) => {
@@ -169,8 +171,8 @@ export function ConversationsList({
               <button
                 key={conv.id}
                 onClick={() => {
-                  onSelect(conv.id)
-                  setKnowledgeState(false)
+                  onSelect(conv.id);
+                  setKnowledgeState(false);
                 }}
                 className={cn(
                   "w-full text-start p-3.5 transition-all flex flex-col gap-2 rounded-none cursor-pointer border-s-4",
@@ -185,12 +187,15 @@ export function ConversationsList({
                     {conv.hasLead ? (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/40 rounded-none shrink-0">
                         <Sparkles className="size-3" />
-                        NEW LEAD
+                        {t("dashboard.conversations.status.newLead", "NEW LEAD")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
                         <User className="size-3" />
-                        Visitor # {conv.visitorId.slice(0, 13)}
+                        {t("dashboard.conversations.header.visitor", {
+                          id: conv.visitorId.slice(0, 13),
+                          defaultValue: `Visitor #${conv.visitorId.slice(0, 13)}`,
+                        })}
                       </span>
                     )}
 
@@ -225,36 +230,39 @@ export function ConversationsList({
                   {conv.status === "needs_attention" && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 border border-amber-500/20 rounded-none">
                       <AlertTriangle className="size-2.5" />
-                      Needs Review
+                      {t("dashboard.conversations.status.needs_attention", "Needs Review")}
                     </span>
                   )}
                   {conv.status === "contacted" && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 border border-emerald-500/20 rounded-none">
                       <Check className="size-2.5" />
-                      Contacted
+                      {t("dashboard.conversations.status.contacted", "Contacted")}
                     </span>
                   )}
                   {conv.status === "resolved" && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 border border-emerald-500/20 rounded-none">
                       <CheckCircle2 className="size-2.5" />
-                      AI Resolved
+                      {t("dashboard.conversations.status.resolved", "AI Resolved")}
                     </span>
                   )}
                   {conv.status === "human_resolved" && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 border border-primary/30 rounded-none">
                       <CheckCircle2 className="size-2.5" />
-                      Human Resolved
+                      {t("dashboard.conversations.status.human_resolved", "Human Resolved")}
                     </span>
                   )}
                   {conv.status === "active" && !conv.hasLead && (
                     <span className="text-[10px] font-medium text-muted-foreground bg-muted/60 px-1.5 py-0.5 border border-border rounded-none">
-                      Active
+                      {t("dashboard.conversations.status.active", "Active")}
                     </span>
                   )}
 
                   {conv.originPage && (
                     <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[130px]">
-                      Page: {conv.originPage}
+                      {t("dashboard.conversations.header.origin", {
+                        page: conv.originPage,
+                        defaultValue: `Page: ${conv.originPage}`,
+                      })}
                     </span>
                   )}
                 </div>

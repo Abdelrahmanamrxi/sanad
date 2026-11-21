@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { AlertCircle, RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 function DocumentInspectorFallback({
@@ -11,6 +12,7 @@ function DocumentInspectorFallback({
   resetErrorBoundary,
 }: FallbackProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const digest = (error as { digest?: string })?.digest;
   if (
@@ -25,11 +27,11 @@ function DocumentInspectorFallback({
       {/* Top Header matching DocumentInspector */}
       <div className="flex items-center justify-between border-b border-border pb-3">
         <h2 className="text-sm font-semibold tracking-tight text-foreground font-sans">
-          Document Inspector
+          {t("dashboard.knowledgeBase.errors.inspectorTitle", "Document Inspector")}
         </h2>
         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 border border-destructive/30 bg-destructive/10 text-destructive text-[11px] font-mono uppercase tracking-wider rounded-none font-medium">
           <span className="size-1.5 bg-destructive shrink-0" />
-          Error
+          {t("dashboard.knowledgeBase.errors.errorBadge", "Error")}
         </span>
       </div>
 
@@ -40,12 +42,14 @@ function DocumentInspectorFallback({
         </div>
 
         <h3 className="text-sm font-semibold text-foreground tracking-tight font-sans">
-          Couldn&apos;t load document details
+          {t("dashboard.knowledgeBase.errors.inspectorFailed", "Couldn't load document details")}
         </h3>
 
         <p className="text-xs text-muted-foreground mt-1 max-w-xs leading-relaxed font-sans">
-          Something went wrong while fetching the details for this document.
-          Please try again.
+          {t(
+            "dashboard.knowledgeBase.errors.inspectorFailedDesc",
+            "Something went wrong while fetching the details for this document. Please try again."
+          )}
         </p>
 
         <Button
@@ -58,14 +62,14 @@ function DocumentInspectorFallback({
           className="cursor-pointer mt-4 font-sans"
         >
           <RotateCcw className="size-3.5 me-1.5" />
-          Try again
+          {t("dashboard.knowledgeBase.errors.tryAgain", "Try again")}
         </Button>
       </div>
 
       {/* Subtle bottom border line */}
       <div className="border-t border-border pt-2 text-start">
         <span className="text-[10px] font-mono text-muted-foreground">
-          Workspace / Inspector
+          {t("dashboard.knowledgeBase.errors.breadcrumbInspector", "Workspace / Inspector")}
         </span>
       </div>
     </div>

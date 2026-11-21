@@ -10,9 +10,13 @@ import { MessageSquare, AlertCircle, RefreshCw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import useDebounce from "@/hooks/use-debounce";
 import { getConversations } from "../actions";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 export function ConversationsView() {
+  const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState<string>("");
+  const [mobileView, setMobileView] = useState<"list" | "thread">("list");
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [knowledgeState, setKnowledgeState] = useState<boolean>(false);
@@ -123,11 +127,11 @@ export function ConversationsView() {
         </div>
         <div className="space-y-1.5 max-w-sm">
           <h3 className="font-heading font-semibold text-base text-foreground">
-            Failed to load conversations
+            {t("dashboard.conversations.empty.loadFailed", "Failed to load conversations")}
           </h3>
           <p className="text-xs text-muted-foreground font-sans leading-relaxed">
             {(error as Error)?.message ||
-              "An error occurred while loading your inbox. Please check your connection and try again."}
+              t("dashboard.conversations.empty.networkError", "An error occurred while loading your inbox. Please check your connection and try again.")}
           </p>
         </div>
         <button
@@ -136,7 +140,7 @@ export function ConversationsView() {
           className="h-9 px-4 bg-primary text-primary-foreground text-xs font-mono uppercase font-semibold tracking-wider inline-flex items-center gap-2 hover:bg-primary/90 transition-colors rounded-none cursor-pointer"
         >
           <RefreshCw className="size-3.5" />
-          <span>Try Again</span>
+          <span>{t("dashboard.conversations.thread.retry", "Try Again")}</span>
         </button>
       </div>
     );
@@ -150,12 +154,20 @@ export function ConversationsView() {
   return (
     <div className="h-[calc(100vh-6.5rem)] min-h-[550px] border border-border bg-card flex flex-col md:flex-row overflow-hidden rounded-none shadow-xs">
       {/* Left Column: Conversations and Leads Inbox */}
-      <div className="w-full md:w-[340px] lg:w-[380px] shrink-0 h-full overflow-hidden">
+      <div
+        className={cn(
+          "w-full md:w-[340px] lg:w-[380px] shrink-0 h-full overflow-hidden border-e border-border",
+          mobileView === "thread" ? "hidden md:block" : "block",
+        )}
+      >
         <ConversationsList
           conversations={filteredConversations}
           allConversations={conversations}
           selectedId={currentConversation?.id || ""}
-          onSelect={(id) => setSelectedId(id)}
+          onSelect={(id) => {
+            setSelectedId(id);
+            setMobileView("thread");
+          }}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           searchQuery={searchQuery}
@@ -168,11 +180,23 @@ export function ConversationsView() {
       </div>
 
       {/* Right Column: Active Conversation Viewer */}
-      <div className="flex-1 min-w-0 flex flex-col h-full bg-background overflow-hidden">
-        {currentConversation  ? (
+      <div
+        className={cn(
+          "flex-1 min-w-0 flex flex-col h-full bg-background overflow-hidden",
+          mobileView === "list" ? "hidden md:flex" : "flex",
+        )}
+      >
+        {currentConversation ? (
           <>
-            <ConversationHeader conversation={currentConversation} />
-            <ConversationThread knowledgeState={knowledgeState} setKnowledgeState={setKnowledgeState} conversation={currentConversation} />
+            <ConversationHeader
+              conversation={currentConversation}
+              onBack={() => setMobileView("list")}
+            />
+            <ConversationThread
+              knowledgeState={knowledgeState}
+              setKnowledgeState={setKnowledgeState}
+              conversation={currentConversation}
+            />
           </>
         ) : isPending ? (
           <div className="flex-1 flex flex-col h-full animate-pulse p-6 space-y-4">
@@ -191,11 +215,11 @@ export function ConversationsView() {
             </div>
             <div className="space-y-1">
               <h3 className="font-heading font-medium text-sm text-foreground">
-                Unable to load conversation
+                {t("dashboard.conversations.empty.loadFailed", "Unable to load conversation")}
               </h3>
               <p className="text-xs text-muted-foreground max-w-xs">
                 {(error as Error)?.message ||
-                  "A network or server error occurred while retrieving conversations."}
+                  t("dashboard.conversations.empty.networkError", "A network or server error occurred while retrieving conversations.")}
               </p>
             </div>
             <button
@@ -203,18 +227,17 @@ export function ConversationsView() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono bg-muted/60 hover:bg-muted border border-border text-foreground transition-colors cursor-pointer rounded-none"
             >
               <RefreshCw className="size-3" />
-              <span>Retry</span>
+              <span>{t("dashboard.conversations.thread.retry", "Retry")}</span>
             </button>
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
             <MessageSquare className="size-10 stroke-1 mb-2 text-muted-foreground/50" />
             <h3 className="font-heading font-medium text-sm text-foreground">
-              No conversation selected
+              {t("dashboard.conversations.empty.noConversationSelected", "No conversation selected")}
             </h3>
             <p className="text-xs text-muted-foreground max-w-xs mt-1">
-              Select a conversation from the left to view the complete customer
-              transcript and lead details.
+              {t("dashboard.conversations.empty.selectConversationPrompt", "Select a conversation from the left to view the complete customer transcript and lead details.")}
             </p>
           </div>
         )}

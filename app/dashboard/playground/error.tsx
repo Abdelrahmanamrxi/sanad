@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { AlertOctagon, RotateCcw, BookOpen, Home } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "cn";
 
@@ -13,6 +14,8 @@ interface PlaygroundErrorProps {
 }
 
 export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -31,7 +34,7 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
           <div className="flex items-center gap-2">
             <span className="size-2 bg-destructive inline-block" />
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-destructive">
-              Playground Runtime Error
+              {t("dashboard.playground.error.runtimeError", "Playground Runtime Error")}
             </span>
           </div>
           <div className="flex size-8 items-center justify-center border border-destructive/30 bg-destructive/10 text-destructive rounded-none">
@@ -42,18 +45,21 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
         {/* Error Titles & Description */}
         <div className="flex flex-col gap-2">
           <h1 className="font-heading text-lg sm:text-xl font-bold tracking-tight text-foreground font-sans">
-            Unable to Initialize AI Playground
+            {t("dashboard.playground.error.title", "Unable to Initialize AI Playground")}
           </h1>
           <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-            An unexpected error occurred while preparing the AI session or loading knowledge base data.
+            {t(
+              "dashboard.playground.error.description",
+              "An unexpected error occurred while preparing the AI session or loading knowledge base data."
+            )}
           </p>
           <p className="font-sans text-xs text-muted-foreground/80 leading-relaxed">
-            Our engineering team has been notified via automated telemetry. Please try again or return to the dashboard.
+            {t(
+              "dashboard.playground.error.telemetry",
+              "Our engineering team has been notified via automated telemetry. Please try again or return to the dashboard."
+            )}
           </p>
         </div>
-
-        {/* Technical Digest Box (if available) */}
-     
 
         {/* Action Controls */}
         <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2 border-t border-border">
@@ -65,7 +71,7 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
             className="w-full sm:w-auto gap-2"
           >
             <RotateCcw className="size-3.5" />
-            <span>Try Again</span>
+            <span>{t("dashboard.playground.error.tryAgain", "Try Again")}</span>
           </Button>
 
           <Link
@@ -73,7 +79,7 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
             className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full sm:w-auto gap-2")}
           >
             <BookOpen className="size-3.5" />
-            <span>Knowledge Base</span>
+            <span>{t("dashboard.playground.error.knowledgeBase", "Knowledge Base")}</span>
           </Link>
 
           <Link
@@ -81,7 +87,7 @@ export default function PlaygroundError({ error, reset }: PlaygroundErrorProps) 
             className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "w-full sm:w-auto gap-2")}
           >
             <Home className="size-3.5" />
-            <span>Dashboard</span>
+            <span>{t("dashboard.playground.error.dashboard", "Dashboard")}</span>
           </Link>
         </div>
       </div>

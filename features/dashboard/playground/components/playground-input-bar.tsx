@@ -11,6 +11,7 @@ import {
   AlertCircle,
   ArrowUpRight,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PlaygroundInputBarProps {
   input: string;
@@ -31,6 +32,7 @@ export function PlaygroundInputBar({
   remainingMessages,
   isLimitReached,
 }: PlaygroundInputBarProps) {
+  const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea
@@ -66,8 +68,14 @@ export function PlaygroundInputBar({
             dir="auto"
             placeholder={
               isLimitReached
-                ? "Testing quota exhausted for this billing cycle. Upgrade your plan to send more inquiries..."
-                : "Type a customer question or test inquiry... (e.g. What is the return and exchange policy?)"
+                ? t(
+                    "dashboard.playground.input.quotaExhausted",
+                    "Testing quota exhausted for this billing cycle. Upgrade your plan to send more inquiries..."
+                  )
+                : t(
+                    "dashboard.playground.input.placeholder",
+                    "Type a customer question or test inquiry... (e.g. What is the return and exchange policy?)"
+                  )
             }
             rows={2}
             disabled={isRunning || isLimitReached}
@@ -80,15 +88,18 @@ export function PlaygroundInputBar({
               <div className="flex items-center gap-2 min-w-0">
                 <AlertCircle className="size-4 shrink-0 text-destructive" />
                 <span className="font-medium truncate">
-                  Quota limit reached. You have 0 test inquiries remaining in this cycle.
+                  {t(
+                    "dashboard.playground.input.quotaReached",
+                    "Quota limit reached. You have 0 test inquiries remaining in this cycle."
+                  )}
                 </span>
               </div>
               <Link
                 href="/dashboard/billing"
                 className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-destructive hover:underline uppercase tracking-wider shrink-0"
               >
-                <span>Upgrade Plan</span>
-                <ArrowUpRight className="size-3" />
+                <span>{t("dashboard.playground.input.upgradePlan", "Upgrade Plan")}</span>
+                <ArrowUpRight className="size-3 rtl:rotate-180" />
               </Link>
             </div>
           )}
@@ -97,8 +108,8 @@ export function PlaygroundInputBar({
           <div className="flex items-center justify-between border-t border-border/50 px-3.5 py-2 bg-muted/20">
             <div className="flex items-center gap-3 text-[11px] font-sans text-muted-foreground">
               <span className="hidden sm:inline-flex items-center gap-1 font-mono text-[10px]">
-                <CornerDownLeft className="size-3 text-muted-foreground" />
-                <span>Enter to send</span>
+                <CornerDownLeft className="size-3 text-muted-foreground rtl:rotate-180" />
+                <span>{t("dashboard.playground.input.enterToSend", "Enter to send")}</span>
               </span>
 
               <span className="hidden sm:inline-block text-border">|</span>
@@ -124,8 +135,11 @@ export function PlaygroundInputBar({
                 />
                 <span>
                   {isLimitReached
-                    ? "0 inquiries remaining"
-                    : `${remainingMessages} inquiries remaining`}
+                    ? t("dashboard.playground.input.zeroRemaining", "0 inquiries remaining")
+                    : t("dashboard.playground.input.remaining", {
+                        count: remainingMessages,
+                        defaultValue: `${remainingMessages} inquiries remaining`,
+                      })}
                 </span>
               </span>
             </div>
@@ -151,14 +165,14 @@ export function PlaygroundInputBar({
                 {isRunning ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin" />
-                    <span>Thinking...</span>
+                    <span>{t("dashboard.playground.input.thinking", "Thinking...")}</span>
                   </>
                 ) : isLimitReached ? (
-                  <span>Limit Reached</span>
+                  <span>{t("dashboard.playground.input.limitReached", "Limit Reached")}</span>
                 ) : (
                   <>
-                    <span>Send Inquiry</span>
-                    <Send className="size-3" />
+                    <span>{t("dashboard.playground.input.sendInquiry", "Send Inquiry")}</span>
+                    <Send className="size-3 rtl:rotate-180" />
                   </>
                 )}
               </Button>

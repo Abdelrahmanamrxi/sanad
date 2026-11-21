@@ -6,6 +6,7 @@ import { X, UploadCloud, RefreshCw } from "lucide-react";
 import type { MimeType } from "../types";
 import { useUploadFile } from "../hooks/use-upload-file";
 import { fileSchema } from "../schemas/file";
+import { useTranslation } from "react-i18next";
 
 interface AddDocumentModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function AddDocumentModal({
   isOpen,
   onClose,
 }: AddDocumentModalProps) {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>("");
   const [file, setFile] = useState<File>();
   const uploadFileMutation = useUploadFile();
@@ -65,7 +67,12 @@ export function AddDocumentModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      setError("Please select a valid file to upload.");
+      setError(
+        t(
+          "dashboard.knowledgeBase.addModal.selectFileError",
+          "Please select a valid file to upload."
+        )
+      );
       return;
     }
 
@@ -85,16 +92,22 @@ export function AddDocumentModal({
         <div className="flex items-center justify-between border-b border-border pb-3">
           <div>
             <h3 className="text-sm font-bold text-foreground">
-              Add Document to Knowledge Base
+              {t(
+                "dashboard.knowledgeBase.addModal.title",
+                "Add Document to Knowledge Base"
+              )}
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Upload file to parse and index into pgvector
+              {t(
+                "dashboard.knowledgeBase.addModal.subtitle",
+                "Upload file to parse and index into pgvector"
+              )}
             </p>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground rounded-none"
+            className="text-muted-foreground hover:text-foreground rounded-none cursor-pointer"
           >
             <X className="size-4" />
           </button>
@@ -108,10 +121,18 @@ export function AddDocumentModal({
             className="border cursor-pointer border-dashed border-border p-4 text-center text-xs text-muted-foreground bg-muted/10 rounded-none"
           >
             <UploadCloud className="size-6 mx-auto mb-1 text-primary" />
-            <span>Drag & drop source file or click to select</span>
+            <span>
+              {t(
+                "dashboard.knowledgeBase.addModal.dropzoneText",
+                "Drag & drop source file or click to select"
+              )}
+            </span>
             <input {...getInputProps()} />
             <span className="block font-mono text-[10px] text-muted-foreground/60 mt-0.5">
-              Supported formats: PDF, DOCX, TXT (Max 10MB)
+              {t(
+                "dashboard.knowledgeBase.addModal.supportedFormats",
+                "Supported formats: PDF, DOCX, TXT (Max 10MB)"
+              )}
             </span>
           </div>
 
@@ -141,22 +162,32 @@ export function AddDocumentModal({
               type="button"
               onClick={handleClose}
               disabled={uploadFileMutation.isPending}
-              className="border border-border bg-background px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted rounded-none"
+              className="border border-border bg-background px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted rounded-none cursor-pointer"
             >
-              Cancel
+              {t("dashboard.knowledgeBase.addModal.cancel", "Cancel")}
             </button>
             <button
               type="submit"
               disabled={!file || uploadFileMutation.isPending}
-              className="border border-primary bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 flex items-center gap-1.5 rounded-none disabled:opacity-50"
+              className="border border-primary bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 flex items-center gap-1.5 rounded-none disabled:opacity-50 cursor-pointer"
             >
               {uploadFileMutation.isPending ? (
                 <>
                   <RefreshCw className="size-3.5 animate-spin" />
-                  <span>Uploading & Indexing...</span>
+                  <span>
+                    {t(
+                      "dashboard.knowledgeBase.addModal.uploadingIndexing",
+                      "Uploading & Indexing..."
+                    )}
+                  </span>
                 </>
               ) : (
-                <span>Index Document</span>
+                <span>
+                  {t(
+                    "dashboard.knowledgeBase.addModal.indexDocument",
+                    "Index Document"
+                  )}
+                </span>
               )}
             </button>
           </div>

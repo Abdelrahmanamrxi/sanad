@@ -8,10 +8,7 @@ import {
   AddDocumentModal,
   DeleteSingleModal,
 } from "./";
-import {
-  initialDocuments as defaultInitialDocuments,
-  mockChunksByDocId as defaultMockChunks,
-} from "../__fixtures__/mock-data";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchDocumentDetails,
@@ -22,16 +19,19 @@ import useDebounce from "@/hooks/use-debounce";
 import type { DocumentItem, ChunkItem, MimeType } from "../types";
 import DocumentLibrarySectionError from "./errors/document-library-error";
 import DocumentInspectorSectionError from "./errors/document-inspector-error";
+import { useTranslation } from "react-i18next";
+
 interface KnowledgeBaseViewProps {
   initialDocuments?: DocumentItem[];
   initialChunks?: Record<string, ChunkItem[]>;
 }
 
 export function KnowledgeBaseView({
-  initialDocuments = defaultInitialDocuments,
-  initialChunks = defaultMockChunks,
+  initialDocuments = [],
+  initialChunks = {},
 }: KnowledgeBaseViewProps) {
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const { t } = useTranslation();
+  const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);
   const [chunksByDoc, setChunksByDoc] =
     useState<Record<string, ChunkItem[]>>(initialChunks);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
@@ -175,10 +175,13 @@ export function KnowledgeBaseView({
         <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-lg font-semibold tracking-tight text-foreground font-sans">
-              Knowledge Base
+              {t("dashboard.knowledgeBase.header.title", "Knowledge Base")}
             </h1>
             <p className="mt-0.5 text-xs text-muted-foreground font-sans">
-              Upload store policies, shipping guidelines, and FAQs for your AI assistant
+              {t(
+                "dashboard.knowledgeBase.header.subtitle",
+                "Upload store policies, shipping guidelines, and FAQs for your AI assistant"
+              )}
             </p>
           </div>
         </div>
@@ -190,11 +193,14 @@ export function KnowledgeBaseView({
           </div>
 
           <h2 className="text-base font-semibold text-foreground tracking-tight font-sans">
-            Build your store knowledge base
+            {t("dashboard.knowledgeBase.heroEmpty.title", "Build your store knowledge base")}
           </h2>
 
           <p className="text-xs text-muted-foreground mt-2 max-w-md leading-relaxed font-sans">
-            Add store policies, product catalogs, shipping terms, or FAQs. Sanad AI will automatically chunk, index, and ground every customer response strictly in your verified files.
+            {t(
+              "dashboard.knowledgeBase.heroEmpty.desc",
+              "Add store policies, product catalogs, shipping terms, or FAQs. Sanad AI will automatically chunk, index, and ground every customer response strictly in your verified files."
+            )}
           </p>
 
           {/* Supported Format Badges */}
@@ -216,7 +222,7 @@ export function KnowledgeBaseView({
             className="flex items-center gap-2 border border-primary bg-primary px-4 py-2 mt-6 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 rounded-none cursor-pointer shadow-xs font-mono"
           >
             <Plus className="size-4" />
-            <span>Upload Your First Document</span>
+            <span>{t("dashboard.knowledgeBase.heroEmpty.uploadFirst", "Upload Your First Document")}</span>
           </button>
         </div>
 
@@ -235,11 +241,13 @@ export function KnowledgeBaseView({
       <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-lg font-semibold tracking-tight text-foreground font-sans">
-            Knowledge Base
+            {t("dashboard.knowledgeBase.header.title", "Knowledge Base")}
           </h1>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Manage vector embeddings, inspect chunk partitions, and purge
-            obsolete documentation
+            {t(
+              "dashboard.knowledgeBase.header.manageSubtitle",
+              "Manage vector embeddings, inspect chunk partitions, and purge obsolete documentation"
+            )}
           </p>
         </div>
 
@@ -247,10 +255,10 @@ export function KnowledgeBaseView({
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1.5 border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 rounded-none font-mono"
+            className="flex items-center gap-1.5 border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 rounded-none font-mono cursor-pointer"
           >
             <Plus className="size-3.5" />
-            <span>Add Document</span>
+            <span>{t("dashboard.knowledgeBase.header.addDocument", "Add Document")}</span>
           </button>
         </div>
       </div>

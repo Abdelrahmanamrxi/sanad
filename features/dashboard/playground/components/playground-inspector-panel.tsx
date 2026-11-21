@@ -27,6 +27,7 @@ import { calibrateSimilarity } from "../constants";
 import UpgradePlansModal, {
   type RestrictedFeatureInfo,
 } from "@/features/billing/components/upgrade-plans-modal";
+import { useTranslation } from "react-i18next";
 
 interface PlaygroundInspectorPanelProps {
   activeTab: InspectorTab;
@@ -40,24 +41,6 @@ interface PlaygroundInspectorPanelProps {
   planTier: PlanTier;
 }
 
-const TONE_PRESETS = [
-  {
-    value: 0.0,
-    title: "Strict",
-    desc: "Direct facts only, strictly from knowledge documents. Zero guesswork.",
-  },
-  {
-    value: 0.25,
-    title: "Balanced",
-    desc: "Helpful and conversational while remaining accurate. (Recommended)",
-  },
-  {
-    value: 0.5,
-    title: "Friendly",
-    desc: "Warm and approachable phrasing, best for customer engagement.",
-  },
-];
-
 export function PlaygroundInspectorPanel({
   activeTab,
   onTabChange,
@@ -67,12 +50,40 @@ export function PlaygroundInspectorPanel({
   onClose,
   planTier,
 }: PlaygroundInspectorPanelProps) {
+  const { t } = useTranslation();
   const [expandedChunkIds, setExpandedChunkIds] = useState<Record<string, boolean>>({});
   const [isPending, startTransition] = useTransition();
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const TONE_PRESETS = [
+    {
+      value: 0.0,
+      title: t("dashboard.playground.inspector.settings.strict", "Strict"),
+      desc: t(
+        "dashboard.playground.inspector.settings.strictDesc",
+        "Direct facts only, strictly from knowledge documents. Zero guesswork."
+      ),
+    },
+    {
+      value: 0.25,
+      title: t("dashboard.playground.inspector.settings.balanced", "Balanced"),
+      desc: t(
+        "dashboard.playground.inspector.settings.balancedDesc",
+        "Helpful and conversational while remaining accurate. (Recommended)"
+      ),
+    },
+    {
+      value: 0.5,
+      title: t("dashboard.playground.inspector.settings.friendly", "Friendly"),
+      desc: t(
+        "dashboard.playground.inspector.settings.friendlyDesc",
+        "Warm and approachable phrasing, best for customer engagement."
+      ),
+    },
+  ];
 
   // Upgrade Modal state
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
@@ -119,7 +130,10 @@ export function PlaygroundInspectorPanel({
       } else {
         setStatusMessage({
           type: "success",
-          text: "Saved to live store assistant!",
+          text: t(
+            "dashboard.playground.inspector.settings.savedSuccess",
+            "Saved to live store assistant!"
+          ),
         });
         setTimeout(() => setStatusMessage(null), 4000);
       }
@@ -143,7 +157,7 @@ export function PlaygroundInspectorPanel({
           }`}
         >
           <FileText className="size-3.5" />
-          <span>Referenced Documents</span>
+          <span>{t("dashboard.playground.inspector.tabs.sources", "Referenced Documents")}</span>
           {chunks.length > 0 && (
             <span className="border border-border bg-muted px-1.5 py-0.2 font-mono text-[10px] text-muted-foreground">
               {chunks.length}
@@ -161,7 +175,7 @@ export function PlaygroundInspectorPanel({
           }`}
         >
           <Sliders className="size-3.5" />
-          <span>Assistant Settings</span>
+          <span>{t("dashboard.playground.inspector.tabs.settings", "Assistant Settings")}</span>
         </button>
 
         {onClose && (
@@ -171,7 +185,7 @@ export function PlaygroundInspectorPanel({
             size="icon-sm"
             onClick={onClose}
             className="border-s border-border"
-            title="Close panel"
+            title={t("dashboard.playground.inspector.settings.closePanel", "Close panel")}
           >
             <X className="size-4" />
           </Button>
@@ -186,14 +200,24 @@ export function PlaygroundInspectorPanel({
             <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
               <div>
                 <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground font-mono">
-                  Verified Knowledge Clippings
+                  {t(
+                    "dashboard.playground.inspector.sources.title",
+                    "Verified Knowledge Clippings"
+                  )}
                 </h3>
                 <p className="mt-0.5 font-sans text-[11px] text-muted-foreground">
-                  Exact document paragraphs cited by the assistant
+                  {t(
+                    "dashboard.playground.inspector.sources.subtitle",
+                    "Exact document paragraphs cited by the assistant"
+                  )}
                 </p>
               </div>
               <span className="font-mono text-xs font-semibold text-primary">
-                {chunks.filter((c) => c.includedInContext).length} of {chunks.length} Active
+                {t("dashboard.playground.inspector.sources.activeCount", {
+                  active: chunks.filter((c) => c.includedInContext).length,
+                  total: chunks.length,
+                  defaultValue: `${chunks.filter((c) => c.includedInContext).length} of ${chunks.length} Active`,
+                })}
               </span>
             </div>
 
@@ -201,15 +225,17 @@ export function PlaygroundInspectorPanel({
               <div className="border border-border/70 bg-background/50 p-6 text-center">
                 <BookOpen className="mx-auto size-6 text-muted-foreground mb-2" />
                 <p className="font-sans text-xs text-muted-foreground">
-                  No documents referenced yet. Send a test inquiry to see which document sections
-                  are used.
+                  {t(
+                    "dashboard.playground.inspector.sources.empty",
+                    "No documents referenced yet. Send a test inquiry to see which document sections are used."
+                  )}
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
                 {chunks.map((chunk, index) => {
                   const isExpanded = !!expandedChunkIds[chunk.id];
-                  const matchPct = calibrateSimilarity(chunk.similarity)
+                  const matchPct = calibrateSimilarity(chunk.similarity);
                   const isHigh = matchPct >= 70;
 
                   return (
@@ -220,7 +246,10 @@ export function PlaygroundInspectorPanel({
                       <div className="flex items-start justify-between gap-2 border-b border-border/40 pb-2">
                         <div className="min-w-0">
                           <span className="font-mono text-[10px] text-primary uppercase tracking-wider font-semibold">
-                            Source #{index + 1}
+                            {t("dashboard.playground.inspector.sources.sourceNum", {
+                              index: index + 1,
+                              defaultValue: `Source #${index + 1}`,
+                            })}
                           </span>
                           <h4 className="font-sans text-xs font-semibold text-foreground truncate">
                             {chunk.documentName || "Verified Document"}
@@ -239,7 +268,10 @@ export function PlaygroundInspectorPanel({
                               : "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium"
                           }`}
                         >
-                          {matchPct}% Match
+                          {t("dashboard.playground.inspector.sources.match", {
+                            percent: matchPct,
+                            defaultValue: `${matchPct}% Match`,
+                          })}
                         </span>
                       </div>
 
@@ -262,12 +294,19 @@ export function PlaygroundInspectorPanel({
                         {isExpanded ? (
                           <>
                             <ChevronUp className="size-3" />
-                            <span>Show less</span>
+                            <span>
+                              {t("dashboard.playground.inspector.sources.showLess", "Show less")}
+                            </span>
                           </>
                         ) : (
                           <>
                             <ChevronDown className="size-3" />
-                            <span>Show full section text</span>
+                            <span>
+                              {t(
+                                "dashboard.playground.inspector.sources.showMore",
+                                "Show full section text"
+                              )}
+                            </span>
                           </>
                         )}
                       </Button>
@@ -287,18 +326,21 @@ export function PlaygroundInspectorPanel({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <label className="font-sans text-xs font-semibold text-foreground">
-                    Response Tone & Creativity
+                    {t(
+                      "dashboard.playground.inspector.settings.toneTitle",
+                      "Response Tone & Creativity"
+                    )}
                   </label>
                   {!isPro && (
                     <span className="inline-flex items-center gap-1 border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-amber-700 dark:text-amber-300 uppercase">
                       <Lock className="size-2.5" />
-                      Pro Only
+                      {t("dashboard.playground.inspector.settings.proOnly", "Pro Only")}
                     </span>
                   )}
                   {isPro && (
                     <span className="inline-flex items-center gap-1 border border-primary/30 bg-primary/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-primary uppercase">
                       <Sparkles className="size-2.5" />
-                      Pro Unlocked
+                      {t("dashboard.playground.inspector.settings.proUnlocked", "Pro Unlocked")}
                     </span>
                   )}
                 </div>
@@ -312,15 +354,21 @@ export function PlaygroundInspectorPanel({
                 <div className="border border-border bg-muted/30 p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-sans text-xs font-semibold text-foreground">
-                      Balanced & Grounded (0.20)
+                      {t(
+                        "dashboard.playground.inspector.settings.balancedMode",
+                        "Balanced & Grounded (0.20)"
+                      )}
                     </span>
                     <span className="inline-flex items-center gap-1 font-mono text-[10px] border border-border bg-card px-1.5 py-0.5 text-muted-foreground">
                       <Lock className="size-2.5 text-amber-600 dark:text-amber-400" />
-                      <span>Default Mode</span>
+                      <span>{t("dashboard.playground.inspector.settings.defaultMode", "Default Mode")}</span>
                     </span>
                   </div>
                   <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
-                    Custom response tone and sampling temperature tuning are exclusive to the Flagship Pro plan.
+                    {t(
+                      "dashboard.playground.inspector.settings.proExclusiveDesc",
+                      "Custom response tone and sampling temperature tuning are exclusive to the Flagship Pro plan."
+                    )}
                   </p>
                   <Button
                     type="button"
@@ -328,14 +376,23 @@ export function PlaygroundInspectorPanel({
                     variant="outline"
                     onClick={() =>
                       openUpgradeModal(
-                        "Response Tone & Creativity",
-                        "Upgrade to Flagship Pro to unlock custom AI tone presets, conversational warmth, and sampling temperature tuning.",
+                        t(
+                          "dashboard.playground.inspector.settings.upgradeToneTitle",
+                          "Response Tone & Creativity"
+                        ),
+                        t(
+                          "dashboard.playground.inspector.settings.upgradeToneDesc",
+                          "Upgrade to Flagship Pro to unlock custom AI tone presets, conversational warmth, and sampling temperature tuning."
+                        ),
                         "pro"
                       )
                     }
                     className="w-full mt-1 font-sans text-xs font-semibold tracking-wide border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
                   >
-                    Upgrade to Flagship Pro
+                    {t(
+                      "dashboard.playground.inspector.settings.upgradePro",
+                      "Upgrade to Flagship Pro"
+                    )}
                   </Button>
                 </div>
               ) : (
@@ -390,17 +447,19 @@ export function PlaygroundInspectorPanel({
                       className="w-full accent-primary cursor-pointer h-2 bg-muted rounded-none"
                     />
                     <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
-                      <span>0.0 (Strict)</span>
-                      <span>0.25 (Balanced)</span>
-                      <span>0.50 (Friendly)</span>
+                      <span>0.0 ({t("dashboard.playground.inspector.settings.strict", "Strict")})</span>
+                      <span>0.25 ({t("dashboard.playground.inspector.settings.balanced", "Balanced")})</span>
+                      <span>0.50 ({t("dashboard.playground.inspector.settings.friendly", "Friendly")})</span>
                     </div>
                   </div>
                 </div>
               )}
 
               <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
-                Lower values keep the assistant strictly anchored to exact text. Higher values allow
-                warmer, friendlier conversational phrasing.
+                {t(
+                  "dashboard.playground.inspector.settings.strictDesc",
+                  "Lower values keep the assistant strictly anchored to exact text. Higher values allow warmer, friendlier conversational phrasing."
+                )}
               </p>
             </div>
 
@@ -409,23 +468,26 @@ export function PlaygroundInspectorPanel({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <label className="font-sans text-xs font-semibold text-foreground">
-                    Custom Store Instructions
+                    {t(
+                      "dashboard.playground.inspector.settings.customInstructions",
+                      "Custom Business Instructions"
+                    )}
                   </label>
                   {isFree && (
                     <span className="inline-flex items-center gap-1 border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-amber-700 dark:text-amber-300 uppercase">
                       <Lock className="size-2.5" />
-                      Starter
+                      {t("dashboard.playground.inspector.settings.starterBadge", "Starter")}
                     </span>
                   )}
                   {isStarter && (
                     <span className="font-mono text-[9px] border border-border bg-muted px-1.5 py-0.2 text-muted-foreground uppercase">
-                      Starter Plan
+                      {t("dashboard.playground.inspector.settings.starterPlanBadge", "Starter Plan")}
                     </span>
                   )}
                   {isPro && (
                     <span className="inline-flex items-center gap-1 border border-primary/30 bg-primary/10 px-1.5 py-0.2 font-mono text-[9px] font-bold text-primary uppercase">
                       <Sparkles className="size-2.5" />
-                      Pro Plan
+                      {t("dashboard.playground.inspector.settings.proPlanBadge", "Pro Plan")}
                     </span>
                   )}
                 </div>
@@ -437,7 +499,11 @@ export function PlaygroundInspectorPanel({
                       : "text-muted-foreground"
                   }`}
                 >
-                  {currentChars} {maxInstructionChars > 0 ? `/ ${maxInstructionChars}` : ""} chars
+                  {t("dashboard.playground.inspector.settings.charLimit", {
+                    current: currentChars,
+                    max: maxInstructionChars,
+                    defaultValue: `${currentChars} ${maxInstructionChars > 0 ? `/ ${maxInstructionChars}` : ""} chars`,
+                  })}
                 </span>
               </div>
 
@@ -448,10 +514,16 @@ export function PlaygroundInspectorPanel({
                     <Lock className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div className="space-y-1">
                       <h4 className="font-sans text-xs font-semibold text-foreground">
-                        Custom Brand Instructions (Starter Feature)
+                        {t(
+                          "dashboard.playground.inspector.settings.customBrandTitle",
+                          "Custom Brand Instructions (Starter Feature)"
+                        )}
                       </h4>
                       <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
-                        Customize how your assistant greets customers, what dialect to speak (Saudi, Egyptian, Formal), and specific store policies.
+                        {t(
+                          "dashboard.playground.inspector.settings.customBrandDesc",
+                          "Customize how your assistant greets customers, what dialect to speak (Saudi, Egyptian, Formal), and specific store policies."
+                        )}
                       </p>
                     </div>
                   </div>
@@ -461,13 +533,22 @@ export function PlaygroundInspectorPanel({
                     variant="default"
                     onClick={() =>
                       openUpgradeModal(
-                        "Custom Store Instructions",
-                        "Upgrade to Starter to customize your assistant's personality, dialect, and specific store etiquette."
+                        t(
+                          "dashboard.playground.inspector.settings.upgradeInstructionsTitle",
+                          "Custom Store Instructions"
+                        ),
+                        t(
+                          "dashboard.playground.inspector.settings.upgradeInstructionsDesc",
+                          "Upgrade to Starter to customize your assistant's personality, dialect, and specific store etiquette."
+                        )
                       )
                     }
                     className="w-full mt-1 font-sans text-xs font-semibold tracking-wide"
                   >
-                    Upgrade to Starter (490 EGP/mo)
+                    {t(
+                      "dashboard.playground.inspector.settings.upgradeStarter",
+                      "Upgrade to Starter (490 EGP/mo)"
+                    )}
                   </Button>
                 </div>
               ) : (
@@ -480,7 +561,10 @@ export function PlaygroundInspectorPanel({
                   dir="auto"
                   disabled={isFree}
                   className="w-full border border-border bg-background p-2.5 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors resize-y rounded-none leading-relaxed shadow-2xs"
-                  placeholder="Describe how your assistant should greet customers, speak to them, and format its replies... (e.g. Speak politely in Egyptian Arabic, never offer unlisted discounts, format return steps in bullet points)."
+                  placeholder={t(
+                    "dashboard.playground.inspector.settings.instructionsPlaceholder",
+                    "e.g. Always greet customers politely, answer in the same language they use, and never offer unlisted discounts..."
+                  )}
                 />
               )}
 
@@ -488,7 +572,10 @@ export function PlaygroundInspectorPanel({
                 <p className="font-sans text-[11px] text-destructive flex items-center gap-1 font-medium">
                   <AlertCircle className="size-3.5 shrink-0" />
                   <span>
-                    Character limit exceeded by {currentChars - maxInstructionChars} characters.
+                    {t(
+                      "dashboard.playground.inspector.settings.overLimit",
+                      "Character limit exceeded. Shorten your instructions to save."
+                    )}
                   </span>
                 </p>
               )}
@@ -524,18 +611,22 @@ export function PlaygroundInspectorPanel({
                 {isPending ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin" />
-                    <span>Saving Settings...</span>
+                    <span>
+                      {t("dashboard.playground.inspector.settings.saving", "Saving Settings...")}
+                    </span>
                   </>
                 ) : (
                   <>
                     <Save className="size-3.5" />
-                    <span>Save to Live Store Assistant</span>
+                    <span>
+                      {t(
+                        "dashboard.playground.inspector.settings.saveSettings",
+                        "Save to Live Store Assistant"
+                      )}
+                    </span>
                   </>
                 )}
               </Button>
-              <p className="font-sans text-[10px] text-muted-foreground text-center mt-1.5">
-                Saved changes take effect immediately for both Playground and customer storefronts.
-              </p>
             </div>
           </div>
         )}

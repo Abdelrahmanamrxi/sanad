@@ -406,6 +406,330 @@
           "active": "In Progress"
         }
       }
+    },
+    "conversations": {
+      "title": "Conversations",
+      "searchPlaceholder": "Search topic, visitor, or email...",
+      "allCount": "Conversations ({{count}})",
+      "tabs": {
+        "all": "All",
+        "leads": "Leads",
+        "needs_attention": "Needs Review",
+        "resolved": "AI Resolved",
+        "human_resolved": "Human Resolved"
+      },
+      "status": {
+        "resolved": "AI Resolved",
+        "human_resolved": "Human Resolved",
+        "needs_attention": "Needs Review",
+        "contacted": "Contacted",
+        "newLead": "New Lead",
+        "contactedLead": "Contacted Lead",
+        "widgetChat": "Widget Chat",
+        "markContacted": "Mark as Contacted",
+        "markHumanResolved": "Mark as Human Resolved",
+        "active": "Active"
+      },
+      "header": {
+        "back": "Back to conversations",
+        "visitor": "Visitor #{{id}}",
+        "origin": "Origin: {{page}}",
+        "started": "Started {{time}}",
+        "copySuccess": "Copied",
+        "phone": "Phone",
+        "email": "Email",
+        "company": "Company"
+      },
+      "thread": {
+        "aiSummary": "AI Summary",
+        "startedOn": "Started on: {{page}}",
+        "transcript": "Chat Transcript",
+        "aiRequestedLead": "AI requested lead capture form",
+        "addToKnowledgeBase": "Add to AI's Knowledge Base",
+        "sourceMatch": "{{percent}}% match",
+        "leadCaptured": "Contact info verified & lead captured",
+        "noMessages": "No messages recorded in this conversation yet.",
+        "failedToLoad": "Failed to load conversation transcript",
+        "retry": "Retry",
+        "sanadAi": "Sanad AI",
+        "visitor": "Visitor",
+        "sourceSnippet": "Source snippet from document",
+        "openDocument": "Open Document",
+        "readOnlyTranscript": "Read-only transcript • Recorded from Sanad Website Widget",
+        "messagesCount": "{{count}} messages exchanged"
+      },
+      "modal": {
+        "title": "Teach Sanad AI",
+        "badge": "Grounding Memory",
+        "subtitle": "Save official facts for this inquiry so Sanad answers future visitors autonomously.",
+        "customerInquiry": "Customer Inquiry / Question",
+        "visitorAsked": "What visitor asked",
+        "officialAnswer": "Official Verified Answer",
+        "groundedFacts": "Grounded facts",
+        "answerPlaceholder": "Enter the exact, verified facts or procedure details. Sanad will strictly cite this official answer without hallucinating.",
+        "targetDocument": "Target Document for Citation",
+        "kbSource": "Knowledge Base source",
+        "loadingDocs": "Loading active documents...",
+        "noDocs": "No active documents available",
+        "docRequirement": "An active document in the Knowledge Base is required to anchor this citation.",
+        "selectDoc": "Select an active document...",
+        "category": "Knowledge Domain / Category",
+        "categories": {
+          "General": "General",
+          "Pricing": "Pricing",
+          "Services": "Services",
+          "Schedule": "Schedule",
+          "Policies": "Policies"
+        },
+        "guardrails": "Strict Guardrails:",
+        "guardrailsDesc": "Sanad will index this entry into your verified knowledge base with 100% citation grounding.",
+        "errorTitle": "Failed to save citation",
+        "success": "Knowledge indexed successfully! Assistant memory updated and conversation resolved.",
+        "cancel": "Cancel",
+        "save": "Save & Teach AI",
+        "syncing": "Syncing & Resolving...",
+        "saved": "Saved & Resolved!"
+      },
+      "empty": {
+        "noConversationSelected": "No conversation selected",
+        "selectConversationPrompt": "Select a conversation from the left to view the complete customer transcript and lead details.",
+        "noConversationsFound": "No conversations found",
+        "noFilterResults": "No conversations match the current filter or search criteria.",
+        "loadFailed": "Failed to load conversations",
+        "networkError": "An error occurred while loading your inbox. Please check your connection and try again."
+      }
+    },
+    "playground": {
+      "header": {
+        "title": "Sanad AI Simulator",
+        "knowledgeBaseActive": "Knowledge Base Active",
+        "subtitle": "Test how your assistant answers customer questions using your verified documents",
+        "minimizeView": "Minimize View",
+        "expandStudio": "Expand Studio",
+        "settingsAndSources": "Settings & Sources",
+        "clearChat": "Clear Chat"
+      },
+      "banner": {
+        "questionFromKb": "Question Selected From Knowledge Base",
+        "testQuestion": "Test Question",
+        "dismiss": "Dismiss"
+      },
+      "empty": {
+        "badge": "Sanad Grounded Studio // Evaluation Sandbox",
+        "title": "Test Customer Inquiries in Real Time",
+        "desc": "Verify how Sanad answers questions using only your approved knowledge base documents, strictly citing source clauses and matching your desired tone.",
+        "quickInquiries": "Quick Verification Inquiries:",
+        "clickToTest": "Click to test instantly"
+      },
+      "chat": {
+        "customerInquiry": "Customer Inquiry",
+        "sanadAssistant": "Sanad Assistant",
+        "verifiedGrounding": "Verified Grounding",
+        "instant": "Instant",
+        "copy": "Copy",
+        "copied": "Copied",
+        "referencedSources": "Referenced Sources ({{count}}):",
+        "clickToView": "Click to view clause in Settings & Sources panel",
+        "groundedInDocs": "Answer grounded in verified documents"
+      },
+      "thinking": {
+        "searching": "SEARCHING DOCUMENTS & WRITING ANSWER...",
+        "step1": "Reading verified policy documents from your knowledge base...",
+        "step2": "Matching customer question to exact clauses...",
+        "step3": "Formulating a clear, helpful response..."
+      },
+      "input": {
+        "placeholder": "Type a customer question or test inquiry... (e.g. What is the return and exchange policy?)",
+        "quotaExhausted": "Testing quota exhausted for this billing cycle. Upgrade your plan to send more inquiries...",
+        "quotaReached": "Quota limit reached. You have 0 test inquiries remaining in this cycle.",
+        "upgradePlan": "Upgrade Plan",
+        "enterToSend": "Enter to send",
+        "remaining": "{{count}} inquiries remaining",
+        "zeroRemaining": "0 inquiries remaining",
+        "thinking": "Thinking...",
+        "limitReached": "Limit Reached",
+        "sendInquiry": "Send Inquiry"
+      },
+      "inspector": {
+        "tabs": {
+          "sources": "Referenced Documents",
+          "settings": "Assistant Settings"
+        },
+        "sources": {
+          "title": "Verified Knowledge Clippings",
+          "subtitle": "Exact document paragraphs cited by the assistant",
+          "activeCount": "{{active}} of {{total}} Active",
+          "empty": "No documents referenced yet. Send a test inquiry to see which document sections are used.",
+          "sourceNum": "Source #{{index}}",
+          "match": "{{percent}}% Match",
+          "showLess": "Show less",
+          "showMore": "Show full section text"
+        },
+        "settings": {
+          "toneTitle": "Response Tone & Creativity",
+          "proOnly": "Pro Only",
+          "proUnlocked": "Pro Unlocked",
+          "balancedMode": "Balanced & Grounded (0.20)",
+          "defaultMode": "Default Mode",
+          "strict": "Strict",
+          "strictDesc": "Direct facts only, strictly from knowledge documents. Zero guesswork.",
+          "balanced": "Balanced",
+          "balancedDesc": "Helpful and conversational while remaining accurate. (Recommended)",
+          "friendly": "Friendly",
+          "friendlyDesc": "Warm and approachable phrasing, best for customer engagement.",
+          "customInstructions": "Custom Business Instructions",
+          "instructionsDesc": "Define identity, prohibited topics, or preferred response format",
+          "charLimit": "{{current}} / {{max}} characters",
+          "overLimit": "Character limit exceeded. Shorten your instructions to save.",
+          "instructionsPlaceholder": "e.g. Always greet customers politely, answer in the same language they use, and never offer unlisted discounts...",
+          "saveSettings": "Save to Live Assistant",
+          "saving": "Saving Settings...",
+          "savedSuccess": "Saved to live store assistant!",
+          "proExclusiveDesc": "Custom response tone and sampling temperature tuning are exclusive to the Flagship Pro plan.",
+          "upgradePro": "Upgrade to Flagship Pro",
+          "starterBadge": "Starter",
+          "starterPlanBadge": "Starter Plan",
+          "proPlanBadge": "Pro Plan",
+          "customBrandTitle": "Custom Brand Instructions (Starter Feature)",
+          "customBrandDesc": "Customize how your assistant greets customers, what dialect to speak (Saudi, Egyptian, Formal), and specific store policies.",
+          "upgradeStarter": "Upgrade to Starter (490 EGP/mo)",
+          "upgradeToneTitle": "Response Tone & Creativity",
+          "upgradeToneDesc": "Upgrade to Flagship Pro to unlock custom AI tone presets, conversational warmth, and sampling temperature tuning.",
+          "upgradeInstructionsTitle": "Custom Store Instructions",
+          "upgradeInstructionsDesc": "Upgrade to Starter to customize your assistant's personality, dialect, and specific store etiquette.",
+          "closePanel": "Close panel"
+        }
+      },
+      "error": {
+        "runtimeError": "Playground Runtime Error",
+        "title": "Unable to Initialize AI Playground",
+        "description": "An unexpected error occurred while preparing the AI session or loading knowledge base data.",
+        "telemetry": "Our engineering team has been notified via automated telemetry. Please try again or return to the dashboard.",
+        "tryAgain": "Try Again",
+        "knowledgeBase": "Knowledge Base",
+        "dashboard": "Dashboard"
+      }
+    },
+    "knowledgeBase": {
+      "header": {
+        "title": "Knowledge Base",
+        "subtitle": "Upload store policies, shipping guidelines, and FAQs for your AI assistant",
+        "manageSubtitle": "Manage vector embeddings, inspect chunk partitions, and purge obsolete documentation",
+        "addDocument": "Add Document"
+      },
+      "heroEmpty": {
+        "title": "Build your store knowledge base",
+        "desc": "Add store policies, product catalogs, shipping terms, or FAQs. Sanad AI will automatically chunk, index, and ground every customer response strictly in your verified files.",
+        "uploadFirst": "Upload Your First Document"
+      },
+      "library": {
+        "searchPlaceholder": "Search documents by filename...",
+        "filterAll": "All ({{count}})",
+        "filterPdf": "PDF",
+        "filterDocx": "DOCX",
+        "filterTxt": "TXT",
+        "filterMd": "MD",
+        "noMatchingDocs": "No matching documents found.",
+        "deleteDoc": "Delete Document",
+        "chunksCount": "{{count}} chunks",
+        "status": {
+          "failed": "Failed",
+          "processing": "Processing",
+          "queued": "Queued",
+          "ready": "Ready",
+          "active": "Active"
+        }
+      },
+      "inspector": {
+        "noDocSelected": "No Document Selected",
+        "noDocSelectedDesc": "Select a document from the left library to inspect its vector partitions, token metrics, full content tree, and query citation performance.",
+        "clickToInspect": "Click any item in the library to inspect",
+        "idle": "Idle",
+        "awaitingSelection": "Awaiting Selection",
+        "hideFromAi": "Hide from AI",
+        "enableForAi": "Enable for AI",
+        "updating": "Updating...",
+        "resync": "Re-sync",
+        "resyncing": "Re-syncing...",
+        "delete": "Delete",
+        "stats": {
+          "status": "Status",
+          "totalChunks": "Total Chunks",
+          "partitions": "{{count}} partitions",
+          "fileSize": "File Size"
+        },
+        "tabs": {
+          "performance": "Usage & Performance",
+          "content": "Document Content",
+          "chunks": "Raw Chunks ({{count}})",
+          "filterChunks": "Filter chunks..."
+        },
+        "performanceTab": {
+          "coldDocTitle": "Never retrieved in the last 30 days",
+          "coldDocDesc": "This document has not been cited in any customer responses. It may contain obsolete terms or lack specific headings that match frequent customer inquiries.",
+          "questionsAnswersTitle": "Questions This Document Answers",
+          "generatedAtIngestion": "Generated at ingestion",
+          "clickToTest": "Click any question below to test retrieval and prompt answers live in the Playground:",
+          "noQuestions": "No suggested questions generated for this document.",
+          "topQuestionsTitle": "Top Customer Questions Answered",
+          "citationsCount": "{{count}} citations"
+        },
+        "contentTab": {
+          "loadingContent": "Loading parsed document content & section tree...",
+          "detectedOutline": "Detected Section Outline"
+        },
+        "chunksTab": {
+          "fetchingChunks": "Fetching vector partitions & chunk embeddings...",
+          "failedIngestion": "Document Ingestion Failed",
+          "noMatchingChunks": "No vector chunks match your search query.",
+          "chunkNum": "Chunk #{{index}}",
+          "tokensCount": "{{count}} tokens",
+          "page": "Page {{number}}",
+          "copyText": "Copy chunk text",
+          "model": "Model: {{model}} (1536 dim)",
+          "indexed": "Indexed: {{date}}"
+        },
+        "breadcrumb": "Workspace / Inspector"
+      },
+      "addModal": {
+        "title": "Add Document to Knowledge Base",
+        "subtitle": "Upload file to parse and index into pgvector",
+        "dropzoneText": "Drag & drop source file or click to select",
+        "supportedFormats": "Supported formats: PDF, DOCX, TXT (Max 10MB)",
+        "cancel": "Cancel",
+        "indexDocument": "Index Document",
+        "uploadingIndexing": "Uploading & Indexing...",
+        "selectFileError": "Please select a valid file to upload."
+      },
+      "deleteModal": {
+        "singleTitle": "Confirm Document Deletion",
+        "singleConfirm": "Are you sure you want to permanently delete {{name}}?",
+        "singleWarning": "Warning: This will immediately delete the storage object and cascade delete all {{count}} indexed vector chunks from your AI retrieval database.",
+        "cancel": "Cancel",
+        "deletePermanently": "Delete Permanently",
+        "deleting": "Deleting...",
+        "bulkTitle": "Delete {{count}} Selected Documents?",
+        "bulkConfirm": "You are about to batch delete {{count}} documents. All corresponding embeddings and chunks in the vector store will be purged.",
+        "bulkWarning": "Warning: This operation cannot be undone. All vector chunks will be permanently purged from pgvector.",
+        "purgeAll": "Purge All Selected"
+      },
+      "errors": {
+        "pageException": "Knowledge Base Exception",
+        "pageTitle": "Unable to Load Document Library",
+        "pageDescription": "An error occurred while fetching your company documents, vector embeddings, or storage synchronization state.",
+        "retryDocuments": "Retry Documents",
+        "dashboardOverview": "Dashboard Overview",
+        "libraryTitle": "Document Library",
+        "libraryFailed": "Couldn't load documents",
+        "libraryFailedDesc": "Something went wrong while fetching this section. Please try again.",
+        "inspectorTitle": "Document Inspector",
+        "inspectorFailed": "Couldn't load document details",
+        "inspectorFailedDesc": "Something went wrong while fetching the details for this document. Please try again.",
+        "errorBadge": "Error",
+        "tryAgain": "Try again",
+        "breadcrumbDocuments": "Workspace / Documents",
+        "breadcrumbInspector": "Workspace / Inspector"
+      }
     }
   }
 }

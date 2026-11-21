@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { AlertOctagon, RotateCcw, Home } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "cn";
 
@@ -13,6 +14,8 @@ interface KnowledgeBaseErrorProps {
 }
 
 export default function KnowledgeBaseError({ error, reset }: KnowledgeBaseErrorProps) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -31,7 +34,7 @@ export default function KnowledgeBaseError({ error, reset }: KnowledgeBaseErrorP
           <div className="flex items-center gap-2">
             <span className="size-2 bg-destructive inline-block" />
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-destructive">
-              Knowledge Base Exception
+              {t("dashboard.knowledgeBase.errors.pageException", "Knowledge Base Exception")}
             </span>
           </div>
           <div className="flex size-8 items-center justify-center border border-destructive/30 bg-destructive/10 text-destructive rounded-none">
@@ -42,12 +45,14 @@ export default function KnowledgeBaseError({ error, reset }: KnowledgeBaseErrorP
         {/* Error Titles & Description */}
         <div className="flex flex-col gap-2">
           <h1 className="font-heading text-lg sm:text-xl font-bold tracking-tight text-foreground font-sans">
-            Unable to Load Document Library
+            {t("dashboard.knowledgeBase.errors.pageTitle", "Unable to Load Document Library")}
           </h1>
           <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-            An error occurred while fetching your company documents, vector embeddings, or storage synchronization state.
+            {t(
+              "dashboard.knowledgeBase.errors.pageDescription",
+              "An error occurred while fetching your company documents, vector embeddings, or storage synchronization state."
+            )}
           </p>
-        
         </div>
 
         {/* Action Controls */}
@@ -58,7 +63,7 @@ export default function KnowledgeBaseError({ error, reset }: KnowledgeBaseErrorP
             className="w-full sm:w-auto font-sans text-xs font-semibold cursor-pointer"
           >
             <RotateCcw className="size-3.5" />
-            <span>Retry Documents</span>
+            <span>{t("dashboard.knowledgeBase.errors.retryDocuments", "Retry Documents")}</span>
           </Button>
 
           <Link
@@ -69,7 +74,7 @@ export default function KnowledgeBaseError({ error, reset }: KnowledgeBaseErrorP
             )}
           >
             <Home className="size-3.5 text-muted-foreground" />
-            <span>Dashboard Overview</span>
+            <span>{t("dashboard.knowledgeBase.errors.dashboardOverview", "Dashboard Overview")}</span>
           </Link>
         </div>
       </div>
