@@ -359,58 +359,83 @@ export async function getResolutionFunnelData(
 
 /**
  * ── 4. PRO ONLY: 7-Day Traffic Aggregation ──
- * Pure aggregation of real conversations grouped by day of the week.
+ * Pure aggregation of real conversations grouped chronologically over the past 7 rolling days,
+ * ending on TODAY so that days flow naturally from past to present (no future days).
  */
 export async function getDailyTrafficData(
   supabase: SupabaseClient,
   businessId: string
 ): Promise<WeeklyTrafficProps[]> {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const now = new Date();
+  // Start from the beginning of 6 days ago (covers 7 full days up to today)
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() - 6);
+  startDate.setHours(0, 0, 0, 0);
 
   const { data } = await supabase
     .from("conversations")
     .select("started_at, status")
     .eq("business_id", businessId)
-    .gte("started_at", sevenDaysAgo.toISOString());
-
-  // Week structure in standard order
-  const dayOrder = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
-  const daysMap: Record<
-    string,
-    { total: number; aiAnswered: number; needsReview: number }
-  > = {
-    Sat: { total: 0, aiAnswered: 0, needsReview: 0 },
-    Sun: { total: 0, aiAnswered: 0, needsReview: 0 },
-    Mon: { total: 0, aiAnswered: 0, needsReview: 0 },
-    Tue: { total: 0, aiAnswered: 0, needsReview: 0 },
-    Wed: { total: 0, aiAnswered: 0, needsReview: 0 },
-    Thu: { total: 0, aiAnswered: 0, needsReview: 0 },
-    Fri: { total: 0, aiAnswered: 0, needsReview: 0 },
-  };
+    .gte("started_at", startDate.toISOString());
 
   const dayMapIndex = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  // Helper to format a local YYYY-MM-DD key for deterministic daily bucketing
+  const formatLocalKey = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dayNum = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dayNum}`;
+  };
+
+  // Generate 7 days in chronological order ending on Today
+  const days: (WeeklyTrafficProps & { key: string })[] = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    const key = formatLocalKey(d);
+    const day = dayMapIndex[d.getDay()];
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dayNum = String(d.getDate()).padStart(2, "0");
+
+    days.push({
+      key,
+      day,
+      date: `${m}/${dayNum}`,
+      isToday: i === 0,
+      total: 0,
+      aiAnswered: 0,
+      needsReview: 0,
+    });
+  }
+
+  const lookup = new Map(days.map((item) => [item.key, item]));
+
   (data || []).forEach((row) => {
     if (row.started_at) {
-      const dayName = dayMapIndex[new Date(row.started_at).getDay()];
-      if (daysMap[dayName]) {
-        daysMap[dayName].total += 1;
+      const rowDate = new Date(row.started_at);
+      const key = formatLocalKey(rowDate);
+      const target = lookup.get(key);
+      if (target) {
+        target.total += 1;
         if (row.status === "needs_attention") {
-          daysMap[dayName].needsReview += 1;
+          target.needsReview += 1;
         } else {
           // AI Answered: includes 'active', 'resolved', and any non-escalated chats
-          daysMap[dayName].aiAnswered += 1;
+          target.aiAnswered += 1;
         }
       }
     }
   });
 
-  return dayOrder.map((day) => ({
+  return days.map(({ day, total, aiAnswered, needsReview, isToday, date }) => ({
     day,
-    total: daysMap[day].total,
-    aiAnswered: daysMap[day].aiAnswered,
-    needsReview: daysMap[day].needsReview,
+    total,
+    aiAnswered,
+    needsReview,
+    isToday,
+    date,
   }));
 }
 

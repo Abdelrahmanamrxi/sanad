@@ -229,8 +229,7 @@ export function DocumentLibrary({
                           <span>{t("dashboard.knowledgeBase.library.status.queued", "Queued")}</span>
                         </span>
                       ) : doc.doc_status === "ready" ? (
-                        <span className="inline-flex items-center gap-1 border border-orange-500/20 bg-orange-500/20 px-1.5 py-px font-semibold text-white uppercase rounded-none">
-                          <Check className="size-2.5 shrink-0" />
+                        <span className="inline-flex items-center gap-1 border bg-amber-500/10 border-amber-500/20 px-1.5 py-px font-semibold text-white uppercase rounded-none">
                           <span>{t("dashboard.knowledgeBase.library.status.ready", "Ready")}</span>
                         </span>
                       ) : (

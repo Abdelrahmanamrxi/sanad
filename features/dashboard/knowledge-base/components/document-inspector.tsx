@@ -287,10 +287,10 @@ export function DocumentInspector({
               {t("dashboard.knowledgeBase.inspector.stats.status", "Status")}
             </span>
             <span
-              className={`text-xs font-bold uppercase ${
+              className={`text-xs mt-2 font-bold uppercase ${
                 selectedDoc.doc_status === "failed"
                   ? "text-destructive"
-                  : "text-success"
+                  : selectedDoc.doc_status==="ready" ? "text-amber-600":"text-success"
               }`}
             >
               {selectedDoc.doc_status === "failed"

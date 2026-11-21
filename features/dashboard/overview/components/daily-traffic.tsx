@@ -135,8 +135,18 @@ export default function DailyTraffic({
                     />
                   </div>
                   <div className="mt-2 flex flex-col items-center leading-none">
-                    <span className="font-mono text-[11px] font-medium text-foreground">
-                      {translateDay(day.day)}
+                    <span
+                      className={`font-mono text-[11px] font-medium flex items-center gap-1 ${
+                        day.isToday ? "text-primary font-bold" : "text-foreground"
+                      }`}
+                    >
+                      <span>{translateDay(day.day)}</span>
+                      {day.isToday && (
+                        <span
+                          className="size-1 bg-primary rounded-none inline-block"
+                          title={t("dashboard.overview.dailyTraffic.today", "Today")}
+                        />
+                      )}
                     </span>
                     <span className="font-mono text-[9px] text-muted-foreground mt-0.5">
                       {day.total}

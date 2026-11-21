@@ -304,7 +304,7 @@
       "business": "Business"
     },
     "overview": {
-      "telemetryBadge": "Live Workspace Telemetry",
+      "telemetryBadge": "Live Workspace",
       "title": "Overview & Performance",
       "subtitle": "Realtime customer inquiry volume, autonomous AI resolution rate, and response latencies.",
       "awaitingTraffic": "Awaiting Website Traffic",
@@ -339,6 +339,7 @@
         "needsReview": "Needs Review",
         "weeklyVolume": "Weekly Volume",
         "busiestDay": "Busiest Day",
+        "today": "Today",
         "days": {
           "Mon": "Mon",
           "Tue": "Tue",
@@ -604,7 +605,7 @@
         "runtimeError": "Playground Runtime Error",
         "title": "Unable to Initialize AI Playground",
         "description": "An unexpected error occurred while preparing the AI session or loading knowledge base data.",
-        "telemetry": "Our engineering team has been notified via automated telemetry. Please try again or return to the dashboard.",
+        "telemetry": "Our engineering team has been notified . Please try again or return to the dashboard.",
         "tryAgain": "Try Again",
         "knowledgeBase": "Knowledge Base",
         "dashboard": "Dashboard"
@@ -636,7 +637,7 @@
           "failed": "Failed",
           "processing": "Processing",
           "queued": "Queued",
-          "ready": "Ready",
+          "ready": "Your Document is Ready",
           "active": "Active",
           "indexed": "Indexed"
         }

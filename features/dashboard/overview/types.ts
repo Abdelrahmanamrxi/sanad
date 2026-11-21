@@ -26,6 +26,8 @@ export interface WeeklyTrafficProps {
   total: number;
   aiAnswered: number;
   needsReview: number;
+  isToday?: boolean;
+  date?: string;
 }
 
 export interface ConvertedLead {
