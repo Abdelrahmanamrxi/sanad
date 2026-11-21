@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { Globe, Plus, X, AlertCircle, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { PlanTier } from "@/features/billing/plans";
 import type { RestrictedFeatureInfo } from "@/features/billing/components/upgrade-plans-modal";
-
 import { cn } from "@/lib/utils";
 
 interface AllowedDomainsInputProps {
@@ -35,6 +35,7 @@ export default function AllowedDomainsInput({
   planTier = "free",
   onUpgrade,
 }: AllowedDomainsInputProps) {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState("");
   const [inputError, setInputError] = useState<string | null>(null);
 
@@ -43,22 +44,18 @@ export default function AllowedDomainsInput({
     const cleaned = cleanDomain(raw);
 
     if (!cleaned) {
-      setInputError("Please enter a valid domain name");
+      setInputError(t("dashboard.widget.allowedDomains.emptyInputError"));
       return;
     }
 
     // Check plan limits before adding
     if (maxAllowed !== undefined && domains.length >= maxAllowed) {
       if (planTier === "free") {
-        setInputError(
-          "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains).",
-        );
+        setInputError(t("dashboard.widget.allowedDomains.limitErrorFree"));
       } else if (planTier === "starter") {
-        setInputError(
-          "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains.",
-        );
+        setInputError(t("dashboard.widget.allowedDomains.limitErrorStarter"));
       } else {
-        setInputError("Pro plan allows a maximum of 10 authorized domains.");
+        setInputError(t("dashboard.widget.allowedDomains.limitErrorPro"));
       }
       return;
     }
@@ -66,14 +63,12 @@ export default function AllowedDomainsInput({
     // Basic domain validation regex (alphanumeric, dots, hyphens, or localhost)
     const domainRegex = /^(localhost|([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,})$/i;
     if (!domainRegex.test(cleaned) && cleaned !== "localhost") {
-      setInputError(
-        "Invalid domain format (e.g. yourstore.com or store.salla.sa)",
-      );
+      setInputError(t("dashboard.widget.allowedDomains.invalidError"));
       return;
     }
 
     if (domains.includes(cleaned)) {
-      setInputError("This domain is already in your allowed list");
+      setInputError(t("dashboard.widget.allowedDomains.alreadyExistsError"));
       return;
     }
 
@@ -104,7 +99,7 @@ export default function AllowedDomainsInput({
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <label className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">
           <Globe className="size-3.5 text-primary shrink-0" />
-          <span>Authorized Domains</span>
+          <span>{t("dashboard.widget.allowedDomains.label")}</span>
           <span className="text-destructive font-bold text-xs">*</span>
         </label>
 
@@ -119,8 +114,14 @@ export default function AllowedDomainsInput({
                   : "border-border bg-muted/60 text-muted-foreground",
             )}
           >
-            {domains.length}
-            {maxAllowed !== undefined ? ` / ${maxAllowed}` : ""} Domains
+            {maxAllowed !== undefined
+              ? t("dashboard.widget.allowedDomains.domainsCounter", {
+                  count: domains.length,
+                  max: maxAllowed,
+                })
+              : t("dashboard.widget.allowedDomains.domainsCounterUnbounded", {
+                  count: domains.length,
+                })}
           </span>
 
           {planTier && (
@@ -132,7 +133,9 @@ export default function AllowedDomainsInput({
                   : "border-primary/30 bg-primary/10 text-primary",
               )}
             >
-              {planTier === "free" ? "Free" : planTier.toUpperCase()}
+              {planTier === "free"
+                ? t("dashboard.widget.allowedDomains.tierFree")
+                : planTier.toUpperCase()}
             </span>
           )}
 
@@ -141,17 +144,17 @@ export default function AllowedDomainsInput({
               type="button"
               onClick={() => {
                 onUpgrade({
-                  featureName: "Authorized Domains",
+                  featureName: t("dashboard.widget.allowedDomains.upgradeFeatureName"),
                   requiredTier: planTier === "free" ? "starter" : "pro",
                   reason:
                     planTier === "free"
-                      ? "Free plan allows 1 authorized domain. Starter plan supports up to 5 domains."
-                      : "Starter plan allows up to 5 domains. Growth (Pro) supports up to 10 domains.",
+                      ? t("dashboard.widget.allowedDomains.upgradeReasonFree")
+                      : t("dashboard.widget.allowedDomains.upgradeReasonStarter"),
                 });
               }}
               className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border border-amber-500/40 cursor-pointer transition-colors rounded-none whitespace-nowrap"
             >
-              Upgrade
+              {t("dashboard.widget.allowedDomains.upgrade")}
             </button>
           )}
         </div>
@@ -168,7 +171,7 @@ export default function AllowedDomainsInput({
               if (inputError) setInputError(null);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="e.g. yourstore.com or store.salla.sa"
+            placeholder={t("dashboard.widget.allowedDomains.placeholder")}
             className={`w-full border ${
               isEmpty || error || inputError
                 ? "border-destructive/60 focus:border-destructive"
@@ -186,7 +189,7 @@ export default function AllowedDomainsInput({
           className="inline-flex items-center gap-1.5 px-3 py-2 bg-primary text-primary-foreground hover:bg-primary/90 font-sans text-xs font-semibold cursor-pointer rounded-none shadow-2xs transition-colors shrink-0"
         >
           <Plus className="size-3.5" />
-          <span>Add</span>
+          <span>{t("dashboard.widget.allowedDomains.addButton")}</span>
         </button>
       </div>
 
@@ -197,7 +200,7 @@ export default function AllowedDomainsInput({
           <span className="leading-tight">
             {inputError ||
               error ||
-              "At least one allowed domain is required. Specify the domain where your widget will be embedded."}
+              t("dashboard.widget.allowedDomains.emptyError")}
           </span>
         </div>
       )}
@@ -216,8 +219,8 @@ export default function AllowedDomainsInput({
                 type="button"
                 onClick={() => handleRemoveDomain(domain)}
                 className="p-0.5 hover:bg-black/10 dark:hover:bg-white/10 text-muted-foreground hover:text-destructive transition-colors cursor-pointer rounded-none ms-1"
-                title={`Remove ${domain}`}
-                aria-label={`Remove ${domain}`}
+                title={t("dashboard.widget.allowedDomains.removeAria", { domain })}
+                aria-label={t("dashboard.widget.allowedDomains.removeAria", { domain })}
               >
                 <X className="size-3" />
               </button>
@@ -229,10 +232,10 @@ export default function AllowedDomainsInput({
       {/* Quick Add Suggestions when list is empty or for local dev */}
       {isEmpty && (
         <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px] text-muted-foreground">
-          <span>Quick add:</span>
+          <span>{t("dashboard.widget.allowedDomains.quickAdd")}</span>
           <button
             type="button"
-            onClick={() => handleAddDomain("http://localhost.com")}
+            onClick={() => handleAddDomain("localhost")}
             className="px-2 py-0.5 bg-muted border border-border hover:border-primary text-foreground font-mono text-[10px] cursor-pointer rounded-none transition-colors"
           >
             + localhost
@@ -242,20 +245,7 @@ export default function AllowedDomainsInput({
 
       {/* Informational Guidance */}
       <p className="text-[11px] text-muted-foreground font-sans leading-relaxed">
-        Only storefronts matching these domains will be authorized to initialize
-        the assistant. Subdomains are automatically included (e.g. adding{" "}
-        <code className="font-mono text-[10px] bg-muted px-1 py-0.5">
-          salla.sa
-        </code>{" "}
-        also allows{" "}
-        <code className="font-mono text-[10px] bg-muted px-1 py-0.5">
-          mystore.salla.sa
-        </code>
-        ).
-        <span className="block mt-1 font-mono text-[10px] text-primary">
-          Authorized domain limits: Free (1 domain), Starter (5 domains), Pro
-          (10 domains).
-        </span>
+        {t("dashboard.widget.allowedDomains.guidanceText")}
       </p>
     </div>
   );

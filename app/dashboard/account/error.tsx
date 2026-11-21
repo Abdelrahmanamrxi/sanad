@@ -6,6 +6,7 @@ import { AlertOctagon, RotateCcw, Home } from "lucide-react";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "cn";
+import { useTranslation } from "react-i18next";
 
 interface AccountErrorProps {
   error: Error & { digest?: string };
@@ -13,6 +14,8 @@ interface AccountErrorProps {
 }
 
 export default function AccountError({ error, reset }: AccountErrorProps) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -20,10 +23,10 @@ export default function AccountError({ error, reset }: AccountErrorProps) {
   return (
     <div className="relative flex min-h-[460px] w-full flex-col items-center justify-center border border-border bg-card p-6 shadow-xs max-w-4xl mx-auto my-6">
       {/* Corner crosshairs */}
-      <span className="pointer-events-none absolute -bottom-1 -left-1 font-mono text-[10px] text-border select-none">+</span>
-      <span className="pointer-events-none absolute -bottom-1 -right-1 font-mono text-[10px] text-border select-none">+</span>
-      <span className="pointer-events-none absolute -top-1 -left-1 font-mono text-[10px] text-border select-none">+</span>
-      <span className="pointer-events-none absolute -top-1 -right-1 font-mono text-[10px] text-border select-none">+</span>
+      <span className="pointer-events-none absolute -bottom-1 -start-1 font-mono text-[10px] text-border select-none">+</span>
+      <span className="pointer-events-none absolute -bottom-1 -end-1 font-mono text-[10px] text-border select-none">+</span>
+      <span className="pointer-events-none absolute -top-1 -start-1 font-mono text-[10px] text-border select-none">+</span>
+      <span className="pointer-events-none absolute -top-1 -end-1 font-mono text-[10px] text-border select-none">+</span>
 
       <div className="flex w-full max-w-lg flex-col gap-5 border border-border bg-background p-6 sm:p-8 rounded-none shadow-md text-start">
         {/* Top Status Header */}
@@ -31,7 +34,7 @@ export default function AccountError({ error, reset }: AccountErrorProps) {
           <div className="flex items-center gap-2">
             <span className="size-2 bg-destructive inline-block" />
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-destructive">
-              Account Workspace Exception
+              {t("dashboard.account.error.runtimeError", "Account Workspace Exception")}
             </span>
           </div>
           <div className="flex size-8 items-center justify-center border border-destructive/30 bg-destructive/10 text-destructive rounded-none">
@@ -42,12 +45,14 @@ export default function AccountError({ error, reset }: AccountErrorProps) {
         {/* Error Titles & Description */}
         <div className="flex flex-col gap-2">
           <h1 className="font-heading text-lg sm:text-xl font-bold tracking-tight text-foreground font-sans">
-            Unable to Load Workspace Profile
+            {t("dashboard.account.error.title", "Unable to Load Workspace Profile")}
           </h1>
           <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-            An error occurred while retrieving your operator credentials or workspace metadata.
+            {t(
+              "dashboard.account.error.description",
+              "An error occurred while retrieving your operator credentials or workspace metadata."
+            )}
           </p>
-        
         </div>
 
         {/* Action Controls */}
@@ -58,7 +63,7 @@ export default function AccountError({ error, reset }: AccountErrorProps) {
             className="w-full sm:w-auto font-sans text-xs font-semibold cursor-pointer"
           >
             <RotateCcw className="size-3.5" />
-            <span>Retry Account</span>
+            <span>{t("dashboard.account.error.retry", "Retry Account")}</span>
           </Button>
 
           <Link
@@ -69,7 +74,7 @@ export default function AccountError({ error, reset }: AccountErrorProps) {
             )}
           >
             <Home className="size-3.5 text-muted-foreground" />
-            <span>Dashboard Overview</span>
+            <span>{t("dashboard.account.error.dashboard", "Dashboard Overview")}</span>
           </Link>
         </div>
       </div>

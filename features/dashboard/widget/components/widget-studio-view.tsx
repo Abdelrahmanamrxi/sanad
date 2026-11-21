@@ -19,6 +19,7 @@ import {
   Crown,
   Lock,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { WidgetConfig, EditTab } from "../types";
 import { PLANS, type PlanTier } from "@/features/billing/plans";
 import { DEFAULT_WIDGET_CONFIG } from "../constants";
@@ -40,6 +41,7 @@ export default function WidgetStudioView({
   widgetSettings,
   planTier = "free",
 }: WidgetStudioViewProps) {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<WidgetConfig>(
     widgetSettings || initialConfig || DEFAULT_WIDGET_CONFIG,
   );
@@ -75,16 +77,22 @@ export default function WidgetStudioView({
     ).length;
     if (planTier === "free" && domainCount > PLANS.free.maxDomains) {
       return {
-        featureName: `Multi-Domain (${domainCount} domains)`,
+        featureName: t("dashboard.widget.multiDomainUpgrade.title", { count: domainCount }),
         requiredTier: "starter",
-        reason: `Free plan allows ${PLANS.free.maxDomains} authorized domain. Starter plan supports up to ${PLANS.starter.maxDomains} domains.`,
+        reason: t("dashboard.widget.multiDomainUpgrade.reason", {
+          freeMax: PLANS.free.maxDomains,
+          starterMax: PLANS.starter.maxDomains,
+        }),
       };
     }
     if (planTier === "starter" && domainCount > PLANS.starter.maxDomains) {
       return {
-        featureName: `Enterprise Domains (${domainCount} domains)`,
+        featureName: t("dashboard.widget.enterpriseDomainUpgrade.title", { count: domainCount }),
         requiredTier: "pro",
-        reason: `Starter plan allows up to ${PLANS.starter.maxDomains} domains. Pro plan supports up to ${PLANS.pro.maxDomains} domains.`,
+        reason: t("dashboard.widget.enterpriseDomainUpgrade.reason", {
+          starterMax: PLANS.starter.maxDomains,
+          proMax: PLANS.pro.maxDomains,
+        }),
       };
     }
 
@@ -106,9 +114,7 @@ export default function WidgetStudioView({
       .filter(Boolean);
 
     if (cleanDomains.length === 0) {
-      setSaveError(
-        "At least one allowed domain is required (e.g. yourstore.com ), Add it to make the widget work on your website.",
-      );
+      setSaveError(t("dashboard.widget.saveErrorDomainRequired"));
       setTimeout(() => setSaveError(null), 6000);
       return;
     }
@@ -116,7 +122,7 @@ export default function WidgetStudioView({
     try {
       setIsSaving(true);
       setSaveError(null);
-      
+
       // On free tier, safely normalize botName so downgraded/free plans never get blocked
       const payload: WidgetConfig = {
         ...config,
@@ -129,7 +135,7 @@ export default function WidgetStudioView({
       setTimeout(() => setIsSaved(false), 2500);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to save settings";
+        err instanceof Error ? err.message : t("dashboard.widget.saveFailed");
       console.error("Failed to save widget settings:", message);
       setSaveError(message);
       setTimeout(() => setSaveError(null), 6000);
@@ -154,9 +160,8 @@ export default function WidgetStudioView({
     citationStyle: planTier === "pro" ? (config.citationStyle || "document-snippet") : "none",
   };
 
- 
   return (
-    <div className="relative flex min-h-0 lg:min-h-[820px] h-[calc(100vh-6.5rem)] flex-col border border-border bg-card shadow-xs overflow-hidden">
+    <div className="relative flex min-h-0 lg:min-h-[820px] h-[calc(100vh-6.5rem)] flex-col border border-border bg-card shadow-xs overflow-hidden rounded-none">
       {/* Corner crosshairs for architectural craft */}
       <span className="pointer-events-none absolute -bottom-1 -left-1 font-mono text-[10px] text-border select-none">
         +
@@ -174,7 +179,7 @@ export default function WidgetStudioView({
       {/* ── Studio Header Bar ── */}
       <div className="flex flex-col gap-3 border-b border-border bg-card p-4 transition-colors lg:flex-row lg:items-center lg:justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="relative flex size-11 items-center justify-center border border-primary/40 bg-primary/10 text-primary">
+          <div className="relative flex size-11 items-center justify-center border border-primary/40 bg-primary/10 text-primary rounded-none">
             <Bot className="size-5" />
             <span className="absolute -top-0.5 -right-0.5 size-1.5 bg-emerald-500 ring-2 ring-card" />
           </div>
@@ -182,16 +187,15 @@ export default function WidgetStudioView({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-heading text-base font-semibold tracking-tight text-foreground font-sans">
-                Sanad Widget Studio
+                {t("dashboard.widget.title")}
               </h1>
-              <span className="hidden sm:inline-flex items-center gap-1 border border-border bg-muted/60 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span className="hidden sm:inline-flex items-center gap-1 border border-border bg-muted/60 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground rounded-none">
                 <span className="size-1.5 bg-emerald-500 inline-block animate-pulse" />
-                <span>Live Deploy Ready</span>
+                <span>{t("dashboard.widget.liveDeployReady")}</span>
               </span>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground font-sans">
-              Customize your storefront assistant appearance, branding, and copy
-              the embed script
+              {t("dashboard.widget.subtitle")}
             </p>
           </div>
         </div>
@@ -205,7 +209,7 @@ export default function WidgetStudioView({
             className="lg:hidden flex items-center gap-1.5 border border-primary/50 bg-primary/10 px-3 py-1.5 font-sans text-xs font-semibold text-primary hover:bg-primary/20 transition-colors rounded-none shadow-2xs cursor-pointer"
           >
             <Eye className="size-3.5" />
-            <span>View Chatbot</span>
+            <span>{t("dashboard.widget.viewChatbot")}</span>
           </button>
 
           {/* Reset button */}
@@ -213,10 +217,10 @@ export default function WidgetStudioView({
             type="button"
             onClick={handleResetDefaults}
             className="flex items-center gap-1.5 border border-border bg-background px-3 py-1.5 font-sans text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors rounded-none shadow-2xs cursor-pointer"
-            title="Reset configuration to initial defaults"
+            title={t("dashboard.widget.resetDefaultsTooltip")}
           >
             <RotateCcw className="size-3.5" />
-            <span className="hidden sm:inline">Reset Defaults</span>
+            <span className="hidden sm:inline">{t("dashboard.widget.resetDefaults")}</span>
           </button>
 
           {/* Quick Copy Script */}
@@ -228,12 +232,12 @@ export default function WidgetStudioView({
             {isCopiedCode ? (
               <>
                 <Check className="size-3.5 text-emerald-500" />
-                <span>Copied Script!</span>
+                <span>{t("dashboard.widget.copiedScript")}</span>
               </>
             ) : (
               <>
                 <Copy className="size-3.5 text-muted-foreground" />
-                <span>Copy Script</span>
+                <span>{t("dashboard.widget.copyScript")}</span>
               </>
             )}
           </button>
@@ -254,22 +258,22 @@ export default function WidgetStudioView({
             {isSaving ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                <span>Saving...</span>
+                <span>{t("dashboard.widget.saving")}</span>
               </>
             ) : isSaved ? (
               <>
                 <Check className="size-3.5" />
-                <span>Saved Changes!</span>
+                <span>{t("dashboard.widget.savedChanges")}</span>
               </>
             ) : saveError ? (
               <>
                 <AlertCircle className="size-3.5" />
-                <span>Save Failed</span>
+                <span>{t("dashboard.widget.saveFailed")}</span>
               </>
             ) : (
               <>
                 <Save className="size-3.5" />
-                <span>Save Changes</span>
+                <span>{t("dashboard.widget.saveChanges")}</span>
               </>
             )}
           </button>
@@ -287,16 +291,16 @@ export default function WidgetStudioView({
             type="button"
             onClick={() => setSaveError(null)}
             className="p-1 hover:bg-destructive/20 text-destructive cursor-pointer rounded-none"
-            aria-label="Dismiss error"
+            aria-label={t("dashboard.widget.dismissError")}
           >
             <X className="size-3.5" />
           </button>
         </div>
       )}
 
-      {/* ── Two-Column Studio Workspace (Desktop: side-by-side, Mobile: single editor column) ── */}
+      {/* ── Two-Column Studio Workspace ── */}
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 overflow-hidden bg-background">
-        {/* Left Column: Configuration Panels (Full width on mobile, 4 cols on xl, 5 cols on lg) */}
+        {/* Left Column: Configuration Panels */}
         <div className="flex flex-col lg:border-e border-border lg:col-span-5 xl:col-span-4 h-full overflow-hidden">
           <WidgetEditPanel
             config={config}
@@ -322,7 +326,7 @@ export default function WidgetStudioView({
           />
         </div>
 
-        {/* Right Column: Live Interactive Storefront Sandbox (Hidden on mobile, 8 cols on xl, 7 cols on lg) */}
+        {/* Right Column: Live Interactive Storefront Sandbox */}
         <div className="hidden lg:flex flex-col lg:col-span-7 xl:col-span-8 h-full overflow-hidden">
           <WidgetViewPanel config={previewConfig} />
         </div>
@@ -336,7 +340,7 @@ export default function WidgetStudioView({
           className="flex items-center gap-2 border border-primary bg-primary px-4 py-2.5 font-sans text-xs font-semibold text-primary-foreground shadow-lg hover:bg-primary/90 transition-all rounded-none cursor-pointer"
         >
           <Bot className="size-4" />
-          <span>View Chatbot</span>
+          <span>{t("dashboard.widget.viewChatbot")}</span>
           <span className="size-1.5 bg-emerald-400 inline-block animate-pulse" />
         </button>
       </div>
@@ -348,7 +352,7 @@ export default function WidgetStudioView({
           <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3 shrink-0 shadow-xs">
             <div className="flex items-center gap-2.5 min-w-0">
               <div
-                className="flex size-8 items-center justify-center border shrink-0 text-white shadow-xs"
+                className="flex size-8 items-center justify-center border shrink-0 text-white shadow-xs rounded-none"
                 style={{
                   backgroundColor: config.primaryColor || "#0F5C55",
                   borderColor: `${config.primaryColor || "#0F5C55"}80`,
@@ -361,8 +365,8 @@ export default function WidgetStudioView({
                   <h2 className="font-heading text-sm font-semibold truncate text-foreground">
                     {previewConfig.botName || "AI Assistant"}
                   </h2>
-                  <span className="border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground shrink-0">
-                    Live Preview
+                  <span className="border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground shrink-0 rounded-none">
+                    {t("dashboard.widget.livePreview")}
                   </span>
                 </div>
                 <p className="text-[11px] text-muted-foreground truncate">
@@ -378,7 +382,7 @@ export default function WidgetStudioView({
                 className="flex items-center gap-1.5 border border-border bg-background px-3 py-1.5 font-sans text-xs font-medium text-foreground hover:bg-muted/40 transition-colors rounded-none shadow-2xs cursor-pointer"
               >
                 <X className="size-3.5" />
-                <span>Close</span>
+                <span>{t("dashboard.widget.close")}</span>
               </button>
             </div>
           </div>

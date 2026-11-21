@@ -15,6 +15,7 @@ import {
   FileText,
   MessageSquare,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type {
   WidgetConfig,
   ContainerShape,
@@ -37,41 +38,14 @@ interface TabAppearanceProps {
   onUpgrade?: (feature?: RestrictedFeatureInfo) => void;
 }
 
-const PRIMARY_COLOR_PRESETS = [
-  { name: "Nile Emerald", hex: "#0E4741" },
-  { name: "Sanad Teal", hex: "#0F5C55" },
-  { name: "Velvet Plum", hex: "#883E4C" },
-  { name: "Royal Navy", hex: "#1E3A8A" },
-  { name: "Electric Blue", hex: "#2563EB" },
-  { name: "Terracotta Red", hex: "#B83A24" },
-  { name: "Desert Amber", hex: "#D97706" },
-  { name: "Charcoal Obsidian", hex: "#10201F" },
-];
-
-const ACCENT_COLOR_PRESETS = [
-  { name: "Warm Sand", hex: "#E2D9C8" },
-  { name: "Soft Blush", hex: "#FCEEE6" },
-  { name: "Ice Blue", hex: "#DBEAFE" },
-  { name: "Muted Linen", hex: "#F5E8D3" },
-  { name: "Mint Foam", hex: "#D3E6E2" },
-  { name: "Soft Amber", hex: "#FDE68A" },
-];
-
-const BG_COLOR_PRESETS = [
-  { name: "Warm Linen (Egyptian)", hex: "#FAF6EE" },
-  { name: "Clean White", hex: "#FFFFFF" },
-  { name: "Obsidian Nile Dark", hex: "#0C1615" },
-  { name: "Cream Luxury", hex: "#FFFBF5" },
-  { name: "Deep Charcoal", hex: "#132322" },
-];
-
 export default function TabAppearance({
   config,
   onChange,
   planTier = "free",
   onUpgrade,
 }: TabAppearanceProps) {
-  const isStarterOrAbove = planTier === "starter" || planTier === "pro";
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === "ar";
   const isPro = planTier === "pro";
 
   const primaryColor = config.primaryColor || "#0E4741";
@@ -103,15 +77,41 @@ export default function TabAppearance({
 
   const isCompactHeader = headerLayout === "docked";
 
+  const primaryColorPresets = [
+    { key: "nileEmerald", name: t("dashboard.widget.appearanceTab.colorPresets.nileEmerald"), hex: "#0E4741" },
+    { key: "sanadTeal", name: t("dashboard.widget.appearanceTab.colorPresets.sanadTeal"), hex: "#0F5C55" },
+    { key: "velvetPlum", name: t("dashboard.widget.appearanceTab.colorPresets.velvetPlum"), hex: "#883E4C" },
+    { key: "royalNavy", name: t("dashboard.widget.appearanceTab.colorPresets.royalNavy"), hex: "#1E3A8A" },
+    { key: "electricBlue", name: t("dashboard.widget.appearanceTab.colorPresets.electricBlue"), hex: "#2563EB" },
+    { key: "terracottaRed", name: t("dashboard.widget.appearanceTab.colorPresets.terracottaRed"), hex: "#B83A24" },
+    { key: "desertAmber", name: t("dashboard.widget.appearanceTab.colorPresets.desertAmber"), hex: "#D97706" },
+    { key: "charcoalObsidian", name: t("dashboard.widget.appearanceTab.colorPresets.charcoalObsidian"), hex: "#10201F" },
+  ];
+
+  const accentColorPresets = [
+    { key: "warmSand", name: t("dashboard.widget.appearanceTab.colorPresets.warmSand"), hex: "#E2D9C8" },
+    { key: "softBlush", name: t("dashboard.widget.appearanceTab.colorPresets.softBlush"), hex: "#FCEEE6" },
+    { key: "iceBlue", name: t("dashboard.widget.appearanceTab.colorPresets.iceBlue"), hex: "#DBEAFE" },
+    { key: "mutedLinen", name: t("dashboard.widget.appearanceTab.colorPresets.mutedLinen"), hex: "#F5E8D3" },
+    { key: "mintFoam", name: t("dashboard.widget.appearanceTab.colorPresets.mintFoam"), hex: "#D3E6E2" },
+    { key: "softAmber", name: t("dashboard.widget.appearanceTab.colorPresets.softAmber"), hex: "#FDE68A" },
+  ];
+
+  const bgColorPresets = [
+    { key: "warmLinenEgyptian", name: t("dashboard.widget.appearanceTab.colorPresets.warmLinenEgyptian"), hex: "#FAF6EE" },
+    { key: "cleanWhite", name: t("dashboard.widget.appearanceTab.colorPresets.cleanWhite"), hex: "#FFFFFF" },
+    { key: "obsidianNileDark", name: t("dashboard.widget.appearanceTab.colorPresets.obsidianNileDark"), hex: "#0C1615" },
+    { key: "creamLuxury", name: t("dashboard.widget.appearanceTab.colorPresets.creamLuxury"), hex: "#FFFBF5" },
+    { key: "deepCharcoal", name: t("dashboard.widget.appearanceTab.colorPresets.deepCharcoal"), hex: "#132322" },
+  ];
+
   return (
     <div className="space-y-6">
       {/* ── Top Helper Banner ── */}
-      <div className="flex items-center gap-2.5 border border-primary/25 bg-primary/5 p-3 text-xs font-sans text-foreground leading-relaxed shadow-2xs">
+      <div className="flex items-center gap-2.5 border border-primary/25 bg-primary/5 p-3 text-xs font-sans text-foreground leading-relaxed shadow-2xs rounded-none">
         <Sparkles className="size-4 text-primary shrink-0" />
         <p>
-          Customize your brand identity, colors, typography, container shapes,
-          and header layouts. All appearance options are fully included for all
-          plans.
+          {t("dashboard.widget.appearanceTab.helperBanner")}
         </p>
       </div>
 
@@ -120,17 +120,15 @@ export default function TabAppearance({
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Sparkles className="size-3 text-amber-500" />
-            <span>Brand Style Archetypes</span>
+            <span>{t("dashboard.widget.appearanceTab.archetypesTitle")}</span>
           </label>
           <span className="font-mono text-[10px] text-muted-foreground">
-            1-Click Styling
+            {t("dashboard.widget.appearanceTab.archetypes1Click")}
           </span>
         </div>
 
         <p className="text-[11px] text-muted-foreground font-sans mb-3 leading-relaxed">
-          Select a pre-tuned brand archetype suited for your store or clinic.
-          Each preset sets the silhouette, palette, header, and fonts in one
-          click.
+          {t("dashboard.widget.appearanceTab.archetypesDescription")}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -147,7 +145,7 @@ export default function TabAppearance({
                 type="button"
                 onClick={() => handleApplyArchetype(arch)}
                 className={cn(
-                  "relative text-start p-3 border transition-all cursor-pointer flex flex-col justify-between group shadow-2xs",
+                  "relative text-start p-3 border transition-all cursor-pointer flex flex-col justify-between group shadow-2xs rounded-none",
                   isSelected
                     ? "border-primary bg-primary/[0.06] ring-1 ring-primary shadow-xs"
                     : "border-border bg-card hover:border-primary/50",
@@ -157,32 +155,26 @@ export default function TabAppearance({
                 <div className="flex items-center justify-between w-full mb-2">
                   <div className="flex items-center gap-1">
                     <span
-                      className="size-3.5 border border-black/15 shadow-2xs inline-block"
+                      className="size-3.5 border border-black/15 shadow-2xs inline-block rounded-none"
                       style={{
                         backgroundColor: arch.previewColors.primary,
-                        borderRadius:
-                          arch.id === "velvet-salon" ? "9999px" : "0px",
                       }}
                     />
                     <span
-                      className="size-3.5 border border-black/15 shadow-2xs inline-block"
+                      className="size-3.5 border border-black/15 shadow-2xs inline-block rounded-none"
                       style={{
                         backgroundColor: arch.previewColors.bg,
-                        borderRadius:
-                          arch.id === "velvet-salon" ? "9999px" : "0px",
                       }}
                     />
                     <span
-                      className="size-3.5 border border-black/15 shadow-2xs inline-block"
+                      className="size-3.5 border border-black/15 shadow-2xs inline-block rounded-none"
                       style={{
                         backgroundColor: arch.previewColors.accent,
-                        borderRadius:
-                          arch.id === "velvet-salon" ? "9999px" : "0px",
                       }}
                     />
                   </div>
 
-                  <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 bg-primary/10 text-primary border border-primary/30">
+                  <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 bg-primary/10 text-primary border border-primary/30 rounded-none">
                     {arch.badge}
                   </span>
                 </div>
@@ -191,14 +183,14 @@ export default function TabAppearance({
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h4 className="font-bold text-xs text-foreground font-heading">
-                      {arch.name}
+                      {isArabic ? arch.nameAr : arch.name}
                     </h4>
                     <span className="text-[11px] font-medium text-muted-foreground font-sans">
-                      • {arch.nameAr}
+                      • {isArabic ? arch.name : arch.nameAr}
                     </span>
                   </div>
                   <p className="font-sans text-[10.5px] text-muted-foreground mt-1 leading-snug">
-                    {arch.tagline}
+                    {isArabic ? arch.taglineAr : arch.tagline}
                   </p>
                 </div>
 
@@ -218,7 +210,7 @@ export default function TabAppearance({
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Layers className="size-3 text-primary" />
-            <span>Container Silhouette (Shape Architecture)</span>
+            <span>{t("dashboard.widget.appearanceTab.silhouetteTitle")}</span>
           </label>
           <span className="font-mono text-[10px] text-primary font-bold uppercase">
             {containerShape}
@@ -226,7 +218,7 @@ export default function TabAppearance({
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          {/* Arch Dome (Default / Free) - Disabled when header is docked/compact */}
+          {/* Arch Dome (Default / Free) */}
           <button
             type="button"
             disabled={isCompactHeader}
@@ -236,7 +228,7 @@ export default function TabAppearance({
               onChange({ ...config, containerShape: "arch" });
             }}
             className={cn(
-              "p-3 border text-start transition-all flex flex-col justify-between gap-2 shadow-2xs",
+              "p-3 border text-start transition-all flex flex-col justify-between gap-2 shadow-2xs rounded-none",
               isCompactHeader
                 ? "opacity-40 cursor-not-allowed bg-muted/40 border-dashed border-border"
                 : containerShape === "arch"
@@ -245,35 +237,37 @@ export default function TabAppearance({
             )}
             title={
               isCompactHeader
-                ? "Arch Dome requires Centered Hero layout and cannot be selected with Compact Docked Bar"
-                : "Arch Dome"
+                ? t("dashboard.widget.appearanceTab.shapes.arch.disabledDesc")
+                : t("dashboard.widget.appearanceTab.shapes.arch.name")
             }
           >
             <div className="flex items-center justify-between w-full">
               <div
                 className={cn(
-                  "w-8 h-10 border-2 bg-primary/20 rounded-t-[16px] rounded-b-[4px]",
+                  "w-8 h-10 border-2 bg-primary/20 rounded-none",
                   isCompactHeader
                     ? "border-muted-foreground/40"
                     : "border-primary",
                 )}
               />
               {isCompactHeader ? (
-                <span className="font-mono text-[9px] font-bold text-muted-foreground px-1 py-0.2 bg-muted border border-border">
-                  REQUIRES HERO
+                <span className="font-mono text-[9px] font-bold text-muted-foreground px-1 py-0.2 bg-muted border border-border rounded-none">
+                  {t("dashboard.widget.appearanceTab.requiresHero")}
                 </span>
               ) : (
                 <span className="font-mono text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                  FREE
+                  {t("dashboard.widget.appearanceTab.freeBadge")}
                 </span>
               )}
             </div>
             <div>
-              <p className="font-heading text-xs font-bold">Arch Dome</p>
+              <p className="font-heading text-xs font-bold">
+                {t("dashboard.widget.appearanceTab.shapes.arch.name")}
+              </p>
               <p className="text-[10px] text-muted-foreground font-sans leading-tight mt-0.5">
                 {isCompactHeader
-                  ? "Requires Centered Hero (disabled in Compact Docked)"
-                  : "Authentic Andalusian / Egyptian arch dome"}
+                  ? t("dashboard.widget.appearanceTab.shapes.arch.disabledDesc")
+                  : t("dashboard.widget.appearanceTab.shapes.arch.desc")}
               </p>
             </div>
           </button>
@@ -286,22 +280,24 @@ export default function TabAppearance({
               onChange({ ...config, containerShape: "pill" });
             }}
             className={cn(
-              "p-3 border text-start transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs",
+              "p-3 border text-start transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs rounded-none",
               containerShape === "pill"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="flex items-center justify-between w-full">
-              <div className="w-8 h-10 border-2 border-primary bg-primary/20 rounded-[12px]" />
+              <div className="w-8 h-10 border-2 border-primary bg-primary/20 rounded-none" />
               <span className="font-mono text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                FREE
+                {t("dashboard.widget.appearanceTab.freeBadge")}
               </span>
             </div>
             <div>
-              <p className="font-heading text-xs font-bold">Soft Pill</p>
+              <p className="font-heading text-xs font-bold">
+                {t("dashboard.widget.appearanceTab.shapes.pill.name")}
+              </p>
               <p className="text-[10px] text-muted-foreground font-sans leading-tight mt-0.5">
-                Smooth rounded capsule for beauty, salons & boutiques
+                {t("dashboard.widget.appearanceTab.shapes.pill.desc")}
               </p>
             </div>
           </button>
@@ -314,7 +310,7 @@ export default function TabAppearance({
               onChange({ ...config, containerShape: "square" });
             }}
             className={cn(
-              "p-3 border text-start transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs",
+              "p-3 border text-start transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs rounded-none",
               containerShape === "square"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
@@ -323,13 +319,15 @@ export default function TabAppearance({
             <div className="flex items-center justify-between w-full">
               <div className="w-8 h-10 border-2 border-primary bg-primary/20 rounded-none" />
               <span className="font-mono text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                FREE
+                {t("dashboard.widget.appearanceTab.freeBadge")}
               </span>
             </div>
             <div>
-              <p className="font-heading text-xs font-bold">Sharp Square</p>
+              <p className="font-heading text-xs font-bold">
+                {t("dashboard.widget.appearanceTab.shapes.square.name")}
+              </p>
               <p className="text-[10px] text-muted-foreground font-sans leading-tight mt-0.5">
-                Architectural zero-radius brutalist frame
+                {t("dashboard.widget.appearanceTab.shapes.square.desc")}
               </p>
             </div>
           </button>
@@ -341,7 +339,7 @@ export default function TabAppearance({
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Layers className="size-3 text-primary" />
-            <span>Header Layout Architecture</span>
+            <span>{t("dashboard.widget.appearanceTab.headerTitle")}</span>
           </label>
           <span className="font-mono text-[10px] text-primary font-bold uppercase">
             {headerLayout}
@@ -349,12 +347,12 @@ export default function TabAppearance({
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          {/* Centered Concierge Hero (Default / Free) */}
+          {/* Centered Concierge Hero */}
           <button
             type="button"
             onClick={() => onChange({ ...config, headerLayout: "hero" })}
             className={cn(
-              "p-3 border text-start transition-all cursor-pointer flex flex-col gap-2 shadow-2xs",
+              "p-3 border text-start transition-all cursor-pointer flex flex-col gap-2 shadow-2xs rounded-none",
               headerLayout === "hero"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
@@ -362,17 +360,16 @@ export default function TabAppearance({
           >
             <div className="flex items-center justify-between">
               <span className="font-mono text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                FREE
+                {t("dashboard.widget.appearanceTab.freeBadge")}
               </span>
               <CircleDot className="size-3.5 text-primary" />
             </div>
             <div>
               <p className="font-heading text-xs font-bold">
-                Centered Hero Concierge
+                {t("dashboard.widget.appearanceTab.headerLayouts.hero.name")}
               </p>
               <p className="text-[10px] text-muted-foreground font-sans leading-relaxed mt-0.5">
-                Prominent center monogram avatar, real-time response indicator,
-                and friendly greeting.
+                {t("dashboard.widget.appearanceTab.headerLayouts.hero.desc")}
               </p>
             </div>
           </button>
@@ -390,7 +387,7 @@ export default function TabAppearance({
               });
             }}
             className={cn(
-              "p-3 border text-start transition-all cursor-pointer flex flex-col gap-2 shadow-2xs",
+              "p-3 border text-start transition-all cursor-pointer flex flex-col gap-2 shadow-2xs rounded-none",
               headerLayout === "docked"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
@@ -398,17 +395,16 @@ export default function TabAppearance({
           >
             <div className="flex items-center justify-between">
               <span className="font-mono text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                FREE
+                {t("dashboard.widget.appearanceTab.freeBadge")}
               </span>
               <Square className="size-3.5 text-muted-foreground" />
             </div>
             <div>
               <p className="font-heading text-xs font-bold">
-                Compact Docked Bar
+                {t("dashboard.widget.appearanceTab.headerLayouts.docked.name")}
               </p>
               <p className="text-[10px] text-muted-foreground font-sans leading-relaxed mt-0.5">
-                Streamlined horizontal top bar. (Note: Arch Dome is disabled in
-                this layout).
+                {t("dashboard.widget.appearanceTab.headerLayouts.docked.desc")}
               </p>
             </div>
           </button>
@@ -420,20 +416,17 @@ export default function TabAppearance({
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Type className="size-3 text-primary" />
-            <span>Brand Letter Monogram (Avatar Stamp)</span>
+            <span>{t("dashboard.widget.appearanceTab.monogramTitle")}</span>
           </label>
           <span className="font-mono text-[10px] text-primary font-bold">
-            {avatarMonogram.length} / 4 chars
+            {t("dashboard.widget.appearanceTab.monogramChars", { count: avatarMonogram.length })}
           </span>
         </div>
 
-        <div className="border border-border bg-card p-3.5 flex items-center gap-3.5 shadow-2xs">
+        <div className="border border-border bg-card p-3.5 flex items-center gap-3.5 shadow-2xs rounded-none">
           {/* Live Monogram Badge Preview */}
           <div
-            className={cn(
-              "flex size-12 items-center justify-center font-bold text-lg border shadow-xs shrink-0 select-none",
-              containerShape === "square" ? "rounded-none" : "rounded-full",
-            )}
+            className="flex size-12 items-center justify-center font-bold text-lg border shadow-xs shrink-0 select-none rounded-none"
             style={{
               backgroundColor: primaryColor,
               color: "#FFFFFF",
@@ -455,12 +448,11 @@ export default function TabAppearance({
                   avatarMode: "monogram",
                 })
               }
-              placeholder="e.g. S, TZ, CLINIC"
+              placeholder={t("dashboard.widget.appearanceTab.monogramPlaceholder")}
               className="w-full border border-border bg-background px-3 py-1.5 font-sans font-bold text-xs text-foreground uppercase tracking-widest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-none shadow-2xs"
             />
             <p className="text-[10.5px] text-muted-foreground font-sans mt-1">
-              Enter 1–3 characters to represent your brand across the widget
-              header and floating launcher button.
+              {t("dashboard.widget.appearanceTab.monogramHelper")}
             </p>
           </div>
         </div>
@@ -471,7 +463,7 @@ export default function TabAppearance({
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Square className="size-3 text-primary" />
-            <span>Border Stroke & Tactile Edge</span>
+            <span>{t("dashboard.widget.appearanceTab.borderTitle")}</span>
           </label>
           <span className="font-mono text-[10px] text-primary font-bold uppercase">
             {borderStyle}
@@ -484,7 +476,7 @@ export default function TabAppearance({
             type="button"
             onClick={() => onChange({ ...config, borderStyle: "hairline" })}
             className={cn(
-              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
+              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs rounded-none",
               borderStyle === "hairline"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
@@ -492,10 +484,10 @@ export default function TabAppearance({
           >
             <div className="w-full h-1 border-b border-foreground/60" />
             <span className="text-xs font-sans font-medium">
-              Hairline Luxury
+              {t("dashboard.widget.appearanceTab.borders.hairline.name")}
             </span>
             <span className="text-[9px] font-mono text-muted-foreground">
-              1px Stroke
+              {t("dashboard.widget.appearanceTab.borders.hairline.sub")}
             </span>
           </button>
 
@@ -506,7 +498,7 @@ export default function TabAppearance({
               onChange({ ...config, borderStyle: "hard-brutalist" })
             }
             className={cn(
-              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
+              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs rounded-none",
               borderStyle === "hard-brutalist"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
@@ -514,10 +506,10 @@ export default function TabAppearance({
           >
             <div className="w-full h-1 border-b-2 border-foreground" />
             <span className="text-xs font-sans font-medium">
-              Bold Brutalist
+              {t("dashboard.widget.appearanceTab.borders.hard-brutalist.name")}
             </span>
             <span className="text-[9px] font-mono text-muted-foreground">
-              2px Ink Stroke
+              {t("dashboard.widget.appearanceTab.borders.hard-brutalist.sub")}
             </span>
           </button>
 
@@ -526,16 +518,18 @@ export default function TabAppearance({
             type="button"
             onClick={() => onChange({ ...config, borderStyle: "accent-gold" })}
             className={cn(
-              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
+              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs rounded-none",
               borderStyle === "accent-gold"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="w-full h-1 border-b-2 border-amber-400" />
-            <span className="text-xs font-sans font-medium">Accent Gold</span>
+            <span className="text-xs font-sans font-medium">
+              {t("dashboard.widget.appearanceTab.borders.accent-gold.name")}
+            </span>
             <span className="text-[9px] font-mono text-muted-foreground">
-              Gold Metallic
+              {t("dashboard.widget.appearanceTab.borders.accent-gold.sub")}
             </span>
           </button>
 
@@ -544,31 +538,33 @@ export default function TabAppearance({
             type="button"
             onClick={() => onChange({ ...config, borderStyle: "none" })}
             className={cn(
-              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs",
+              "p-2.5 border text-center transition-all cursor-pointer flex flex-col items-center gap-1 shadow-2xs rounded-none",
               borderStyle === "none"
                 ? "border-primary bg-primary/[0.08] ring-1 ring-primary font-semibold"
                 : "border-border bg-card hover:border-primary/40",
             )}
           >
             <div className="w-full h-1 border-b border-transparent" />
-            <span className="text-xs font-sans font-medium">Subtle Soft</span>
+            <span className="text-xs font-sans font-medium">
+              {t("dashboard.widget.appearanceTab.borders.none.name")}
+            </span>
             <span className="text-[9px] font-mono text-muted-foreground">
-              0px Border
+              {t("dashboard.widget.appearanceTab.borders.none.sub")}
             </span>
           </button>
         </div>
       </div>
 
-      {/* ── 6. PRIMARY BRAND COLOR (FULL CONTROLS RESTORED) ── */}
+      {/* ── 6. PRIMARY BRAND COLOR ── */}
       <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Palette className="size-3 text-primary" />
-            <span>Primary Brand Color (Header & Buttons)</span>
+            <span>{t("dashboard.widget.appearanceTab.primaryColorTitle")}</span>
           </label>
           <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-primary">
             <span
-              className="size-3 border border-black/20 inline-block shadow-2xs"
+              className="size-3 border border-black/20 inline-block shadow-2xs rounded-none"
               style={{ backgroundColor: primaryColor }}
             />
             <span>{primaryColor}</span>
@@ -577,15 +573,15 @@ export default function TabAppearance({
 
         <div className="space-y-3">
           {/* Custom Hex input with live color box */}
-          <div className="flex items-center gap-2.5 border border-border bg-background p-2 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+          <div className="flex items-center gap-2.5 border border-border bg-background p-2 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all rounded-none">
             <input
               type="color"
               value={primaryColor}
               onChange={(e) =>
                 onChange({ ...config, primaryColor: e.target.value })
               }
-              className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0"
-              aria-label="Primary color input"
+              className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0 rounded-none"
+              aria-label={t("dashboard.widget.appearanceTab.primaryColorAria")}
             />
             <div className="relative flex-1 flex items-center">
               <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">
@@ -606,16 +602,16 @@ export default function TabAppearance({
               />
             </div>
             <div
-              className="h-6 px-2.5 flex items-center justify-center font-mono text-[10px] font-bold text-white shadow-xs"
+              className="h-6 px-2.5 flex items-center justify-center font-mono text-[10px] font-bold text-white shadow-xs rounded-none"
               style={{ backgroundColor: primaryColor }}
             >
-              PREVIEW
+              {t("dashboard.widget.appearanceTab.previewBadge")}
             </div>
           </div>
 
           {/* Preset Swatches with Checkmarks */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {PRIMARY_COLOR_PRESETS.map((preset) => {
+            {primaryColorPresets.map((preset) => {
               const isSelected =
                 primaryColor.toLowerCase() === preset.hex.toLowerCase();
               return (
@@ -627,14 +623,14 @@ export default function TabAppearance({
                   }
                   title={`${preset.name} (${preset.hex})`}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs",
+                    "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs rounded-none",
                     isSelected
                       ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
                       : "border-border bg-card hover:border-primary/50",
                   )}
                 >
                   <span
-                    className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs"
+                    className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs rounded-none"
                     style={{ backgroundColor: preset.hex }}
                   >
                     {isSelected && (
@@ -651,16 +647,16 @@ export default function TabAppearance({
         </div>
       </div>
 
-      {/* ── 7. SECONDARY / ACCENT COLOR (FULL CONTROLS RESTORED) ── */}
+      {/* ── 7. SECONDARY / ACCENT COLOR ── */}
       <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Palette className="size-3 text-secondary-foreground" />
-            <span>Secondary / Accent Color (Badges & Chips)</span>
+            <span>{t("dashboard.widget.appearanceTab.secondaryColorTitle")}</span>
           </label>
           <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-primary">
             <span
-              className="size-3 border border-black/20 inline-block shadow-2xs"
+              className="size-3 border border-black/20 inline-block shadow-2xs rounded-none"
               style={{ backgroundColor: secondaryColor }}
             />
             <span>{secondaryColor}</span>
@@ -669,15 +665,15 @@ export default function TabAppearance({
 
         <div className="space-y-3">
           {/* Custom Hex input with live color box */}
-          <div className="flex items-center gap-2.5 border border-border bg-background p-2 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+          <div className="flex items-center gap-2.5 border border-border bg-background p-2 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all rounded-none">
             <input
               type="color"
               value={secondaryColor}
               onChange={(e) =>
                 onChange({ ...config, secondaryColor: e.target.value })
               }
-              className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0"
-              aria-label="Secondary color input"
+              className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0 rounded-none"
+              aria-label={t("dashboard.widget.appearanceTab.secondaryColorAria")}
             />
             <div className="relative flex-1 flex items-center">
               <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">
@@ -698,16 +694,16 @@ export default function TabAppearance({
               />
             </div>
             <div
-              className="h-6 px-2.5 flex items-center justify-center font-mono text-[10px] font-bold text-foreground shadow-xs border border-border"
+              className="h-6 px-2.5 flex items-center justify-center font-mono text-[10px] font-bold text-foreground shadow-xs border border-border rounded-none"
               style={{ backgroundColor: secondaryColor }}
             >
-              PREVIEW
+              {t("dashboard.widget.appearanceTab.previewBadge")}
             </div>
           </div>
 
           {/* Preset Accent Swatches */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {ACCENT_COLOR_PRESETS.map((preset) => {
+            {accentColorPresets.map((preset) => {
               const isSelected =
                 secondaryColor.toLowerCase() === preset.hex.toLowerCase();
               return (
@@ -719,14 +715,14 @@ export default function TabAppearance({
                   }
                   title={`${preset.name} (${preset.hex})`}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs",
+                    "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs rounded-none",
                     isSelected
                       ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
                       : "border-border bg-card hover:border-primary/50",
                   )}
                 >
                   <span
-                    className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs"
+                    className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs rounded-none"
                     style={{ backgroundColor: preset.hex }}
                   >
                     {isSelected && (
@@ -743,16 +739,16 @@ export default function TabAppearance({
         </div>
       </div>
 
-      {/* ── 8. CHAT CONTAINER BACKGROUND SURFACE COLOR (RESTORED) ── */}
+      {/* ── 8. CHAT CONTAINER BACKGROUND SURFACE COLOR ── */}
       <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Paintbrush className="size-3 text-primary" />
-            <span>Chat Container Surface Color (Canvas)</span>
+            <span>{t("dashboard.widget.appearanceTab.backgroundColorTitle")}</span>
           </label>
           <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-primary">
             <span
-              className="size-3 border border-black/20 inline-block shadow-2xs"
+              className="size-3 border border-black/20 inline-block shadow-2xs rounded-none"
               style={{ backgroundColor }}
             />
             <span>{backgroundColor}</span>
@@ -761,15 +757,15 @@ export default function TabAppearance({
 
         <div className="space-y-3">
           {/* Custom Hex input with live color box */}
-          <div className="flex items-center gap-2.5 border border-border bg-background p-2 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+          <div className="flex items-center gap-2.5 border border-border bg-background p-2 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all rounded-none">
             <input
               type="color"
               value={backgroundColor}
               onChange={(e) =>
                 onChange({ ...config, backgroundColor: e.target.value })
               }
-              className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0"
-              aria-label="Background surface color input"
+              className="size-8 cursor-pointer border border-border bg-transparent p-0 shrink-0 rounded-none"
+              aria-label={t("dashboard.widget.appearanceTab.backgroundColorAria")}
             />
             <div className="relative flex-1 flex items-center">
               <span className="font-mono text-xs text-muted-foreground ps-1 pe-0.5 select-none">
@@ -790,16 +786,16 @@ export default function TabAppearance({
               />
             </div>
             <div
-              className="h-6 px-2.5 flex items-center justify-center font-mono text-[10px] font-bold text-foreground shadow-xs border border-border"
+              className="h-6 px-2.5 flex items-center justify-center font-mono text-[10px] font-bold text-foreground shadow-xs border border-border rounded-none"
               style={{ backgroundColor }}
             >
-              PREVIEW
+              {t("dashboard.widget.appearanceTab.previewBadge")}
             </div>
           </div>
 
           {/* Preset Swatches with Checkmarks */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {BG_COLOR_PRESETS.map((preset) => {
+            {bgColorPresets.map((preset) => {
               const isSelected =
                 backgroundColor.toLowerCase() === preset.hex.toLowerCase();
               return (
@@ -811,14 +807,14 @@ export default function TabAppearance({
                   }
                   title={`${preset.name} (${preset.hex})`}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs",
+                    "flex flex-col items-center gap-1.5 border p-2 transition-all cursor-pointer shadow-2xs rounded-none",
                     isSelected
                       ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
                       : "border-border bg-card hover:border-primary/50",
                   )}
                 >
                   <span
-                    className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs"
+                    className="relative flex size-6 items-center justify-center border border-black/15 shadow-2xs rounded-none"
                     style={{ backgroundColor: preset.hex }}
                   >
                     {isSelected && (
@@ -837,32 +833,32 @@ export default function TabAppearance({
 
       {/* ── 9. RAG CITATION PRESENTATION ── */}
       <div className="border-t border-border pt-4">
-        <div className="flex mb-5 items-center justify-between ">
+        <div className="flex mb-5 items-center justify-between">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <FileText className="size-3 text-primary" />
-            <span>Grounded Source Citation Display</span>
+            <span>{t("dashboard.widget.appearanceTab.citationsTitle")}</span>
           </label>
           {citationStyle === "document-snippet" ? (
             isPro ? (
               <span className="font-sans text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase flex items-center gap-1">
                 <Crown className="size-3" />
-                PRO ACTIVE
+                {t("dashboard.widget.appearanceTab.proActive")}
               </span>
             ) : (
               <span className="font-mono text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase flex items-center gap-1">
                 <Crown className="size-3" />
-                PRO PLAN REQUIRED
+                {t("dashboard.widget.appearanceTab.proRequired")}
               </span>
             )
           ) : (
             <span className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase">
-              FREE / ACTIVE
+              {t("dashboard.widget.appearanceTab.freeActive")}
             </span>
           )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {/* Option 1: Normal Message (No Document Part) */}
+          {/* Option 1: Normal Message */}
           <button
             type="button"
             onClick={() => onChange({ ...config, citationStyle: "none" })}
@@ -876,28 +872,26 @@ export default function TabAppearance({
             <div className="flex items-center flex-col justify-center gap-1">
               <span className="font-heading text-xs font-bold flex items-center gap-1.5">
                 <MessageSquare className="size-3 text-primary" />
-                Normal Message
+                {t("dashboard.widget.appearanceTab.citationNormalTitle")}
               </span>
               <span className="font-mono text-[9px] text-emerald-600 font-bold">
-                DEFAULT
+                {t("dashboard.widget.appearanceTab.defaultBadge")}
               </span>
             </div>
             <p className="text-[10px] text-muted-foreground font-sans leading-relaxed">
-              Standard conversational message without attaching source snippet
-              cards or citation tags.
+              {t("dashboard.widget.appearanceTab.citationNormalDesc")}
             </p>
           </button>
 
-          {/* Option 3: Document Highlight Card (PRO Only) */}
+          {/* Option 2: Verified File Badge (PRO Only) */}
           <button
             type="button"
             onClick={() => {
               if (!isPro) {
                 onUpgrade?.({
-                  featureName: "Document Highlight Cards",
+                  featureName: t("dashboard.widget.appearanceTab.citationUpgradeFeature"),
                   requiredTier: "pro",
-                  reason:
-                    "Displaying rich Document Highlight Cards with verified marker excerpts requires the Growth (Pro) plan.",
+                  reason: t("dashboard.widget.appearanceTab.citationUpgradeReason"),
                 });
               }
               onChange({ ...config, citationStyle: "document-snippet" });
@@ -919,7 +913,7 @@ export default function TabAppearance({
                     isPro ? "text-primary" : "text-amber-500",
                   )}
                 />
-                Verified Document Badge
+                {t("dashboard.widget.appearanceTab.citationDocumentTitle")}
               </span>
               <span
                 className={cn(
@@ -928,40 +922,39 @@ export default function TabAppearance({
                 )}
               >
                 {!isPro && <Lock className="size-2.5" />}
-                PRO PLAN
+                {t("dashboard.widget.appearanceTab.proPlanBadge")}
               </span>
             </div>
             <p className="text-[10px] text-muted-foreground font-sans leading-relaxed">
-              Compact verified source badge showing official document name
-              anchored neatly under the message.
+              {t("dashboard.widget.appearanceTab.citationDocumentDesc")}
             </p>
           </button>
         </div>
       </div>
 
-      {/* ── 10. LAUNCHER SCREEN CORNER POSITION (RESTORED) ── */}
+      {/* ── 10. LAUNCHER SCREEN CORNER POSITION ── */}
       <div className="border-t border-border pt-4">
         <label className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-          Launcher Screen Position
+          {t("dashboard.widget.appearanceTab.positionTitle")}
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {[
             {
               id: "bottom-right",
-              title: "Bottom Right",
-              badge: "Standard (Recommended)",
+              title: t("dashboard.widget.appearanceTab.positions.bottomRight.title"),
+              badge: t("dashboard.widget.appearanceTab.positions.bottomRight.badge"),
               badgeStyle:
                 "border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-bold",
-              desc: "Standard e-commerce placement, maximizing visitor discovery and ease of interaction.",
-              cornerDot: "right-2 bottom-2",
+              desc: t("dashboard.widget.appearanceTab.positions.bottomRight.desc"),
+              cornerDot: "end-2 bottom-2",
             },
             {
               id: "bottom-left",
-              title: "Bottom Left",
-              badge: "Alternate Corner",
+              title: t("dashboard.widget.appearanceTab.positions.bottomLeft.title"),
+              badge: t("dashboard.widget.appearanceTab.positions.bottomLeft.badge"),
               badgeStyle: "border-border bg-muted text-muted-foreground",
-              desc: "Alternate corner, leaving the right side clear for existing WhatsApp or quick-checkout buttons.",
-              cornerDot: "left-2 bottom-2",
+              desc: t("dashboard.widget.appearanceTab.positions.bottomLeft.desc"),
+              cornerDot: "start-2 bottom-2",
             },
           ].map((item) => {
             const isSelected = position === item.id;
@@ -980,7 +973,7 @@ export default function TabAppearance({
                 )}
               >
                 {/* Mini Wireframe Displaying Corner Dot */}
-                <div className="relative h-10 w-full border border-border/80 bg-background/50 mb-2 p-1">
+                <div className="relative h-10 w-full border border-border/80 bg-background/50 mb-2 p-1 rounded-none">
                   <span
                     className={cn(
                       "absolute size-2.5 rounded-none shadow-xs",
@@ -997,7 +990,7 @@ export default function TabAppearance({
                 </div>
                 <span
                   className={cn(
-                    "border px-1.5 py-0.2 font-mono text-[9px] inline-block mb-1",
+                    "border px-1.5 py-0.2 font-mono text-[9px] inline-block mb-1 rounded-none",
                     item.badgeStyle,
                   )}
                 >
@@ -1012,22 +1005,22 @@ export default function TabAppearance({
         </div>
       </div>
 
-      {/* ── 11. LAUNCHER BUTTON FORMAT (RESTORED) ── */}
+      {/* ── 11. LAUNCHER BUTTON FORMAT ── */}
       <div className="border-t border-border pt-4">
         <label className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-          Launcher Button Format & CTA Text
+          {t("dashboard.widget.appearanceTab.launcherFormatTitle")}
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
           {[
             {
               id: "badge",
-              title: "Icon + Text Badge (Dual-Pill in Arch)",
-              desc: "Highest conversion format, pairing your monogram stamp with an inviting greeting.",
+              title: t("dashboard.widget.appearanceTab.launcherFormats.badge.title"),
+              desc: t("dashboard.widget.appearanceTab.launcherFormats.badge.desc"),
             },
             {
               id: "icon",
-              title: "Minimal Icon / Monogram Only",
-              desc: "Compact floating circular or square launcher for minimalist aesthetics.",
+              title: t("dashboard.widget.appearanceTab.launcherFormats.icon.title"),
+              desc: t("dashboard.widget.appearanceTab.launcherFormats.icon.desc"),
             },
           ].map((item) => {
             const isSelected = launcherStyle === item.id;
@@ -1062,7 +1055,7 @@ export default function TabAppearance({
         {launcherStyle === "badge" && (
           <div className="border border-border bg-card p-3 rounded-none shadow-2xs">
             <label className="block font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Badge Call-to-Action Text
+              {t("dashboard.widget.appearanceTab.launcherCtaLabel")}
             </label>
             <input
               type="text"
@@ -1073,8 +1066,8 @@ export default function TabAppearance({
               }
               placeholder={
                 containerShape === "arch"
-                  ? "At your help, ask me"
-                  : "Chat with us"
+                  ? t("dashboard.widget.appearanceTab.launcherPlaceholderArch")
+                  : t("dashboard.widget.appearanceTab.launcherPlaceholderDefault")
               }
               className="w-full border border-border bg-background px-3 py-1.5 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all rounded-none"
             />

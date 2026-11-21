@@ -13,6 +13,7 @@ import { type AccountData, type AccountBusinessState } from "../types";
 import { useState, useActionState } from "react";
 import { EGYPT_CITIES } from "@/lib/constants";
 import { updateBusinessWorkspace } from "../actions";
+import { useTranslation } from "react-i18next";
 
 interface AccountBusinessWorkspaceProps {
   initialData: AccountData;
@@ -23,6 +24,7 @@ const initialState: AccountBusinessState = {};
 export default function AccountBusinessWorkspace({
   initialData,
 }: AccountBusinessWorkspaceProps) {
+  const { t } = useTranslation();
   const [copiedId, setCopiedId] = useState(false);
 
   // Form input states
@@ -62,17 +64,17 @@ export default function AccountBusinessWorkspace({
   };
 
   return (
-    <section className="bg-card border border-border p-5 sm:p-6 shadow-2xs space-y-5">
+    <section className="bg-card border border-border p-5 sm:p-6 shadow-2xs space-y-5 rounded-none">
       <div className="flex items-center gap-2 border-b border-border/80 pb-3">
         <Building2 className="size-4 text-primary" />
-        <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-foreground">
-          Business Workspace
+        <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-foreground font-sans">
+          {t("dashboard.account.workspace.title", "Business Workspace")}
         </h2>
       </div>
 
       {/* Top Level Error Banner */}
       {state.error && (
-        <div className="p-3 border border-destructive/30 bg-destructive/10 text-destructive text-xs flex items-center gap-2">
+        <div className="p-3 border border-destructive/30 bg-destructive/10 text-destructive text-xs flex items-center gap-2 rounded-none font-sans">
           <AlertCircle className="size-4 shrink-0" />
           <span>{state.error}</span>
         </div>
@@ -80,9 +82,9 @@ export default function AccountBusinessWorkspace({
 
       {/* Top Level Success Banner (hidden automatically once user re-dirties form) */}
       {state.success && !isDirty && (
-        <div className="p-3 border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
+        <div className="p-3 border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 rounded-none font-sans">
           <Check className="size-4 shrink-0" />
-          <span>Business workspace updated successfully.</span>
+          <span>{t("dashboard.account.workspace.success", "Business workspace updated successfully.")}</span>
         </div>
       )}
 
@@ -91,22 +93,22 @@ export default function AccountBusinessWorkspace({
           {/* Business English Name */}
           <div className="space-y-1.5">
             <label className="font-sans text-xs font-semibold text-foreground">
-              Business Legal Name (English)
+              {t("dashboard.account.workspace.nameEn", "Business Legal Name (English)")}
             </label>
             <input
               type="text"
               name="businessNameEn"
               value={businessNameEn}
               onChange={(e) => setBusinessNameEn(e.target.value)}
-              placeholder="e.g. Al Nour Dental Center"
-              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors ${
+              placeholder={t("dashboard.account.workspace.nameEnPlaceholder", "e.g. Al Nour Dental Center")}
+              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors rounded-none ${
                 state.fieldErrors?.businessNameEn
                   ? "border-destructive focus:border-destructive"
                   : "border-border focus:border-primary"
               }`}
             />
             {state.fieldErrors?.businessNameEn && (
-              <span className="text-[11px] text-destructive block">
+              <span className="text-[11px] text-destructive block font-sans">
                 {state.fieldErrors.businessNameEn[0]}
               </span>
             )}
@@ -115,7 +117,7 @@ export default function AccountBusinessWorkspace({
           {/* Business Arabic Name */}
           <div className="space-y-1.5">
             <label className="font-sans text-xs font-semibold text-foreground">
-              Business Name (Arabic)
+              {t("dashboard.account.workspace.nameAr", "Business Name (Arabic)")}
             </label>
             <input
               type="text"
@@ -123,15 +125,15 @@ export default function AccountBusinessWorkspace({
               name="businessNameAr"
               value={businessNameAr}
               onChange={(e) => setBusinessNameAr(e.target.value)}
-              placeholder="مثال: مركز النور لطب الأسنان"
-              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors ${
+              placeholder={t("dashboard.account.workspace.nameArPlaceholder", "مثال: مركز النور لطب الأسنان")}
+              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors rounded-none ${
                 state.fieldErrors?.businessNameAr
                   ? "border-destructive focus:border-destructive"
                   : "border-border focus:border-primary"
               }`}
             />
             {state.fieldErrors?.businessNameAr && (
-              <span className="text-[11px] text-destructive block">
+              <span className="text-[11px] text-destructive block font-sans">
                 {state.fieldErrors.businessNameAr[0]}
               </span>
             )}
@@ -144,14 +146,14 @@ export default function AccountBusinessWorkspace({
             <div className="flex items-center gap-1.5">
               <MapPin className="size-3.5 text-primary" />
               <label className="font-sans text-xs font-semibold text-foreground">
-                Operating City
+                {t("dashboard.account.workspace.operatingCity", "Operating City")}
               </label>
             </div>
             <select
               name="city"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors rounded-none cursor-pointer ${
+              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors rounded-none cursor-pointer font-sans ${
                 state.fieldErrors?.city
                   ? "border-destructive focus:border-destructive"
                   : "border-border focus:border-primary"
@@ -164,7 +166,7 @@ export default function AccountBusinessWorkspace({
               ))}
             </select>
             {state.fieldErrors?.city && (
-              <span className="text-[11px] text-destructive block">
+              <span className="text-[11px] text-destructive block font-sans">
                 {state.fieldErrors.city[0]}
               </span>
             )}
@@ -172,22 +174,22 @@ export default function AccountBusinessWorkspace({
 
           <div className="space-y-1.5">
             <label className="font-sans text-xs font-semibold text-foreground">
-              District / Area
+              {t("dashboard.account.workspace.district", "District / Area")}
             </label>
             <input
               type="text"
               name="district"
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              placeholder="e.g. New Cairo, Maadi, Dokki"
-              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors ${
+              placeholder={t("dashboard.account.workspace.districtPlaceholder", "e.g. New Cairo, Maadi, Dokki")}
+              className={`w-full border bg-background px-3 py-2 text-sm text-foreground focus:outline-none transition-colors rounded-none ${
                 state.fieldErrors?.district
                   ? "border-destructive focus:border-destructive"
                   : "border-border focus:border-primary"
               }`}
             />
             {state.fieldErrors?.district && (
-              <span className="text-[11px] text-destructive block">
+              <span className="text-[11px] text-destructive block font-sans">
                 {state.fieldErrors.district[0]}
               </span>
             )}
@@ -197,15 +199,17 @@ export default function AccountBusinessWorkspace({
         {/* Workspace ID & Public Tenant Identifier */}
         <div className="border-t border-border/60 pt-4 space-y-2">
           <label className="font-sans text-xs font-semibold text-foreground">
-            Workspace Tenant ID
+            {t("dashboard.account.workspace.tenantId", "Workspace Tenant ID")}
           </label>
           <p className="font-sans text-xs text-muted-foreground">
-            Unique database identifier for this business workspace. Referenced by
-            client-side widgets and webhook dispatches.
+            {t(
+              "dashboard.account.workspace.tenantIdDesc",
+              "Unique database identifier for this business workspace. Referenced by client-side widgets and webhook dispatches."
+            )}
           </p>
 
           <div className="flex items-center gap-2">
-            <div className="flex-1 border border-border bg-muted/30 px-3 py-2 font-mono text-xs text-foreground select-all truncate">
+            <div className="flex-1 border border-border bg-muted/30 px-3 py-2 font-mono text-xs text-foreground select-all truncate rounded-none">
               {initialData.business.id}
             </div>
             <Button
@@ -213,17 +217,17 @@ export default function AccountBusinessWorkspace({
               variant="outline"
               size="sm"
               onClick={handleCopyId}
-              className="shrink-0 font-sans text-xs font-semibold"
+              className="shrink-0 font-sans text-xs font-semibold cursor-pointer"
             >
               {copiedId ? (
                 <>
                   <Check className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Copied</span>
+                  <span>{t("dashboard.account.workspace.copied", "Copied")}</span>
                 </>
               ) : (
                 <>
                   <Copy className="size-3.5 text-muted-foreground" />
-                  <span>Copy ID</span>
+                  <span>{t("dashboard.account.workspace.copyId", "Copy ID")}</span>
                 </>
               )}
             </Button>
@@ -241,10 +245,10 @@ export default function AccountBusinessWorkspace({
             {isPending ? (
               <span className="flex items-center gap-2">
                 <Loader className="size-3.5 animate-spin" />
-                Saving Workspace...
+                {t("dashboard.account.workspace.saving", "Saving Workspace...")}
               </span>
             ) : (
-              "Save Business Settings"
+              t("dashboard.account.workspace.saveBtn", "Save Business Settings")
             )}
           </Button>
         </div>

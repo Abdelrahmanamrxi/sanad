@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Copy, Check, ExternalLink, Code2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PLATFORM_GUIDES } from "../../constants";
 import type { WidgetConfig } from "../../types";
 import AllowedDomainsInput from "./allowed-domains-input";
@@ -19,6 +20,7 @@ export default function TabEmbed({
   onChange,
   domainError,
 }: TabEmbedProps) {
+  const { t } = useTranslation();
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [activePlatform, setActivePlatform] = useState<"salla" | "shopify" | "wordpress">("salla");
@@ -53,18 +55,39 @@ export default function TabEmbed({
     salla: {
       color: "border-teal-500/40 bg-teal-500/10 text-teal-700 dark:text-teal-300",
       accent: "bg-teal-600",
+      name: t("dashboard.widget.embedTab.platforms.salla.name"),
+      tagline: t("dashboard.widget.embedTab.platforms.salla.tagline"),
+      steps: [
+        t("dashboard.widget.embedTab.platforms.salla.step1"),
+        t("dashboard.widget.embedTab.platforms.salla.step2"),
+        t("dashboard.widget.embedTab.platforms.salla.step3"),
+      ],
     },
     shopify: {
       color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
       accent: "bg-emerald-600",
+      name: t("dashboard.widget.embedTab.platforms.shopify.name"),
+      tagline: t("dashboard.widget.embedTab.platforms.shopify.tagline"),
+      steps: [
+        t("dashboard.widget.embedTab.platforms.shopify.step1"),
+        t("dashboard.widget.embedTab.platforms.shopify.step2"),
+        t("dashboard.widget.embedTab.platforms.shopify.step3"),
+      ],
     },
     wordpress: {
       color: "border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-300",
       accent: "bg-blue-600",
+      name: t("dashboard.widget.embedTab.platforms.wordpress.name"),
+      tagline: t("dashboard.widget.embedTab.platforms.wordpress.tagline"),
+      steps: [
+        t("dashboard.widget.embedTab.platforms.wordpress.step1"),
+        t("dashboard.widget.embedTab.platforms.wordpress.step2"),
+        t("dashboard.widget.embedTab.platforms.wordpress.step3"),
+      ],
     },
   };
 
-  const currentPlatformGuide = PLATFORM_GUIDES.find((p) => p.id === activePlatform) || PLATFORM_GUIDES[0];
+  const currentMeta = platformMeta[activePlatform];
 
   return (
     <div className="space-y-6">
@@ -72,7 +95,7 @@ export default function TabEmbed({
       <div className="flex items-center gap-2.5 border border-teal-500/30 bg-teal-500/10 p-3 rounded-none">
         <Code2 className="size-4 text-teal-600 dark:text-teal-400 shrink-0" />
         <p className="text-xs font-sans text-teal-950 dark:text-teal-200 leading-relaxed">
-          Configure authorized domains and copy this single script tag to embed in your online store.
+          {t("dashboard.widget.embedTab.helperBanner")}
         </p>
       </div>
 
@@ -91,7 +114,7 @@ export default function TabEmbed({
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Universal HTML Embed Tag
+            {t("dashboard.widget.embedTab.htmlSnippetTitle")}
           </label>
           <button
             type="button"
@@ -105,19 +128,19 @@ export default function TabEmbed({
             {copiedCode ? (
               <>
                 <Check className="size-3.5" />
-                <span>Copied to Clipboard!</span>
+                <span>{t("dashboard.widget.embedTab.copiedSnippet")}</span>
               </>
             ) : (
               <>
                 <Copy className="size-3.5" />
-                <span>Copy Snippet</span>
+                <span>{t("dashboard.widget.embedTab.copySnippet")}</span>
               </>
             )}
           </button>
         </div>
 
         {/* Syntax-Highlighted Terminal Container */}
-        <div className="relative border border-stone-800 bg-stone-950 p-4 font-mono text-[11px] text-stone-200 leading-relaxed select-all overflow-x-auto rounded-none shadow-lg">
+        <div className="relative border border-stone-800 bg-stone-950 p-4 font-mono text-[11px] text-stone-200 leading-relaxed select-all overflow-x-auto rounded-none shadow-lg text-left" dir="ltr">
           <span className="text-teal-400">&lt;script</span>{" "}
           <br />
           &nbsp;&nbsp;<span className="text-amber-400">src</span>=
@@ -138,7 +161,7 @@ export default function TabEmbed({
           <span className="text-teal-400">&gt;&lt;/script&gt;</span>
         </div>
         <p className="mt-1.5 font-sans text-[11px] text-muted-foreground leading-relaxed">
-          Paste this tag into your store header or right before the closing <code>&lt;/body&gt;</code> tag. Operates with zero external runtime dependencies.
+          {t("dashboard.widget.embedTab.snippetGuidance")}
         </p>
       </div>
 
@@ -146,7 +169,7 @@ export default function TabEmbed({
       <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Direct Shareable URL
+            {t("dashboard.widget.embedTab.directLinkTitle")}
           </label>
           <div className="flex items-center gap-2">
             <button
@@ -155,7 +178,7 @@ export default function TabEmbed({
               className="flex items-center gap-1 border border-border bg-background px-2.5 py-1 font-sans text-xs text-muted-foreground hover:text-foreground transition-colors rounded-none shadow-2xs cursor-pointer"
             >
               {copiedLink ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
-              <span>{copiedLink ? "Copied" : "Copy Link"}</span>
+              <span>{copiedLink ? t("dashboard.widget.embedTab.copiedLink") : t("dashboard.widget.embedTab.copyLink")}</span>
             </button>
             <a
               href={directChatUrl}
@@ -164,43 +187,43 @@ export default function TabEmbed({
               className="flex items-center gap-1 border border-border bg-background px-2.5 py-1 font-sans text-xs text-muted-foreground hover:text-foreground transition-colors rounded-none shadow-2xs"
             >
               <ExternalLink className="size-3" />
-              <span>Preview</span>
+              <span>{t("dashboard.widget.embedTab.previewLink")}</span>
             </a>
           </div>
         </div>
 
-        <div className="border border-border bg-background px-3 py-2 font-mono text-xs text-primary font-medium truncate rounded-none select-all shadow-2xs">
+        <div className="border border-border bg-background px-3 py-2 font-mono text-xs text-primary font-medium truncate rounded-none select-all shadow-2xs text-left" dir="ltr">
           {directChatUrl}
         </div>
         <p className="mt-1 text-[11px] text-muted-foreground font-sans">
-          Use this standalone link for Instagram bio buttons, WhatsApp quick action catalogs, or SMS support flows.
+          {t("dashboard.widget.embedTab.directLinkGuidance")}
         </p>
       </div>
 
       {/* 3. Platform Guides */}
       <div className="border-t border-border pt-4">
         <label className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-          Platform Installation Guides
+          {t("dashboard.widget.embedTab.guidesTitle")}
         </label>
 
         {/* Platform switcher cards */}
         <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2 mb-3">
-          {PLATFORM_GUIDES.map((platform) => {
-            const meta = platformMeta[platform.id];
-            const isSelected = activePlatform === platform.id;
+          {(["salla", "shopify", "wordpress"] as const).map((platformId) => {
+            const meta = platformMeta[platformId];
+            const isSelected = activePlatform === platformId;
             return (
               <button
-                key={platform.id}
+                key={platformId}
                 type="button"
-                onClick={() => setActivePlatform(platform.id)}
+                onClick={() => setActivePlatform(platformId)}
                 className={`border p-2.5 text-center font-sans text-xs transition-all rounded-none cursor-pointer shadow-2xs ${
                   isSelected
                     ? `${meta.color} font-bold ring-2 ring-primary/40`
                     : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
                 }`}
               >
-                <span className="block font-bold">{platform.name}</span>
-                <span className="block text-[10px] opacity-80">{platform.tagline}</span>
+                <span className="block font-bold">{meta.name}</span>
+                <span className="block text-[10px] opacity-80">{meta.tagline}</span>
               </button>
             );
           })}
@@ -210,20 +233,20 @@ export default function TabEmbed({
         <div className="border border-border bg-background p-4 space-y-3 rounded-none shadow-2xs">
           <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div className="flex items-center gap-2">
-              <span className={`size-2.5 ${platformMeta[activePlatform].accent} inline-block`} />
+              <span className={`size-2.5 ${currentMeta.accent} inline-block rounded-none`} />
               <span className="font-sans text-xs font-bold text-foreground">
-                Integration Steps for {currentPlatformGuide.name}
+                {t("dashboard.widget.embedTab.integrationStepsTitle", { platform: currentMeta.name })}
               </span>
             </div>
-            <span className="border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-              3 Quick Steps
+            <span className="border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold rounded-none">
+              {t("dashboard.widget.embedTab.stepsBadge")}
             </span>
           </div>
 
           <div className="space-y-3">
-            {currentPlatformGuide.steps.map((step, idx) => (
+            {currentMeta.steps.map((step, idx) => (
               <div key={idx} className="flex items-start gap-3 text-xs">
-                <span className="flex size-5 shrink-0 items-center justify-center font-mono text-[10px] font-bold bg-primary text-primary-foreground shadow-xs mt-0.5">
+                <span className="flex size-5 shrink-0 items-center justify-center font-mono text-[10px] font-bold bg-primary text-primary-foreground shadow-xs mt-0.5 rounded-none">
                   {idx + 1}
                 </span>
                 <p className="font-sans text-foreground text-xs leading-relaxed">

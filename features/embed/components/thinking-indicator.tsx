@@ -35,7 +35,7 @@ export function ThinkingIndicator({
   const stages = [
     {
       badgeEn: "SEARCHING KNOWLEDGE",
-      badgeAr: "مراجعة المستندات",
+      badgeAr: "مراجعة الملفات",
       textEn: "Searching verified store policies & catalog...",
       textAr: "البحث في وثائق وسياسات المتجر المعتمدة...",
       icon: Search,
@@ -279,7 +279,7 @@ export function ThinkingIndicator({
             />
             <span className="truncate">
               {isRtl
-                ? "مستند إلى وثائق المتجر المعتمدة"
+                ? "موثق من ملفات المتجر المعتمدة"
                 : "Grounded in verified store records"}
             </span>
           </div>

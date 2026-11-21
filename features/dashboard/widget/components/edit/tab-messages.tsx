@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, Trash2, MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { WidgetConfig } from "../../types";
 
 interface TabMessagesProps {
@@ -10,6 +11,7 @@ interface TabMessagesProps {
 }
 
 export default function TabMessages({ config, onChange }: TabMessagesProps) {
+  const { t } = useTranslation();
   const [newStarterText, setNewStarterText] = useState("");
 
   const handleAddStarter = () => {
@@ -35,7 +37,7 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
       <div className="flex items-center gap-2.5 border border-indigo-500/30 bg-indigo-500/10 p-3 rounded-none">
         <MessageSquare className="size-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
         <p className="text-xs font-sans text-indigo-950 dark:text-indigo-200 leading-relaxed">
-          Set up the opening greeting and quick inquiry chips presented to customers when opening chat.
+          {t("dashboard.widget.messagesTab.helperBanner")}
         </p>
       </div>
 
@@ -43,10 +45,12 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Initial Welcome Greeting
+            {t("dashboard.widget.messagesTab.welcomeGreeting")}
           </label>
           <span className="font-mono text-[10px] text-primary font-bold">
-            {config.welcomeMessage.length} / 250
+            {t("dashboard.widget.messagesTab.welcomeGreetingChars", {
+              count: config.welcomeMessage.length,
+            })}
           </span>
         </div>
         <textarea
@@ -56,10 +60,10 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
           rows={4}
           dir="auto"
           className="w-full border border-border bg-background p-3 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all resize-y rounded-none leading-relaxed shadow-2xs"
-          placeholder="Write the initial greeting message sent by Sanad to store visitors..."
+          placeholder={t("dashboard.widget.messagesTab.welcomePlaceholder")}
         />
         <p className="mt-1 text-[11px] text-muted-foreground font-sans">
-          Sent automatically when a customer initiates a new conversation session.
+          {t("dashboard.widget.messagesTab.welcomeHelper")}
         </p>
       </div>
 
@@ -67,14 +71,16 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
       <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between mb-2">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Quick Question Starters
+            {t("dashboard.widget.messagesTab.startersTitle")}
           </label>
           <span className="font-mono text-[10px] text-primary font-bold">
-            {config.starterQuestions.length} / 6 questions
+            {t("dashboard.widget.messagesTab.startersCounter", {
+              count: config.starterQuestions.length,
+            })}
           </span>
         </div>
         <p className="mb-3 text-[11px] text-muted-foreground font-sans">
-          One-click prompt suggestions to help customers quickly inquire about shipping, returns, and payment.
+          {t("dashboard.widget.messagesTab.startersHelper")}
         </p>
 
         {/* List of current questions */}
@@ -85,7 +91,7 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
               className="flex items-center justify-between gap-2.5 border border-border bg-background p-2.5 rounded-none shadow-2xs group hover:border-primary/60 transition-colors"
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="flex size-5 shrink-0 items-center justify-center font-mono text-[10px] font-bold bg-primary/15 text-primary border border-primary/30">
+                <span className="flex size-5 shrink-0 items-center justify-center font-mono text-[10px] font-bold bg-primary/15 text-primary border border-primary/30 rounded-none">
                   {index + 1}
                 </span>
                 <span className="font-sans text-xs font-medium text-foreground truncate" dir="auto">
@@ -97,7 +103,7 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
                 type="button"
                 onClick={() => handleRemoveStarter(index)}
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0 p-1.5 rounded-none cursor-pointer"
-                title="Remove question"
+                title={t("dashboard.widget.messagesTab.removeTooltip")}
               >
                 <Trash2 className="size-3.5" />
               </button>
@@ -113,7 +119,7 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
               value={newStarterText}
               onChange={(e) => setNewStarterText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddStarter())}
-              placeholder="Add common inquiry (e.g. What payment methods are supported?)..."
+              placeholder={t("dashboard.widget.messagesTab.addPlaceholder")}
               dir="auto"
               className="flex-1 border border-border bg-background px-3 py-2 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all rounded-none shadow-2xs"
             />
@@ -124,7 +130,7 @@ export default function TabMessages({ config, onChange }: TabMessagesProps) {
               className="flex items-center gap-1 border border-primary bg-primary px-4 py-2 font-sans text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 rounded-none shadow-2xs shrink-0 cursor-pointer"
             >
               <Plus className="size-3.5" />
-              <span>Add</span>
+              <span>{t("dashboard.widget.messagesTab.addButton")}</span>
             </button>
           </div>
         )}

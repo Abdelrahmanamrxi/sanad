@@ -2,11 +2,11 @@
 
 import React from "react";
 import { Globe, Bot, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { WidgetConfig, WidgetLanguage } from "../../types";
 import { type PlanTier, PLANS } from "@/features/billing/plans";
 import type { RestrictedFeatureInfo } from "@/features/billing/components/upgrade-plans-modal";
 import { cn } from "@/lib/utils";
-
 import AllowedDomainsInput from "./allowed-domains-input";
 
 interface TabIdentityProps {
@@ -24,31 +24,33 @@ export default function TabIdentity({
   planTier = "free",
   onUpgrade,
 }: TabIdentityProps) {
+  const { t } = useTranslation();
   const isFree = planTier === "free";
+
   const languageOptions = [
     {
       id: "auto",
-      label: "Auto Detect",
-      badge: "AUTO",
+      label: t("dashboard.widget.identityTab.languages.auto.label"),
+      badge: t("dashboard.widget.identityTab.languages.auto.badge"),
       badgeColor:
         "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
-      desc: "Matches the visitor's storefront language automatically.",
+      desc: t("dashboard.widget.identityTab.languages.auto.desc"),
     },
     {
       id: "en",
-      label: "English (LTR)",
-      badge: "LTR",
+      label: t("dashboard.widget.identityTab.languages.en.label"),
+      badge: t("dashboard.widget.identityTab.languages.en.badge"),
       badgeColor:
         "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400",
-      desc: "Standard left-to-right alignment for English storefronts.",
+      desc: t("dashboard.widget.identityTab.languages.en.desc"),
     },
     {
       id: "ar",
-      label: "Arabic (RTL)",
-      badge: "RTL",
+      label: t("dashboard.widget.identityTab.languages.ar.label"),
+      badge: t("dashboard.widget.identityTab.languages.ar.badge"),
       badgeColor:
         "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-      desc: "Forces right-to-left alignment for Arabic storefronts.",
+      desc: t("dashboard.widget.identityTab.languages.ar.desc"),
     },
   ];
 
@@ -58,8 +60,7 @@ export default function TabIdentity({
       <div className="flex items-center gap-2.5 border border-emerald-500/30 bg-emerald-500/10 p-3 rounded-none">
         <Bot className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
         <p className="text-xs font-sans text-emerald-950 dark:text-emerald-200 leading-relaxed">
-          Configure your assistant&apos;s public brand name, online presence
-          subtitle, and default language.
+          {t("dashboard.widget.identityTab.helperBanner")}
         </p>
       </div>
 
@@ -67,16 +68,16 @@ export default function TabIdentity({
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <span>Assistant Name</span>
+            <span>{t("dashboard.widget.identityTab.assistantName")}</span>
             {isFree && (
               <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1 rounded-none">
                 <Lock className="size-2.5" />
-                <span>STARTER TIER</span>
+                <span>{t("dashboard.widget.identityTab.starterTier")}</span>
               </span>
             )}
           </label>
           <span className="font-mono text-[10px] text-muted-foreground">
-            {isFree ? "Default Name" : `${config.botName.length} / 40`}
+            {isFree ? t("dashboard.widget.identityTab.defaultName") : `${config.botName.length} / 40`}
           </span>
         </div>
 
@@ -87,7 +88,7 @@ export default function TabIdentity({
             disabled={isFree}
             value={isFree ? "AI Assistant" : config.botName}
             onChange={(e) => onChange({ ...config, botName: e.target.value })}
-            placeholder="e.g. Sanad AI Support"
+            placeholder={t("dashboard.widget.identityTab.assistantNamePlaceholder")}
             className={cn(
               "w-full border px-3 py-2 font-sans text-xs outline-none transition-all rounded-none shadow-2xs",
               isFree
@@ -107,8 +108,7 @@ export default function TabIdentity({
             <div className="flex items-center gap-2">
               <Lock className="size-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
               <span className="text-[11px] text-foreground/90 leading-tight">
-                Free plan defaults to <strong>&quot;AI Assistant&quot;</strong>.
-                Upgrade to Starter to brand with your store or clinic name.
+                {t("dashboard.widget.identityTab.freeNameNotice")}
               </span>
             </div>
             {onUpgrade && (
@@ -116,22 +116,20 @@ export default function TabIdentity({
                 type="button"
                 onClick={() => {
                   onUpgrade({
-                    featureName: "Assistant Name",
+                    featureName: t("dashboard.widget.identityTab.upgradeFeatureName"),
                     requiredTier: "starter",
-                    reason:
-                      "Free plan defaults to 'AI Assistant'. Upgrade to Starter to brand with your store or clinic name.",
+                    reason: t("dashboard.widget.identityTab.upgradeFeatureReason"),
                   });
                 }}
                 className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0 cursor-pointer transition-colors rounded-none whitespace-nowrap"
               >
-                UPGRADE
+                {t("dashboard.widget.identityTab.upgrade")}
               </button>
             )}
           </div>
         ) : (
           <p className="mt-1 text-[11px] text-muted-foreground font-sans">
-            Displayed prominently in the widget header and above verified AI
-            responses.
+            {t("dashboard.widget.identityTab.nameHelper")}
           </p>
         )}
       </div>
@@ -140,7 +138,7 @@ export default function TabIdentity({
       <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between mb-1.5">
           <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Status Subtitle
+            {t("dashboard.widget.identityTab.statusSubtitle")}
           </label>
           <span className="font-mono text-[10px] text-primary font-bold">
             {config.subtitle.length} / 60
@@ -151,13 +149,13 @@ export default function TabIdentity({
           maxLength={60}
           value={config.subtitle}
           onChange={(e) => onChange({ ...config, subtitle: e.target.value })}
-          placeholder="e.g. Online • Instant verified answers"
+          placeholder={t("dashboard.widget.identityTab.statusSubtitlePlaceholder")}
           className="w-full border border-border bg-background px-3 py-2 font-sans text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all rounded-none shadow-2xs"
         />
         <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
           <span className="size-1.5 bg-emerald-500 rounded-none inline-block animate-pulse" />
           <span>
-            Accompanied by a pulsing green availability indicator in the header.
+            {t("dashboard.widget.identityTab.statusSubtitleHelper")}
           </span>
         </div>
       </div>
@@ -165,7 +163,7 @@ export default function TabIdentity({
       {/* Language & Text Direction */}
       <div className="border-t border-border pt-4">
         <label className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-          Language & Text Direction
+          {t("dashboard.widget.identityTab.languageSection")}
         </label>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -190,7 +188,7 @@ export default function TabIdentity({
                 <div className="flex items-center justify-between mb-1.5">
                   <Globe className="size-3.5 text-primary" />
                   <span
-                    className={`border px-1.5 py-0.2 font-mono text-[9px] font-bold ${item.badgeColor}`}
+                    className={`border px-1.5 py-0.2 font-mono text-[9px] font-bold rounded-none ${item.badgeColor}`}
                   >
                     {item.badge}
                   </span>

@@ -637,7 +637,8 @@
           "processing": "Processing",
           "queued": "Queued",
           "ready": "Ready",
-          "active": "Active"
+          "active": "Active",
+          "indexed": "Indexed"
         }
       },
       "inspector": {
@@ -676,7 +677,8 @@
         },
         "contentTab": {
           "loadingContent": "Loading parsed document content & section tree...",
-          "detectedOutline": "Detected Section Outline"
+          "detectedOutline": "Detected Section Outline",
+          "partition": "Partition {{index}}"
         },
         "chunksTab": {
           "fetchingChunks": "Fetching vector partitions & chunk embeddings...",
@@ -689,7 +691,13 @@
           "model": "Model: {{model}} (1536 dim)",
           "indexed": "Indexed: {{date}}"
         },
-        "breadcrumb": "Workspace / Inspector"
+        "breadcrumb": "Workspace / Inspector",
+        "title": "Document Inspector",
+        "errors": {
+          "noDocSelected": "No document selected.",
+          "resyncFailed": "Failed to re-sync document.",
+          "statusUpdateFailed": "Failed to update document status."
+        }
       },
       "addModal": {
         "title": "Add Document to Knowledge Base",
@@ -699,7 +707,9 @@
         "cancel": "Cancel",
         "indexDocument": "Index Document",
         "uploadingIndexing": "Uploading & Indexing...",
-        "selectFileError": "Please select a valid file to upload."
+        "selectFileError": "Please select a valid file to upload.",
+        "invalidFile": "Please choose a valid file.",
+        "fileRejected": "File was rejected. Please check size and format."
       },
       "deleteModal": {
         "singleTitle": "Confirm Document Deletion",
@@ -711,7 +721,8 @@
         "bulkTitle": "Delete {{count}} Selected Documents?",
         "bulkConfirm": "You are about to batch delete {{count}} documents. All corresponding embeddings and chunks in the vector store will be purged.",
         "bulkWarning": "Warning: This operation cannot be undone. All vector chunks will be permanently purged from pgvector.",
-        "purgeAll": "Purge All Selected"
+        "purgeAll": "Purge All Selected",
+        "deleteFailed": "Failed to delete document."
       },
       "errors": {
         "pageException": "Knowledge Base Exception",
@@ -729,6 +740,537 @@
         "tryAgain": "Try again",
         "breadcrumbDocuments": "Workspace / Documents",
         "breadcrumbInspector": "Workspace / Inspector"
+      }
+    },
+    "account": {
+      "header": {
+        "tag": "Configuration & Preferences",
+        "title": "Account & Workspace",
+        "subtitle": "Manage your operator profile, business workspace identity, and security credentials."
+      },
+      "subscriptionCard": {
+        "active": "Active",
+        "tierDesc": "Current subscription tier for your AI inquiries, temperature tuning, and team features.",
+        "manageBilling": "Manage Billing & Plans",
+        "tierLevel": "Tier Level",
+        "billingInterval": "Billing Interval",
+        "monthly": "Monthly",
+        "currency": "(EGP)",
+        "tiers": {
+          "free": "Free Plan",
+          "starter": "Starter Plan",
+          "pro": "Flagship Pro"
+        }
+      },
+      "profile": {
+        "title": "Profile",
+        "email": "Email Address",
+        "verified": "Verified",
+        "languageTitle": "Dashboard App Language",
+        "languageDesc": "Sets the primary interface language and direction (LTR / RTL) for your dashboard workspace.",
+        "englishTitle": "English (US)",
+        "englishDesc": "Left-to-right (LTR) operator console",
+        "arabicTitle": "العربية (Arabic)",
+        "arabicDesc": "واجهة عربية مخصصة من اليمين لليسار (RTL)",
+        "updating": "Updating Profile...",
+        "updateBtn": "Update Profile Settings",
+        "success": "Profile Updated Successfully."
+      },
+      "workspace": {
+        "title": "Business Workspace",
+        "nameEn": "Business Legal Name (English)",
+        "nameEnPlaceholder": "e.g. Al Nour Dental Center",
+        "nameAr": "Business Name (Arabic)",
+        "nameArPlaceholder": "مثال: مركز النور لطب الأسنان",
+        "operatingCity": "Operating City",
+        "district": "District / Area",
+        "districtPlaceholder": "e.g. New Cairo, Maadi, Dokki",
+        "tenantId": "Workspace Tenant ID",
+        "tenantIdDesc": "Unique database identifier for this business workspace. Referenced by client-side widgets and webhook dispatches.",
+        "copied": "Copied",
+        "copyId": "Copy ID",
+        "saving": "Saving Workspace...",
+        "saveBtn": "Save Business Settings",
+        "success": "Business workspace updated successfully."
+      },
+      "security": {
+        "title": "Security & Password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "newPasswordPlaceholder": "At least 8 characters",
+        "confirmPassword": "Confirm Password",
+        "confirmPasswordPlaceholder": "Repeat new password",
+        "accountCreated": "Account created: {{date}}",
+        "activeSession": "Active Session",
+        "encrypted": "Password is Encrypted",
+        "updating": "Updating Password...",
+        "changeBtn": "Change Password",
+        "success": "Password changed successfully.",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password"
+      },
+      "error": {
+        "runtimeError": "Account Workspace Exception",
+        "title": "Unable to Load Workspace Profile",
+        "description": "An error occurred while retrieving your operator credentials or workspace metadata.",
+        "retry": "Retry Account",
+        "dashboard": "Dashboard Overview"
+      }
+    },
+    "billing": {
+      "header": {
+        "tagPlatform": "Sanad Platform",
+        "tagSection": "Billing & Quota Management",
+        "title": "Subscription & Resource Billing",
+        "subtitle": "Monitor active AI inquiry consumption, manage knowledge base capacity, and inspect billing cycles."
+      },
+      "consumption": {
+        "title": "Current Tier Consumption",
+        "workspace": "Workspace: {{name}}",
+        "planSuffix": "PLAN",
+        "active": "ACTIVE",
+        "cycleFree": "Plan Cycle: {{start}}{{end}} (Resets Monthly)",
+        "cyclePaid": "Cycle: {{start}} – {{end}}",
+        "cycleThirtyDays": "30 Days",
+        "inquiriesResetNote": "75 inquiries reset every 30 days",
+        "autoAdvanceNote": "Auto-advances every 30 days",
+        "freeQuotaNotice": "Free plan quota resets every 30 days ({{limit}} inquiries/mo)",
+        "proQuotaNotice": "Entitlements provisioned & authorized",
+        "meters": {
+          "inquiriesLabel": "AI Inquiries / Cycle",
+          "inquiriesUnit": "inquiries",
+          "inquiriesFooter": "Resets every 30 days",
+          "filesLabel": "Knowledge Base Files",
+          "filesUnit": "files",
+          "filesFooter": "Up to {{size}}MB per file",
+          "domainsLabel": "Storefront Domains",
+          "domainsUnit": "domains",
+          "domainsFooter": "Multi-domain authorization"
+        }
+      },
+      "plans": {
+        "title": "Available Subscription Plans",
+        "subtitle": "Billed in Egyptian Pounds (EGP) • 30-Day Cycles",
+        "currentPlan": "Current Active Plan",
+        "currency": "EGP",
+        "perMonth": "/ month",
+        "starter": {
+          "tier": "Starter Tier",
+          "audience": "Solo Practices",
+          "title": "{{name}} Plan",
+          "price": "490",
+          "desc": "Essential capacity for solo clinics, single boutique stores, and individual consultants.",
+          "inquiries": "<strong>{{count}}</strong> customer inquiries / mo",
+          "files": "<strong>{{count}} source files</strong> ({{size}}MB/file)",
+          "domains": "Up to <strong>{{count}} authorized store domains</strong>",
+          "branding": "<strong>Custom assistant name</strong> & identity",
+          "analytics": "Standard conversation analytics & logs",
+          "styling": "All container silhouettes & styling included",
+          "switchBtn": "Switch to Starter",
+          "selectBtn": "Select Starter Plan (490 EGP/mo)"
+        },
+        "flagship": {
+          "badge": "★ Flagship For Clinics & High-Volume Commerce",
+          "tier": "Growth Tier",
+          "audience": "Multi-Doctor & Stores",
+          "title": "{{name}} (Pro)",
+          "price": "990",
+          "desc": "Engineered for high-volume customer inquiries, comprehensive multi-file knowledge bases, and multi-tenant storefront deployments.",
+          "inquiries": "<strong>{{count}}</strong> customer inquiries / mo",
+          "files": "<strong>{{count}} source files</strong> ({{size}}MB/file)",
+          "domains": "Up to <strong>{{count}} authorized store domains</strong>",
+          "whiteLabel": "<strong>100% White-Label</strong> (Remove badge)",
+          "citations": "<strong>Verified File Citation Badges</strong> (PRO)",
+          "support": "<strong>Priority Human Support</strong> agent handoff",
+          "crawler": "Live URL website crawler & auto-sync",
+          "upgradeBtn": "Upgrade to Flagship Pro (990 EGP/mo)"
+        }
+      },
+      "history": {
+        "title": "Billing History & Tax Receipts",
+        "compliance": "Official E-Invoice Compliant (ETA)",
+        "table": {
+          "ref": "Invoice Ref",
+          "date": "Date",
+          "plan": "Plan Description",
+          "amount": "Amount",
+          "status": "Status",
+          "receipt": "Receipt",
+          "paid": "PAID",
+          "active": "ACTIVE",
+          "download": "PDF",
+          "downloadAlert": "Invoice PDF receipt download initiated.",
+          "proDescription": "Growth Pro Plan (30 Days Active Cycle)",
+          "freeDescription": "Free Plan Sandbox (75 Inquiries)"
+        }
+      },
+      "upgradeModal": {
+        "defaultTitle": "Upgrade Your Sanad Plan",
+        "defaultSubtitle": "Unlock custom storefront branding, larger knowledge base capacity, and multi-domain authorization.",
+        "selectedFeature": "Selected Feature:",
+        "requires": "Requires {{tier}} Plan",
+        "currentPlan": "Current Plan: <strong>{{name}}</strong> ({{inquiries}} inquiries, {{docs}} files, {{domains}} domains)",
+        "selectStarter": "Select Starter Plan",
+        "upgradePro": "Upgrade to Pro (990 EGP)",
+        "help": "Need help picking a plan? Contact our team anytime.",
+        "keepPreviewing": "Keep Previewing"
+      },
+      "error": {
+        "runtimeError": "Billing & Subscription Error",
+        "title": "Unable to Load Subscription Data",
+        "description": "An error occurred while loading your current plan tier, inquiry quotas, or payment history.",
+        "retry": "Retry Billing",
+        "dashboard": "Dashboard Overview"
+      }
+    },
+    "widget": {
+      "title": "Sanad Widget Studio",
+      "subtitle": "Customize your storefront assistant appearance, branding, and copy the embed script",
+      "liveDeployReady": "Live Deploy Ready",
+      "viewChatbot": "View Chatbot",
+      "resetDefaults": "Reset Defaults",
+      "resetDefaultsTooltip": "Reset configuration to initial defaults",
+      "copyScript": "Copy Script",
+      "copiedScript": "Copied Script!",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "savedChanges": "Saved Changes!",
+      "saveFailed": "Save Failed",
+      "saveErrorDomainRequired": "At least one allowed domain is required (e.g. yourstore.com). Add it to make the widget work on your website.",
+      "dismissError": "Dismiss error",
+      "livePreview": "Live Preview",
+      "close": "Close",
+      "multiDomainUpgrade": {
+        "title": "Multi-Domain ({{count}} domains)",
+        "reason": "Free plan allows {{freeMax}} authorized domain. Starter plan supports up to {{starterMax}} domains."
+      },
+      "enterpriseDomainUpgrade": {
+        "title": "Enterprise Domains ({{count}} domains)",
+        "reason": "Starter plan allows up to {{starterMax}} domains. Pro plan supports up to {{proMax}} domains."
+      },
+      "tabs": {
+        "identity": "Identity",
+        "identityShort": "ID",
+        "appearance": "Styling",
+        "appearanceShort": "Style",
+        "messages": "Messages",
+        "messagesShort": "Msgs",
+        "embed": "Embed",
+        "embedShort": "Code"
+      },
+      "identityTab": {
+        "helperBanner": "Configure your assistant's public brand name, online presence subtitle, and default language.",
+        "assistantName": "Assistant Name",
+        "starterTier": "STARTER TIER",
+        "defaultName": "Default Name",
+        "assistantNamePlaceholder": "e.g. Sanad AI Support",
+        "freeNameNotice": "Free plan defaults to \"AI Assistant\". Upgrade to Starter to brand with your store or clinic name.",
+        "upgrade": "UPGRADE",
+        "upgradeFeatureName": "Assistant Name",
+        "upgradeFeatureReason": "Free plan defaults to 'AI Assistant'. Upgrade to Starter to brand with your store or clinic name.",
+        "nameHelper": "Displayed prominently in the widget header and above verified AI responses.",
+        "statusSubtitle": "Status Subtitle",
+        "statusSubtitlePlaceholder": "e.g. Online • Instant verified answers",
+        "statusSubtitleHelper": "Accompanied by a pulsing green availability indicator in the header.",
+        "languageSection": "Language & Text Direction",
+        "languages": {
+          "auto": {
+            "label": "Auto Detect",
+            "badge": "AUTO",
+            "desc": "Matches the visitor's storefront language automatically."
+          },
+          "en": {
+            "label": "English (LTR)",
+            "badge": "LTR",
+            "desc": "Standard left-to-right alignment for English storefronts."
+          },
+          "ar": {
+            "label": "Arabic (RTL)",
+            "badge": "RTL",
+            "desc": "Forces right-to-left alignment for Arabic storefronts."
+          }
+        }
+      },
+      "allowedDomains": {
+        "label": "Authorized Domains",
+        "domainsCounter": "{{count}} / {{max}} Domains",
+        "domainsCounterUnbounded": "{{count}} Domains",
+        "tierFree": "Free",
+        "upgrade": "Upgrade",
+        "upgradeFeatureName": "Authorized Domains",
+        "upgradeReasonFree": "Free plan allows 1 authorized domain. Starter plan supports up to 5 domains.",
+        "upgradeReasonStarter": "Starter plan allows up to 5 domains. Growth (Pro) supports up to 10 domains.",
+        "placeholder": "e.g. yourstore.com or store.salla.sa",
+        "addButton": "Add",
+        "emptyError": "At least one allowed domain is required. Specify the domain where your widget will be embedded.",
+        "invalidError": "Invalid domain format (e.g. yourstore.com or store.salla.sa)",
+        "alreadyExistsError": "This domain is already in your allowed list",
+        "emptyInputError": "Please enter a valid domain name",
+        "limitErrorFree": "Free plan allows 1 authorized domain. Upgrade to Starter (up to 5 domains) or Pro (up to 10 domains).",
+        "limitErrorStarter": "Starter plan allows up to 5 authorized domains. Upgrade to Pro for up to 10 domains.",
+        "limitErrorPro": "Pro plan allows a maximum of 10 authorized domains.",
+        "removeAria": "Remove {{domain}}",
+        "quickAdd": "Quick add:",
+        "guidanceText": "Only storefronts matching these domains will be authorized to initialize the assistant. Subdomains are automatically included (e.g. adding salla.sa also allows store.salla.sa)."
+      },
+      "appearanceTab": {
+        "helperBanner": "Customize your brand identity, colors, typography, container shapes, and header layouts. All appearance options are fully included for all plans.",
+        "archetypesTitle": "Brand Style Archetypes",
+        "archetypes1Click": "1-Click Styling",
+        "archetypesDescription": "Select a pre-tuned brand archetype suited for your store or clinic. Each preset sets the silhouette, palette, header, and fonts in one click.",
+        "archetypes": {
+          "egyptian-concierge": {
+            "name": "Egyptian Concierge",
+            "nameAr": "الكونسيرج المصري الأندلسي",
+            "tagline": "Arched dome, Nile emerald, warm linen, conversational concierge",
+            "taglineAr": "قبة أندلسية، أخضر نيلي، كتان دافئ، ترحيب بالعامية",
+            "badge": "DEFAULT"
+          },
+          "velvet-salon": {
+            "name": "Velvet Salon",
+            "nameAr": "صالون لمسة ورقي",
+            "tagline": "Pill curves, delicate gold hairline, deep plum & warm blush",
+            "taglineAr": "منحنيات بيضاوية ناعمة، إطار ذهبي رقيق، درجات التوت والوردي",
+            "badge": "BOUTIQUE"
+          },
+          "tech-monolith": {
+            "name": "Tech Monolith",
+            "nameAr": "تك زون العصري",
+            "tagline": "Zero radius, dark header, electric blue accents, instant proof",
+            "taglineAr": "حواف حادة صفرية، هيدر أسود تقني، أزرق كهربائي سريع",
+            "badge": "TECH"
+          },
+          "editorial-brutalist": {
+            "name": "Editorial Brutalist",
+            "nameAr": "مطعم الأصيل التراثي",
+            "tagline": "Hard 2px ink stroke, retro terracotta, bold paper shadow",
+            "taglineAr": "إطار كرتوني عريض ٢ بكسل، أحمر قرميدي، ظل مطبوع",
+            "badge": "EDITORIAL"
+          }
+        },
+        "silhouetteTitle": "Container Silhouette (Shape Architecture)",
+        "freeBadge": "FREE",
+        "requiresHero": "REQUIRES HERO",
+        "shapes": {
+          "arch": {
+            "name": "Arch Dome",
+            "desc": "Authentic Andalusian / Egyptian arch dome",
+            "disabledDesc": "Requires Centered Hero (disabled in Compact Docked)"
+          },
+          "pill": {
+            "name": "Soft Pill",
+            "desc": "Smooth rounded capsule for beauty, salons & boutiques"
+          },
+          "square": {
+            "name": "Sharp Square",
+            "desc": "Architectural zero-radius brutalist frame"
+          }
+        },
+        "headerTitle": "Header Layout Architecture",
+        "headerLayouts": {
+          "hero": {
+            "name": "Centered Hero Concierge",
+            "desc": "Prominent center monogram avatar, real-time response indicator, and friendly greeting."
+          },
+          "docked": {
+            "name": "Compact Docked Bar",
+            "desc": "Streamlined horizontal top bar. (Note: Arch Dome is disabled in this layout)."
+          }
+        },
+        "monogramTitle": "Brand Letter Monogram (Avatar Stamp)",
+        "monogramChars": "{{count}} / 4 chars",
+        "monogramPlaceholder": "e.g. S, TZ, CLINIC",
+        "monogramHelper": "Enter 1–3 characters to represent your brand across the widget header and floating launcher button.",
+        "borderTitle": "Border Stroke & Tactile Edge",
+        "borders": {
+          "hairline": {
+            "name": "Hairline Luxury",
+            "sub": "1px Stroke"
+          },
+          "hard-brutalist": {
+            "name": "Bold Brutalist",
+            "sub": "2px Ink Stroke"
+          },
+          "accent-gold": {
+            "name": "Accent Gold",
+            "sub": "Gold Metallic"
+          },
+          "none": {
+            "name": "Subtle Soft",
+            "sub": "0px Border"
+          }
+        },
+        "primaryColorTitle": "Primary Brand Color (Header & Buttons)",
+        "previewBadge": "PREVIEW",
+        "primaryColorAria": "Primary color input",
+        "secondaryColorTitle": "Secondary / Accent Color (Badges & Chips)",
+        "secondaryColorAria": "Secondary color input",
+        "backgroundColorTitle": "Chat Container Surface Color (Canvas)",
+        "backgroundColorAria": "Background surface color input",
+        "colorPresets": {
+          "nileEmerald": "Nile Emerald",
+          "sanadTeal": "Sanad Teal",
+          "velvetPlum": "Velvet Plum",
+          "royalNavy": "Royal Navy",
+          "electricBlue": "Electric Blue",
+          "terracottaRed": "Terracotta Red",
+          "desertAmber": "Desert Amber",
+          "charcoalObsidian": "Charcoal Obsidian",
+          "warmSand": "Warm Sand",
+          "softBlush": "Soft Blush",
+          "iceBlue": "Ice Blue",
+          "mutedLinen": "Muted Linen",
+          "mintFoam": "Mint Foam",
+          "softAmber": "Soft Amber",
+          "warmLinenEgyptian": "Warm Linen (Egyptian)",
+          "cleanWhite": "Clean White",
+          "obsidianNileDark": "Obsidian Nile Dark",
+          "creamLuxury": "Cream Luxury",
+          "deepCharcoal": "Deep Charcoal"
+        },
+        "citationsTitle": "Grounded Source Citation Display",
+        "proActive": "PRO ACTIVE",
+        "proRequired": "PRO PLAN REQUIRED",
+        "freeActive": "FREE / ACTIVE",
+        "citationNormalTitle": "Normal Message",
+        "defaultBadge": "DEFAULT",
+        "citationNormalDesc": "Standard conversational message without attaching source snippet cards or citation tags.",
+        "citationDocumentTitle": "Verified File Badge",
+        "citationDocumentDesc": "Compact verified source badge showing official file name anchored neatly under the message.",
+        "proPlanBadge": "PRO PLAN",
+        "citationUpgradeFeature": "File Highlight Cards",
+        "citationUpgradeReason": "Displaying rich File Highlight Cards with verified marker excerpts requires the Growth (Pro) plan.",
+        "positionTitle": "Launcher Screen Position",
+        "positions": {
+          "bottomRight": {
+            "title": "Bottom Right",
+            "badge": "Standard (Recommended)",
+            "desc": "Standard e-commerce placement, maximizing visitor discovery and ease of interaction."
+          },
+          "bottomLeft": {
+            "title": "Bottom Left",
+            "badge": "Alternate Corner",
+            "desc": "Alternate corner, leaving the right side clear for existing WhatsApp or quick-checkout buttons."
+          }
+        },
+        "launcherFormatTitle": "Launcher Button Format & CTA Text",
+        "launcherFormats": {
+          "badge": {
+            "title": "Icon + Text Badge (Dual-Pill in Arch)",
+            "desc": "Highest conversion format, pairing your monogram stamp with an inviting greeting."
+          },
+          "icon": {
+            "title": "Minimal Icon / Monogram Only",
+            "desc": "Compact floating circular or square launcher for minimalist aesthetics."
+          }
+        },
+        "launcherCtaLabel": "Badge Call-to-Action Text",
+        "launcherPlaceholderArch": "At your help, ask me",
+        "launcherPlaceholderDefault": "Chat with us"
+      },
+      "messagesTab": {
+        "helperBanner": "Set up the opening greeting and quick inquiry chips presented to customers when opening chat.",
+        "welcomeGreeting": "Initial Welcome Greeting",
+        "welcomeGreetingChars": "{{count}} / 250",
+        "welcomePlaceholder": "Write the initial greeting message sent by Sanad to store visitors...",
+        "welcomeHelper": "Sent automatically when a customer initiates a new conversation session.",
+        "startersTitle": "Quick Question Starters",
+        "startersCounter": "{{count}} / 6 questions",
+        "startersHelper": "One-click prompt suggestions to help customers quickly inquire about shipping, returns, and payment.",
+        "removeTooltip": "Remove question",
+        "addPlaceholder": "Add common inquiry (e.g. What payment methods are supported?)...",
+        "addButton": "Add"
+      },
+      "embedTab": {
+        "helperBanner": "Configure authorized domains and copy this single script tag to embed in your online store.",
+        "htmlSnippetTitle": "Universal HTML Embed Tag",
+        "copySnippet": "Copy Snippet",
+        "copiedSnippet": "Copied to Clipboard!",
+        "snippetGuidance": "Paste this tag into your store header or right before the closing </body> tag. Operates with zero external runtime dependencies.",
+        "directLinkTitle": "Direct Shareable URL",
+        "copyLink": "Copy Link",
+        "copiedLink": "Copied",
+        "previewLink": "Preview",
+        "directLinkGuidance": "Use this standalone link for Instagram bio buttons, WhatsApp quick action catalogs, or SMS support flows.",
+        "guidesTitle": "Platform Installation Guides",
+        "stepsBadge": "3 Quick Steps",
+        "integrationStepsTitle": "Integration Steps for {{platform}}",
+        "platforms": {
+          "salla": {
+            "name": "Salla",
+            "tagline": "MENA E-Commerce Platform",
+            "step1": "Log in to your Salla merchant control panel.",
+            "step2": "Navigate to Store Settings > Store Options > Custom Code.",
+            "step3": "Paste the Sanad embed snippet into the Header Scripts field and click Save."
+          },
+          "shopify": {
+            "name": "Shopify",
+            "tagline": "Online Store & Themes",
+            "step1": "Log in to Shopify Admin and navigate to Online Store > Themes.",
+            "step2": "Click the (...) button next to your active theme and choose Edit Code.",
+            "step3": "Open theme.liquid and paste the script directly above the closing </body> tag."
+          },
+          "wordpress": {
+            "name": "WordPress",
+            "tagline": "Open Source Storefront",
+            "step1": "Log in to your WordPress admin dashboard (WP Admin).",
+            "step2": "Use WPCode, Insert Headers and Footers, or your theme's custom JavaScript settings.",
+            "step3": "Paste the snippet into the Footer Scripts box and click Save Changes."
+          }
+        }
+      },
+      "preview": {
+        "sandboxBadge": "Interactive Storefront Sandbox",
+        "desktopTooltip": "Desktop Storefront View",
+        "mobileTooltip": "Mobile Device View",
+        "lightTooltip": "Light Storefront Theme",
+        "darkTooltip": "Dark Storefront Theme",
+        "resetChat": "Reset",
+        "resetChatTooltip": "Reset Preview Chat",
+        "bannerPromo": "Seasonal Promotion: Free express shipping on all orders over 200 SAR • 14-Day Free Returns",
+        "storeTitle": "NOOR BOUTIQUE",
+        "navHome": "Home",
+        "navProducts": "Products",
+        "navBestSellers": "Best Sellers",
+        "navPolicies": "Store Policies",
+        "searchStore": "Search store...",
+        "itemsCount": "2 Items",
+        "heroTag": "Spring Edition 2026 Collection",
+        "heroHeading": "Handcrafted Luxury Leather & Lifestyle",
+        "heroDesc": "Designed with sustainable craftsmanship, premium materials, and 2-year comprehensive store warranty.",
+        "products": {
+          "p1Title": "Executive Chronograph Watch",
+          "p1Tag": "Best Seller",
+          "p2Title": "Classic Leather Travel Bag",
+          "p2Tag": "New Arrival",
+          "p3Title": "RFID Shield Smart Wallet",
+          "p3Tag": "20% OFF"
+        },
+        "currency": "SAR",
+        "chat": {
+          "defaultWelcomeAr": "أهلاً بك في عيادة النور التخصصية.. تحت أمرك في أي استفسار عن المواعيد والخدمات.",
+          "defaultWelcomeEn": "Welcome to Al-Noor Clinic! How may I assist you with services and appointments today?",
+          "defaultUserQAr": "بكام الكشف وهل فيه حجز مسبق؟",
+          "defaultUserQEn": "What are your consultation fees and do I need to book in advance?",
+          "defaultBotAnsAr": "أهلاً بك! الكشف ٣٠٠ جنيه شامل الاستشارة والإعادة مجاناً خلال ١٤ يوم، والمواعيد يومياً من ٤ إلى ١٠ مساءً بحجز مسبق.",
+          "defaultBotAnsEn": "Consultation is 300 EGP including a free follow-up within 14 days. We are open daily from 4 PM to 10 PM by reservation.",
+          "citationTitleAr": "لائحة الأسعار والخدمات ٢٠٢٦.pdf",
+          "citationTitleEn": "Services_Price_List_2026.pdf",
+          "suggestedInquiries": "Suggested Inquiries:",
+          "sourceLabel": "Source:",
+          "poweredBy": "Powered by Sanad AI Platform",
+          "justNow": "Just now",
+          "launcherDefaultAr": "تحت أمرك، اسألني",
+          "launcherDefaultEn": "Chat with us"
+        }
+      },
+      "error": {
+        "badge": "Widget Studio Exception",
+        "title": "Unable to Load Widget Studio",
+        "description": "An error occurred while loading your website widget styling rules, authorized domains, or deployment script.",
+        "digest": "Digest: {{digest}}",
+        "retry": "Retry Studio",
+        "overview": "Dashboard Overview"
       }
     }
   }

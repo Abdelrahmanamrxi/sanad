@@ -52,14 +52,14 @@ export function AddDocumentModal({
       setError("");
       const result = await fileSchema.safeParseAsync(files[0]);
       if (!result.success) {
-        setError(result.error.issues[0]?.message ?? "Invalid file");
+        setError(result.error.issues[0]?.message ?? t("dashboard.knowledgeBase.addModal.invalidFile", "Invalid file"));
         setFile(undefined);
         return;
       }
       setFile(result.data);
     },
     onDropRejected(rejections) {
-      setError(rejections[0]?.errors[0]?.message ?? "File rejected");
+      setError(rejections[0]?.errors[0]?.message ?? t("dashboard.knowledgeBase.addModal.fileRejected", "File rejected"));
       setFile(undefined);
     },
   });

@@ -53,7 +53,7 @@ export function DocumentInspector({
 
   const { mutate: resyncMutate, isPending: isResyncPending } = useMutation({
     mutationFn: async () => {
-      if (!selectedDoc) throw new Error("No Document Selected");
+      if (!selectedDoc) throw new Error(t("dashboard.knowledgeBase.inspector.errors.noDocSelected", "No Document Selected"));
 
       return resyncDocument(selectedDoc.id);
     },
@@ -66,20 +66,20 @@ export function DocumentInspector({
         });
     },
     onError: (err) => {
-      setActionError(err instanceof Error ? err.message : "Failed to re-sync document");
+      setActionError(err instanceof Error ? err.message : t("dashboard.knowledgeBase.inspector.errors.resyncFailed", "Failed to re-sync document"));
     },
   });
 
   const { mutate: DocStatusMutate, isPending: DocStatusPending } = useMutation({
     mutationFn: async (status: "active" | "ready") => {
-      if (!selectedDoc) throw new Error("No Document Selected");
+      if (!selectedDoc) throw new Error(t("dashboard.knowledgeBase.inspector.errors.noDocSelected", "No Document Selected"));
       return updateDocumentStatus(status, selectedDoc.id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"], exact: false });
     },
     onError: (err) => {
-      setActionError(err instanceof Error ? err.message : "Failed to update document's status");
+      setActionError(err instanceof Error ? err.message : t("dashboard.knowledgeBase.inspector.errors.statusUpdateFailed", "Failed to update document status"));
     },
   });
   const [chunkSearch, setChunkSearch] = useState("");
@@ -99,7 +99,7 @@ export function DocumentInspector({
           <div className="flex items-center gap-2">
             <Layers className="size-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold tracking-tight text-foreground font-sans">
-              {t("dashboard.knowledgeBase.header.title", "Document Inspector")}
+              {t("dashboard.knowledgeBase.inspector.title", "Document Inspector")}
             </h2>
           </div>
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 border border-border bg-muted/50 text-[10px] font-mono uppercase tracking-wider text-muted-foreground rounded-none">
@@ -293,7 +293,17 @@ export function DocumentInspector({
                   : "text-success"
               }`}
             >
-              {selectedDoc.doc_status}
+              {selectedDoc.doc_status === "failed"
+                ? t("dashboard.knowledgeBase.library.status.failed", "Failed")
+                : selectedDoc.doc_status === "processing"
+                ? t("dashboard.knowledgeBase.library.status.processing", "Processing")
+                : selectedDoc.doc_status === "queued"
+                ? t("dashboard.knowledgeBase.library.status.queued", "Queued")
+                : selectedDoc.doc_status === "ready"
+                ? t("dashboard.knowledgeBase.library.status.ready", "Ready")
+                : selectedDoc.doc_status === "indexed"
+                ? t("dashboard.knowledgeBase.library.status.indexed", "Indexed")
+                : t("dashboard.knowledgeBase.library.status.active", "Active")}
             </span>
           </div>
 
@@ -553,7 +563,7 @@ export function DocumentInspector({
                 <pre className="font-mono text-xs text-foreground leading-relaxed whitespace-pre-wrap select-text">
                   {`# ${selectedDoc.name || getFileName(selectedDoc.storage_path)}
 
-${chunks.map((c) => `### ${c.heading_path || `Partition ${c.chunk_index + 1}`}\n${c.content}`).join("\n\n---\n\n")}
+${chunks.map((c) => `### ${c.heading_path || t("dashboard.knowledgeBase.inspector.contentTab.partition", { index: c.chunk_index + 1, defaultValue: `Partition ${c.chunk_index + 1}` })}\n${c.content}`).join("\n\n---\n\n")}
 `}
                 </pre>
               </div>

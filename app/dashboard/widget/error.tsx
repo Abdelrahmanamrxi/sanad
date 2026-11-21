@@ -5,7 +5,8 @@ import * as Sentry from "@sentry/nextjs";
 import { AlertOctagon, RotateCcw, Home } from "lucide-react";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface WidgetErrorProps {
   error: Error & { digest?: string };
@@ -13,6 +14,8 @@ interface WidgetErrorProps {
 }
 
 export default function WidgetError({ error, reset }: WidgetErrorProps) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -31,7 +34,7 @@ export default function WidgetError({ error, reset }: WidgetErrorProps) {
           <div className="flex items-center gap-2">
             <span className="size-2 bg-destructive inline-block" />
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-destructive">
-              Widget Studio Exception
+              {t("dashboard.widget.error.badge")}
             </span>
           </div>
           <div className="flex size-8 items-center justify-center border border-destructive/30 bg-destructive/10 text-destructive rounded-none">
@@ -42,14 +45,14 @@ export default function WidgetError({ error, reset }: WidgetErrorProps) {
         {/* Error Titles & Description */}
         <div className="flex flex-col gap-2">
           <h1 className="font-heading text-lg sm:text-xl font-bold tracking-tight text-foreground font-sans">
-            Unable to Load Widget Studio
+            {t("dashboard.widget.error.title")}
           </h1>
           <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-            An error occurred while loading your website widget styling rules, authorized domains, or deployment script.
+            {t("dashboard.widget.error.description")}
           </p>
           {error.digest && (
             <p className="font-mono text-[10px] text-muted-foreground/80 bg-muted/40 p-2 border border-border">
-              Digest: {error.digest}
+              {t("dashboard.widget.error.digest", { digest: error.digest })}
             </p>
           )}
         </div>
@@ -59,25 +62,24 @@ export default function WidgetError({ error, reset }: WidgetErrorProps) {
           <Button
             onClick={() => reset()}
             size="sm"
-            className="w-full sm:w-auto font-sans text-xs font-semibold cursor-pointer"
+            className="w-full sm:w-auto font-sans text-xs font-semibold cursor-pointer rounded-none"
           >
             <RotateCcw className="size-3.5" />
-            <span>Retry Studio</span>
+            <span>{t("dashboard.widget.error.retry")}</span>
           </Button>
 
           <Link
             href="/dashboard"
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
-              "w-full sm:w-auto gap-2 font-sans text-xs"
+              "w-full sm:w-auto gap-2 font-sans text-xs rounded-none"
             )}
           >
             <Home className="size-3.5 text-muted-foreground" />
-            <span>Dashboard Overview</span>
+            <span>{t("dashboard.widget.error.overview")}</span>
           </Link>
         </div>
       </div>
     </div>
   );
 }
-

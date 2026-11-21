@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Bot, Palette, MessageSquare, Code2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { WidgetConfig, EditTab } from "../types";
 import type { PlanTier } from "@/features/billing/plans";
 import type { RestrictedFeatureInfo } from "@/features/billing/components/upgrade-plans-modal";
@@ -31,11 +32,13 @@ export default function WidgetEditPanel({
   planTier = "free",
   onUpgrade,
 }: WidgetEditPanelProps) {
+  const { t } = useTranslation();
+
   const tabs = [
     {
       id: "identity" as const,
-      label: "Identity",
-      shortLabel: "ID",
+      label: t("dashboard.widget.tabs.identity"),
+      shortLabel: t("dashboard.widget.tabs.identityShort"),
       icon: Bot,
       color: "text-emerald-600 dark:text-emerald-400",
       activeBg:
@@ -43,8 +46,8 @@ export default function WidgetEditPanel({
     },
     {
       id: "appearance" as const,
-      label: "Styling",
-      shortLabel: "Style",
+      label: t("dashboard.widget.tabs.appearance"),
+      shortLabel: t("dashboard.widget.tabs.appearanceShort"),
       icon: Palette,
       color: "text-amber-600 dark:text-amber-400",
       activeBg:
@@ -52,8 +55,8 @@ export default function WidgetEditPanel({
     },
     {
       id: "messages" as const,
-      label: "Messages",
-      shortLabel: "Msgs",
+      label: t("dashboard.widget.tabs.messages"),
+      shortLabel: t("dashboard.widget.tabs.messagesShort"),
       icon: MessageSquare,
       color: "text-indigo-600 dark:text-indigo-400",
       activeBg:
@@ -61,8 +64,8 @@ export default function WidgetEditPanel({
     },
     {
       id: "embed" as const,
-      label: "Embed ",
-      shortLabel: "Code",
+      label: t("dashboard.widget.tabs.embed"),
+      shortLabel: t("dashboard.widget.tabs.embedShort"),
       icon: Code2,
       color: "text-teal-600 dark:text-teal-400",
       activeBg:
@@ -71,7 +74,7 @@ export default function WidgetEditPanel({
   ];
 
   return (
-    <div className="relative flex h-full flex-col border border-border bg-card shadow-xs">
+    <div className="relative flex h-full flex-col border border-border bg-card shadow-xs rounded-none">
       {/* ── 4 Crisp Top Tabs ── */}
       <div className="grid grid-cols-4 border-b border-border bg-background">
         {tabs.map((tab) => {
@@ -91,7 +94,7 @@ export default function WidgetEditPanel({
               <Icon
                 className={`size-3.5 shrink-0 ${isActive ? "" : tab.color}`}
               />
-              <span className="hidden sm:inline ">{tab.label}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
               <span className="text-[10px] sm:hidden font-mono">
                 {tab.shortLabel}
               </span>

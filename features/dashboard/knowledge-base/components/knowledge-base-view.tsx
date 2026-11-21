@@ -96,7 +96,7 @@ export function KnowledgeBaseView({
     },
     onError: (err) => {
       console.error("Delete failed:", err);
-      alert(err instanceof Error ? err.message : "Failed to delete document");
+      alert(err instanceof Error ? err.message : t("dashboard.knowledgeBase.deleteModal.deleteFailed", "Failed to delete document"));
     },
   });
 
@@ -150,7 +150,7 @@ export function KnowledgeBaseView({
           embedding_model: "text-embedding-3-small",
           content:
             rawText ||
-            "مستند جديد تمت معالجته واستخراج متجهات البحث بنجاح وجاهز للاسترجاع بواسطة المساعد الذكي.",
+            "ملف جديد تمت معالجته واستخراج متجهات البحث بنجاح وجاهز للاسترجاع بواسطة المساعد الذكي.",
           created_at: new Date().toISOString(),
         },
       ],

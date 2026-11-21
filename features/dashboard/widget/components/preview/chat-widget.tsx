@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   FileText,
   Sparkles,
@@ -33,6 +34,7 @@ interface SimulatedMessage {
 }
 
 export default function ChatWidget({ config, device }: ChatWidgetProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -466,7 +468,7 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
                       <div className="mt-2 pt-1.5 border-t border-black/10 dark:border-white/10 flex items-center gap-1.5 text-[11px] font-sans text-muted-foreground not-prose select-none min-w-0 max-w-full overflow-hidden">
                         <FileText className="size-3 shrink-0" style={{ color: primaryColor }} />
                         <span className="truncate min-w-0" title={msg.citation.documentTitle}>
-                          {isRtl ? "المصدر:" : "Source:"} {msg.citation.documentTitle}
+                          {t("dashboard.widget.preview.chat.sourceLabel")} {msg.citation.documentTitle}
                         </span>
                       </div>
                     )}
@@ -532,7 +534,7 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
                   style={{ color: bgMutedText }}
                 >
                   <Sparkles className="size-3" style={{ color: primaryColor }} />
-                  <span>{isRtl ? "أسئلة مقترحة:" : "Suggested Inquiries:"}</span>
+                  <span>{t("dashboard.widget.preview.chat.suggestedInquiries")}</span>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
@@ -621,7 +623,7 @@ export default function ChatWidget({ config, device }: ChatWidgetProps) {
               color: bgMutedText,
             }}
           >
-            {isRtl ? "مدعوم بـ سند للذكاء الاصطناعي" : "Powered by Sanad AI Platform"}
+            {t("dashboard.widget.preview.chat.poweredBy")}
           </div>
         </div>
       )}
