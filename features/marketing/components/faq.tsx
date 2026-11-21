@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import {
   Accordion,
   AccordionItem,
@@ -11,15 +11,12 @@ import {
 import {
   HelpCircle,
   Search,
-  ShieldCheck,
-  Languages,
-  Code2,
-  Sparkles,
   ArrowRight,
   MessageCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
 
 interface FAQItem {
   id: string
@@ -28,13 +25,51 @@ interface FAQItem {
   answer: string
 }
 
-const faqData: FAQItem[] = [
+const faqDataAr: FAQItem[] = [
+  {
+    id: 'hallucination-safety',
+    category: 'safety',
+    question: 'هل يمكن للمساعد أن يؤلف أسعاراً أو نصائح طبية غير صحيحة؟',
+    answer:
+      'مستحيل. يعمل «سند» وفق ضوابط استرجاع صارمة (RAG). يقتبس فقط الأسعار والإجراءات وجداول الأطباء المستخرجة رسمياً من مستنداتك المعتمدة. إذا خرج السؤال عن الملفات، يمتنع المساعد بأدب عن التخمين أو التأليف.',
+  },
+  {
+    id: 'dialect-slang',
+    category: 'dialect',
+    question: 'هل يفهم المساعد العامية المصرية والفرانكو والمصطلحات الدارجة حقاً؟',
+    answer:
+      'نعم بكل تأكيد. تم تدريب «سند» بشكل مخصص على اللهجة المصرية المحكية، الاختصارات الدارجة، الأخطاء الإملائية الشائعة، والفرانكو العربي (Arabizi). يفهم المساعد قصد العميل دون الحاجة لكتابة فصحى منمقة.',
+  },
+  {
+    id: 'website-installation',
+    category: 'integration',
+    question: 'ما مدى صعوبة تثبيت المساعد في موقعي؟ هل أحتاج لمبرمج؟',
+    answer:
+      'التثبيت يستغرق أقل من دقيقتين. كل ما عليك هو نسخ سطر برمجي واحد ولصقه في موقعك — متوافق فوراً مع ووردبريس، ويكس، شوبيفاي، والمواقع المخصصة دون أي خبرة برمجية.',
+  },
+  {
+    id: 'unanswered-questions',
+    category: 'safety',
+    question: 'ماذا يحدث لو سأل العميل عن معلومة غير موجودة في أوراقي؟',
+    answer:
+      'بدلاً من أن يؤلف إجابة، يخبر العميل بلباقة بأن المعلومة قيد المراجعة مع الإدارة، ويحول السؤال تلقائياً إلى «قائمة الأسئلة المعلقة» في لوحة تحكمك. تجيب عليها مرة واحدة، ويتعلمها «سند» لجميع العملاء القادمين.',
+  },
+  {
+    id: 'data-privacy',
+    category: 'integration',
+    question: 'هل يمكن للمنافسين سحب قوائم أسعارنا أو سجلات محادثات عملائنا؟',
+    answer:
+      'أبداً. تُخزن متجهات المعرفة في قواعد بيانات سحابية معزولة ومشفرة ومحمية بسياسات CORS الصارمة. لا يستجيب المساعد إلا للطلبات القادمة من نطاقات موقعك المعتمدة فقط.',
+  },
+]
+
+const faqDataEn: FAQItem[] = [
   {
     id: 'hallucination-safety',
     category: 'safety',
     question: 'Will the bot make up prices or dangerous medical advice?',
     answer:
-      'No. Sanad operates with strict retrieval-augmented boundaries (RAG). It only quotes verified prices, procedures, and branch schedules directly extracted from your uploaded documents. If an inquiry falls outside your uploaded facts, Sanad gracefully refrains rather than speculating or hallucinating.',
+      'Never. Sanad operates with strict retrieval-augmented boundaries (RAG). It only quotes verified prices, procedures, and branch schedules directly extracted from your uploaded documents. If an inquiry falls outside your uploaded facts, Sanad gracefully refrains rather than speculating or hallucinating.',
   },
   {
     id: 'dialect-slang',
@@ -63,10 +98,14 @@ const faqData: FAQItem[] = [
     question: 'Can competitors scrape our price lists or customer chat logs?',
     answer:
       'Never. All knowledge vectors are stored in private, isolated database schemas protected by strict CORS origin policies. Your widget only executes requests originating from your verified domain names.',
-  }
+  },
 ]
 
 export default function FAQ() {
+  const { t, i18n } = useTranslation()
+  const isArabic = i18n.language === 'ar'
+  const faqData = isArabic ? faqDataAr : faqDataEn
+
   const [activeCategory, setActiveCategory] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
 
@@ -104,15 +143,15 @@ export default function FAQ() {
         <div className="flex flex-col items-center text-center gap-3 mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary text-secondary-foreground text-xs font-semibold uppercase tracking-wider border border-primary/20 shadow-2xs">
             <HelpCircle className="size-3.5 text-primary" />
-            <span>Clear Operational Clarity &bull; FAQ</span>
+            <span>{t('faq.badge')}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]">
-            Straightforward answers to practical questions.
+            {t('faq.title')}
           </h2>
 
           <p className="text-sm sm:text-base text-foreground/75 max-w-xl leading-relaxed">
-            Everything you need to know about document grounding, Egyptian dialect accuracy, and website deployment.
+            {t('faq.subtitle')}
           </p>
         </div>
 
@@ -129,7 +168,7 @@ export default function FAQ() {
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
             >
-              All Questions
+              {t('faq.all')}
             </button>
             <button
               type="button"
@@ -140,7 +179,7 @@ export default function FAQ() {
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
             >
-              Grounding &amp; Safety
+              {t('faq.safety')}
             </button>
             <button
               type="button"
@@ -151,7 +190,7 @@ export default function FAQ() {
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
             >
-              Egyptian Dialect
+              {t('faq.dialect')}
             </button>
             <button
               type="button"
@@ -162,7 +201,7 @@ export default function FAQ() {
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
             >
-              Setup &amp; Embed
+              {t('faq.integration')}
             </button>
           </div>
 
@@ -173,7 +212,7 @@ export default function FAQ() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter topics..."
+              placeholder={isArabic ? 'ابحث في الأسئلة الشائعة...' : 'Filter topics...'}
               className="w-full bg-card border border-border/80 ps-9 pe-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary rounded-none shadow-2xs"
             />
           </div>
@@ -197,10 +236,10 @@ export default function FAQ() {
                   value={item.id}
                   className="bg-card/95 dark:bg-[#132322] border border-border/80 shadow-2xs hover:border-primary/50 transition-colors px-5 sm:px-6 py-1 rounded-none border-b"
                 >
-                  <AccordionTrigger className="text-left text-base sm:text-lg font-bold text-foreground hover:no-underline py-4 cursor-pointer">
+                  <AccordionTrigger className="text-start text-base sm:text-lg font-bold text-foreground hover:no-underline py-4 cursor-pointer">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-sm sm:text-base text-foreground/80 leading-relaxed font-normal pt-1 pb-4">
+                  <AccordionContent className="text-sm sm:text-base text-foreground/80 leading-relaxed font-normal pt-1 pb-4 text-start">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -208,7 +247,9 @@ export default function FAQ() {
             </Accordion>
           ) : (
             <div className="p-8 text-center bg-card border border-border/80 text-muted-foreground text-sm font-mono">
-              No matching questions found for &ldquo;{searchQuery}&rdquo;. Try another term.
+              {isArabic
+                ? `لم يتم العثور على نتائج تطابق «${searchQuery}». جرّب كلمة بحث أخرى.`
+                : `No matching questions found for "${searchQuery}". Try another term.`}
             </div>
           )}
         </motion.div>
@@ -219,20 +260,27 @@ export default function FAQ() {
             <div className="size-10 bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
               <MessageCircle className="size-5" />
             </div>
-            <div>
+            <div className="text-start">
               <h3 className="text-sm font-bold text-foreground">
-                Have a question specific to your clinic or restaurant?
+                {isArabic
+                  ? 'لديك سؤال خاص بنشاطك التجاري أو عيادتك؟'
+                  : 'Have a question specific to your clinic or restaurant?'}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Our Cairo-based solutions engineers review documents and setups within 1 business hour.
+                {isArabic
+                  ? 'يقوم مهندسو الحلول في القاهرة بمراجعة مستنداتك واستفسارك في أقل من ساعة عمل واحدة.'
+                  : 'Our Cairo-based solutions engineers review documents and setups within 1 business hour.'}
               </p>
             </div>
           </div>
 
-          <Link href="/signup" className="shrink-0 w-full sm:w-auto">
+          <Link
+            href="mailto:abdelrahmanamrxi@gmail.com?subject=Sanad%20Inquiry"
+            className="shrink-0 w-full sm:w-auto"
+          >
             <Button size="sm" className="w-full sm:w-auto rounded-none font-semibold group cursor-pointer">
-              Ask Our Team
-              <ArrowRight className="size-3.5 ms-1.5 transition-transform group-hover:translate-x-1" />
+              {isArabic ? 'تحدث مع فريقنا' : 'Ask Our Team'}
+              <ArrowRight className="size-3.5 ms-1.5 transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
             </Button>
           </Link>
         </div>

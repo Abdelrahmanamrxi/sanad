@@ -23,7 +23,7 @@ export function UsageMeter({
 
   // 10 discrete segments
   const activeSegments = Math.min(Math.round((percentage / 100) * 10), 10);
-
+  console.log("Used",used)
   return (
     <div className="bg-card border border-border p-4 flex flex-col justify-between space-y-3 rounded-none shadow-xs">
       <div className="flex items-center justify-between text-xs">

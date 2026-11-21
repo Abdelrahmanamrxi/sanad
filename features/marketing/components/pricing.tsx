@@ -7,10 +7,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Calculator,
-  Clock,
   Sparkles,
   Zap,
-  CheckCircle2,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -22,37 +20,38 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.12,
+      staggerChildren: 0.1,
       delayChildren: 0.05,
     },
   },
 }
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.55,
+      duration: 0.45,
       ease: [0.16, 1, 0.3, 1],
     },
   },
 }
 
 export default function Pricing() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
+  const { t, i18n } = useTranslation()
+  const isArabic = i18n.language === 'ar'
   const [estimatedInquiries, setEstimatedInquiries] = useState<number>(2500)
 
   // Calculations for interactive ROI
   const hoursSavedPerMonth = Math.round((estimatedInquiries * 3.5) / 60)
-  const proPrice = 990
 
   return (
     <section
@@ -75,87 +74,68 @@ export default function Pricing() {
       <div className="pointer-events-none absolute -top-40 end-1/3 size-96 bg-primary/5 rounded-none blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 start-1/3 size-96 bg-highlight/5 rounded-none blur-3xl" />
 
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className="flex flex-col items-center text-center gap-3 mb-10 sm:mb-14 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary text-secondary-foreground text-xs font-semibold uppercase tracking-wider border border-primary/20 shadow-2xs">
             <ShieldCheck className="size-3.5 text-primary" />
-            <span>Transparent Ledger &bull; Billed In Egyptian Pounds</span>
+            <span>{t('pricing.badge')}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]">
-            Simple, predictable pricing in Egyptian Pounds.
+            {t('pricing.title')}
           </h2>
 
           <p className="text-sm sm:text-base text-foreground/75 leading-relaxed">
-            No unpredictable US-dollar API shocks or confusing per-token multipliers. Transparent tiers with native Egyptian dialect grounding.
+            {t('pricing.subtitle')}
           </p>
-
-        
-         
         </div>
 
-        {/* Pricing Cards Grid */}
+        {/* Real Plans 3-Card Grid */}
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
           variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch"
         >
-          {/* Card 1: Starter / Solo Practices */}
+          {/* Card 1: Free Tier */}
           <motion.div variants={cardVariants} className="h-full">
-            <Card className="h-full rounded-none bg-background dark:bg-[#132322] border border-border/80 hover:border-primary/50 shadow-xs transition-all flex flex-col justify-between p-6 sm:p-8 group">
+            <Card className="h-full rounded-none bg-background dark:bg-[#132322] border border-border/80 hover:border-primary/50 shadow-xs transition-all flex flex-col justify-between p-6 group">
               <div>
                 <CardHeader className="p-0 gap-2 mb-6">
-                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground font-mono">
-                    Starter Tier
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground font-mono text-start">
+                    {t('pricing.freeTier.tag')}
                   </span>
-                  <CardTitle className="text-2xl sm:text-3xl font-bold text-foreground">
-                    Solo Practices
+                  <CardTitle className="text-2xl font-bold text-foreground text-start">
+                    {t('pricing.freeTier.name')}
                   </CardTitle>
-                  <CardDescription className="text-sm text-foreground/75 leading-relaxed font-normal">
-                    Ideal for individual medical practitioners, boutique shops, or pop-up menus.
+                  <CardDescription className="text-xs sm:text-sm text-foreground/75 leading-relaxed font-normal text-start">
+                    {t('pricing.freeTier.desc')}
                   </CardDescription>
                 </CardHeader>
 
                 {/* Price Display */}
                 <div className="flex items-baseline gap-2 pb-6 border-b border-border/60">
                   <span className="text-4xl sm:text-5xl font-extrabold text-foreground font-mono">
-                    0
+                    {t('pricing.freeTier.price')}
                   </span>
-                  <span className="text-sm font-semibold text-muted-foreground font-mono">
-                    EGP / month
+                  <span className="text-xs sm:text-sm font-semibold text-muted-foreground font-mono">
+                    {t('pricing.perMonth')}
                   </span>
                 </div>
 
                 {/* Features List */}
                 <CardContent className="p-0 pt-6">
-                  <ul className="flex flex-col gap-3.5 text-sm text-foreground/85">
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>
-                        <strong className="font-semibold text-foreground">1 Source Document</strong> (PDF / Word)
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>
-                        <strong className="font-semibold text-foreground">150</strong> customer inquiries / mo
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>Standard Egyptian Dialect RAG</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>1 Lightweight website script embed</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>Unanswered Inquiry Email Alerts</span>
-                    </li>
+                  <ul className="flex flex-col gap-3 text-xs sm:text-sm text-foreground/85">
+                    {((t('pricing.freeTier.features', { returnObjects: true }) as string[]) || []).map(
+                      (feat, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-start">
+                          <Check className="size-4 text-primary shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </CardContent>
               </div>
@@ -164,77 +144,55 @@ export default function Pricing() {
               <CardFooter className="p-0 pt-8">
                 <Link href="/signup" className="w-full">
                   <Button
-                    variant="secondary"
                     size="lg"
-                    className="w-full rounded-none font-semibold border border-border cursor-pointer hover:bg-secondary/80"
+                    variant="outline"
+                    className="w-full rounded-none font-semibold group cursor-pointer border-border hover:bg-muted/60"
                   >
-                    Start Free Forever
+                    {t('pricing.freeTier.cta')}
+                    <ArrowRight className="size-4 ms-2 transition-transform duration-200 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
                   </Button>
                 </Link>
               </CardFooter>
             </Card>
           </motion.div>
 
-          {/* Card 2: Pro Clinic & Commerce */}
-          <motion.div variants={cardVariants} className="h-full relative">
-            {/* Top Most Popular Badge */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-              <span className="px-3.5 py-1 bg-primary text-primary-foreground font-bold text-[11px] tracking-wider uppercase shadow-xs rounded-none font-mono">
-                Most Popular For Clinics
-              </span>
-            </div>
-
-            <Card className="h-full rounded-none bg-background dark:bg-[#132322] border-2 border-primary/50 shadow-md hover:border-primary transition-all flex flex-col justify-between p-6 sm:p-8 pt-9 group">
+          {/* Card 2: Starter (490 EGP) */}
+          <motion.div variants={cardVariants} className="h-full">
+            <Card className="h-full rounded-none bg-background dark:bg-[#132322] border border-border/80 hover:border-primary/50 shadow-xs transition-all flex flex-col justify-between p-6 group">
               <div>
                 <CardHeader className="p-0 gap-2 mb-6">
-                  <span className="text-xs font-bold uppercase tracking-widest text-primary font-mono">
-                    Pro Clinic &amp; Commerce
+                  <span className="text-xs font-bold uppercase tracking-widest text-primary font-mono text-start">
+                    {t('pricing.starterTier.tag')}
                   </span>
-                  <CardTitle className="text-2xl sm:text-3xl font-bold text-foreground">
-                    Growing Centers
+                  <CardTitle className="text-2xl font-bold text-foreground text-start">
+                    {t('pricing.starterTier.name')}
                   </CardTitle>
-                  <CardDescription className="text-sm text-foreground/75 leading-relaxed font-normal">
-                    For multi-doctor clinics, specialty restaurants, and high-volume commerce.
+                  <CardDescription className="text-xs sm:text-sm text-foreground/75 leading-relaxed font-normal text-start">
+                    {t('pricing.starterTier.desc')}
                   </CardDescription>
                 </CardHeader>
 
                 {/* Price Display */}
                 <div className="flex items-baseline gap-2 pb-6 border-b border-border/60">
-                  <span className="text-4xl sm:text-5xl font-extrabold text-primary font-mono">
-                    {proPrice.toLocaleString()}
+                  <span className="text-4xl sm:text-5xl font-extrabold text-foreground font-mono">
+                    {t('pricing.starterTier.price')}
                   </span>
-                  <span className="text-sm font-semibold text-muted-foreground font-mono">
-                    EGP / month {billingCycle === 'annual' && '(billed annually)'}
+                  <span className="text-xs sm:text-sm font-semibold text-muted-foreground font-mono">
+                    {t('pricing.perMonth')}
                   </span>
                 </div>
 
                 {/* Features List */}
                 <CardContent className="p-0 pt-6">
-                  <ul className="flex flex-col gap-3.5 text-sm text-foreground/85">
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>
-                        <strong className="font-semibold text-foreground">50 Source Documents</strong> (PDF, Excel, Sheets)
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>
-                        <strong className="font-semibold text-foreground">15,000</strong> customer inquiries / mo
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>Live website URL crawler &amp; auto-sync</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>Full Custom Brand Colors &amp; Avatar Styling</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Check className="size-4 text-primary shrink-0" />
-                      <span>Egyptian Dialect, Franco &amp; Typo Resilience</span>
-                    </li>
+                  <ul className="flex flex-col gap-3 text-xs sm:text-sm text-foreground/85">
+                    {((t('pricing.starterTier.features', { returnObjects: true }) as string[]) || []).map(
+                      (feat, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-start">
+                          <Check className="size-4 text-primary shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </CardContent>
               </div>
@@ -246,8 +204,69 @@ export default function Pricing() {
                     size="lg"
                     className="w-full rounded-none font-semibold group cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
                   >
-                    Start 14-Day Free Pro Trial
-                    <ArrowRight className="size-4 ms-2 transition-transform duration-200 group-hover:translate-x-1" />
+                    {t('pricing.starterTier.cta')}
+                    <ArrowRight className="size-4 ms-2 transition-transform duration-200 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          {/* Card 3: Growth / Pro Tier (990 EGP - Featured) */}
+          <motion.div variants={cardVariants} className="h-full">
+            <Card className="h-full rounded-none bg-background dark:bg-[#132322] border-2 border-highlight shadow-md relative flex flex-col justify-between p-6 group">
+              {/* Popular Badge */}
+              <div className="absolute -top-3.5 end-6 bg-highlight text-highlight-foreground text-[11px] font-bold uppercase tracking-wider px-3 py-0.5 shadow-2xs font-mono">
+                {t('pricing.growthTier.popular')}
+              </div>
+
+              <div>
+                <CardHeader className="p-0 gap-2 mb-6">
+                  <span className="text-xs font-bold uppercase tracking-widest text-highlight font-mono text-start">
+                    {t('pricing.growthTier.tag')}
+                  </span>
+                  <CardTitle className="text-2xl font-bold text-foreground text-start">
+                    {t('pricing.growthTier.name')}
+                  </CardTitle>
+                  <CardDescription className="text-xs sm:text-sm text-foreground/75 leading-relaxed font-normal text-start">
+                    {t('pricing.growthTier.desc')}
+                  </CardDescription>
+                </CardHeader>
+
+                {/* Price Display */}
+                <div className="flex items-baseline gap-2 pb-6 border-b border-border/60">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-highlight font-mono">
+                    {t('pricing.growthTier.price')}
+                  </span>
+                  <span className="text-xs sm:text-sm font-semibold text-muted-foreground font-mono">
+                    {t('pricing.perMonth')}
+                  </span>
+                </div>
+
+                {/* Features List */}
+                <CardContent className="p-0 pt-6">
+                  <ul className="flex flex-col gap-3 text-xs sm:text-sm text-foreground/85">
+                    {((t('pricing.growthTier.features', { returnObjects: true }) as string[]) || []).map(
+                      (feat, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-start">
+                          <Check className="size-4 text-highlight shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </CardContent>
+              </div>
+
+              {/* Card Footer CTA */}
+              <CardFooter className="p-0 pt-8">
+                <Link href="/signup" className="w-full">
+                  <Button
+                    size="lg"
+                    className="w-full rounded-none font-semibold group cursor-pointer bg-highlight text-highlight-foreground hover:bg-highlight/90"
+                  >
+                    {t('pricing.growthTier.cta')}
+                    <ArrowRight className="size-4 ms-2 transition-transform duration-200 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
                   </Button>
                 </Link>
               </CardFooter>
@@ -261,19 +280,24 @@ export default function Pricing() {
             <div className="flex items-center gap-2.5">
               <Calculator className="size-5 text-primary shrink-0" />
               <div>
-                <h3 className="text-sm font-bold text-foreground">
-                  Interactive Receptionist Efficiency Calculator
+                <h3 className="text-sm font-bold text-foreground text-start">
+                  {isArabic
+                    ? 'حاسبة توفير وقت خدمة العملاء والاستقبال'
+                    : 'Interactive Receptionist Efficiency Calculator'}
                 </h3>
-                <p className="text-xs text-muted-foreground">
-                  Estimate hours freed up for front-desk receptionists each month
+                <p className="text-xs text-muted-foreground text-start">
+                  {isArabic
+                    ? 'قدّر عدد ساعات عمل موظفي الاستقبال التي يوفرها لك «سند» شهرياً'
+                    : 'Estimate hours freed up for front-desk receptionists each month'}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
-              <span>Estimated Volume:</span>
+              <span>{isArabic ? 'الحجم المتوقع:' : 'Estimated Volume:'}</span>
               <span className="text-primary font-bold text-sm">
-                {estimatedInquiries.toLocaleString()} inquiries/mo
+                {estimatedInquiries.toLocaleString()}{' '}
+                {isArabic ? 'استفسار/شهر' : 'inquiries/mo'}
               </span>
             </div>
           </div>
@@ -290,9 +314,9 @@ export default function Pricing() {
               className="w-full accent-primary cursor-pointer h-2 bg-muted rounded-none"
             />
             <div className="flex justify-between text-[11px] font-mono text-muted-foreground">
-              <span>500 inquiries</span>
-              <span>5,000 inquiries</span>
-              <span>10,000 inquiries</span>
+              <span>500</span>
+              <span>5,000</span>
+              <span>10,000</span>
             </div>
           </div>
 
@@ -300,10 +324,10 @@ export default function Pricing() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="p-3 bg-muted/40 border border-border/60 text-center">
               <span className="text-xl font-bold font-mono text-primary leading-tight">
-                ~{hoursSavedPerMonth} Hours
+                ~{hoursSavedPerMonth} {isArabic ? 'ساعة' : 'Hours'}
               </span>
               <p className="text-[11px] text-muted-foreground uppercase font-semibold mt-0.5">
-                Staff Hours Saved / Mo
+                {isArabic ? 'ساعات عمل موفرة شهرياً' : 'Staff Hours Saved / Mo'}
               </p>
             </div>
 
@@ -312,7 +336,7 @@ export default function Pricing() {
                 &lt; 0.3s
               </span>
               <p className="text-[11px] text-muted-foreground uppercase font-semibold mt-0.5">
-                Instant Resolution Speed
+                {isArabic ? 'سرعة الرد الفوري' : 'Instant Resolution Speed'}
               </p>
             </div>
 
@@ -321,7 +345,7 @@ export default function Pricing() {
                 24 / 7
               </span>
               <p className="text-[11px] text-muted-foreground uppercase font-semibold mt-0.5">
-                After-Hours Inquiries Covered
+                {isArabic ? 'تغطية مستمرة خارج أوقات العمل' : 'After-Hours Coverage'}
               </p>
             </div>
           </div>

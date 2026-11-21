@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-
+import { useTranslation } from "react-i18next";
 import { NavMain } from "@/components/layout/nav-main";
 import { NavUser } from "@/components/layout/nav-user";
 import type { PlanTier } from "@/features/billing/plans";
@@ -21,37 +21,6 @@ import {
   Building2,
 } from "lucide-react";
 
-const data = {
-  navMain: [
-    {
-      title: "Overview",
-      url: "/dashboard",
-      icon: <LayoutDashboard />,
-    },
-
-    {
-      title: "Playground",
-      url: "/dashboard/playground",
-      icon: <TerminalSquareIcon />,
-    },
-    {
-      title: "Widget",
-      url: "/dashboard/widget",
-      icon: <Columns3Cog />,
-    },
-    {
-      title: "Knowledge Base",
-      url: "/dashboard/knowledge-base",
-      icon: <BookOpenIcon />,
-    },
-    {
-      title: "Conversations",
-      url: "/dashboard/conversations",
-      icon: <MessagesCircle />,
-    },
-  ],
-};
-
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   businessName?: string;
   user?: {
@@ -66,8 +35,41 @@ export function AppSidebar({
   planTier,
   businessName,
   user,
+  side: sideProp,
   ...props
-}: AppSidebarProps) {
+}: AppSidebarProps & { side?: "left" | "right" }) {
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === "ar";
+  const side = sideProp ?? (isArabic ? "right" : "left");
+
+  const navItems = [
+    {
+      title: t("dashboard.sidebar.overview"),
+      url: "/dashboard",
+      icon: <LayoutDashboard />,
+    },
+    {
+      title: t("dashboard.sidebar.playground"),
+      url: "/dashboard/playground",
+      icon: <TerminalSquareIcon />,
+    },
+    {
+      title: t("dashboard.sidebar.widget"),
+      url: "/dashboard/widget",
+      icon: <Columns3Cog />,
+    },
+    {
+      title: t("dashboard.sidebar.knowledgeBase"),
+      url: "/dashboard/knowledge-base",
+      icon: <BookOpenIcon />,
+    },
+    {
+      title: t("dashboard.sidebar.conversations"),
+      url: "/dashboard/conversations",
+      icon: <MessagesCircle />,
+    },
+  ];
+
   const currentUser = {
     name: user?.name || "User",
     email: user?.email || "",
@@ -75,7 +77,7 @@ export function AppSidebar({
   };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar side={side} collapsible="icon" {...props}>
       <SidebarHeader className="border-b border-sidebar-border p-3">
         <div className="flex items-center gap-2.5">
           <div
@@ -87,13 +89,13 @@ export function AppSidebar({
           <div className="flex flex-col min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <div className="flex items-center gap-1.5 leading-none mb-0.5">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-primary">
-                Business
+                {t("dashboard.sidebar.business")}
               </span>
               <span className="text-muted-foreground/30 text-[9px] font-mono">
                 /
               </span>
               <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-tight">
-                Workspace
+                {t("dashboard.sidebar.workspace")}
               </span>
             </div>
             <span
@@ -102,15 +104,11 @@ export function AppSidebar({
             >
               {businessName || "My Business"}
             </span>
-            <span className="text-[11px] text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
-              <span className="size-1.5 bg-emerald-500 rounded-none shrink-0" />
-              Welcome back
-            </span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={currentUser} planTier={planTier} />

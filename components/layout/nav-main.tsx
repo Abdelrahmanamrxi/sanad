@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronRight, Loader2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import {
   Collapsible,
   CollapsibleContent,
@@ -34,6 +35,7 @@ export function NavMain({
     }[]
   }[]
 }) {
+  const { t } = useTranslation()
   const pathname = usePathname()
   const [prevPathname, setPrevPathname] = useState(pathname)
   const [pendingUrl, setPendingUrl] = useState<string | null>(null)
@@ -60,7 +62,7 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground/80 px-2 py-1.5">
-        Platform
+        {t("dashboard.sidebar.platform")}
       </SidebarGroupLabel>
       <SidebarMenu className="gap-1">
         {items.map((item) => {

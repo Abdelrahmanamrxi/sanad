@@ -28,11 +28,13 @@ import {
 } from "lucide-react";
 import { signInSchema, type SignInInput } from "../schemas/auth";
 import { signIn } from "../actions";
+import { useTranslation } from "react-i18next";
 
 export function SignInForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -106,10 +108,10 @@ export function SignInForm({
       {/* Header */}
       <div className="space-y-1 text-start">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-heading">
-          Welcome back
+          {t("auth.signin.title")}
         </h1>
         <FieldDescription className="text-xs sm:text-sm">
-          Enter your email and password to sign in.
+          {t("auth.signin.subtitle")}
         </FieldDescription>
       </div>
 
@@ -117,14 +119,14 @@ export function SignInForm({
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         {/* Success Message Banner */}
         {isSuccess && (
-          <div className="flex items-start gap-2.5 p-3 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-none animate-in fade-in duration-150">
+          <div className="flex items-start gap-2.5 p-3 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-none animate-in fade-in duration-150 text-start">
             <CheckCircle2 className="size-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
             <div className="space-y-0.5">
               <p className="font-semibold leading-snug">
-                Signed in successfully!
+                {t("auth.signin.success")}
               </p>
               <p className="text-[11px] opacity-90">
-                Redirecting to your workspace...
+                {t("auth.signin.redirecting")}
               </p>
             </div>
           </div>
@@ -132,7 +134,7 @@ export function SignInForm({
 
         {/* Server Error Message */}
         {serverError && !isSuccess && (
-          <div className="flex items-start gap-2.5 p-3 text-xs bg-destructive/10 border border-destructive/30 text-destructive rounded-none">
+          <div className="flex items-start gap-2.5 p-3 text-xs bg-destructive/10 border border-destructive/30 text-destructive rounded-none text-start">
             <AlertCircle className="size-4 shrink-0 mt-0.5" />
             <span className="leading-snug">{serverError}</span>
           </div>
@@ -140,9 +142,9 @@ export function SignInForm({
 
         <FieldGroup className="gap-3.5 sm:gap-4">
           {/* Email */}
-          <Field>
+          <Field className="text-start">
             <FieldLabel htmlFor="signin-email" className="text-xs sm:text-sm">
-              Email
+              {t("auth.signin.email")}
             </FieldLabel>
             <Input
               id="signin-email"
@@ -168,12 +170,12 @@ export function SignInForm({
           </Field>
 
           {/* Password */}
-          <Field>
+          <Field className="text-start">
             <FieldLabel
               htmlFor="signin-password"
               className="text-xs sm:text-sm"
             >
-              Password
+              {t("auth.signin.password")}
             </FieldLabel>
             <div className="relative">
               <Input
@@ -218,22 +220,22 @@ export function SignInForm({
           <Button
             type="submit"
             disabled={isSubmitting || isSuccess}
-            className="w-full h-11 sm:h-10 mt-1 cursor-pointer text-sm font-medium flex items-center justify-center gap-2 rounded-none disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full h-11 sm:h-10 mt-1 cursor-pointer text-sm font-medium flex items-center justify-center gap-2 rounded-none disabled:opacity-60 disabled:cursor-not-allowed bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isSuccess ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                <span>Redirecting...</span>
+                <span>{t("auth.signin.redirecting")}</span>
               </>
             ) : isSubmitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                <span>Signing In...</span>
+                <span>{t("auth.signin.submitting")}</span>
               </>
             ) : (
               <>
-                <span>Sign In</span>
-                <ArrowRight className="size-4" />
+                <span>{t("auth.signin.submit")}</span>
+                <ArrowRight className="size-4 rtl:rotate-180" />
               </>
             )}
           </Button>

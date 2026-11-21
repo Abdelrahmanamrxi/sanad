@@ -18,6 +18,7 @@ export async function getActiveSubscription(businessId: string) {
     .rpc("get_or_renew_subscription", { target_business_id: businessId })
     .single();
   if (error || !sub) {
+    
     console.error("[Usage] Failed to get or renew subscription atomically:", error);
     throw new AppError("Error while retrieving active subscription", 500);
   }
@@ -34,7 +35,6 @@ export async function checkUsageLimit(
   const sub = await getActiveSubscription(businessId);
   const tier = sub.plan_tier as PlanTier;
   const plan = PLANS[tier];
-
   // Fetch current cycle usage record (if none exists yet, 0 messages used so far)
   const { data: cycle, error: cycleError } = await supabaseAdminClient
     .from("usage_cycles")
@@ -70,9 +70,9 @@ export async function checkUsageLimit(
  */
 
 export async function recordMessageUsage(params: {
-  businessId: string;
   tokensIn: number;
   tokensOut: number;
+  businessId:string
 }) {
   const sub = await getActiveSubscription(params.businessId);
   const { error } = await supabaseAdminClient.rpc("increment_business_usage", {

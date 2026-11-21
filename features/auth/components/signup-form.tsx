@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import logo from "../../../public/sanad_logo.png";
 import logoDark from "../../../public/sanad_logo_dark.png";
 import { User, userSchema } from "../schemas/auth";
@@ -27,13 +28,14 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { t } = useTranslation();
   const router = useRouter();
 
   // Form States
   const [serverError, setServerError] = useState<string | null>();
   const [step, setStep] = useState<"form" | "otp" | "success">("form");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword,setShowConfirm]=useState<boolean>(false)
+  const [showConfirmPassword, setShowConfirm] = useState<boolean>(false);
   // OTP States
   const [otp, setCode] = useState<string>("");
   const [otpError, setOTPError] = useState<string | null>("");
@@ -62,11 +64,11 @@ export function SignupForm({
   const password = watch("password") || "";
 
   const passwordRequirements = [
-    { label: "At least 8 characters", met: password.length >= 8 },
-    { label: "Lowercase letter (a-z)", met: /[a-z]/.test(password) },
-    { label: "Uppercase letter (A-Z)", met: /[A-Z]/.test(password) },
-    { label: "Number (0-9)", met: /[0-9]/.test(password) },
-    { label: "Special symbol (@#$%^&*)", met: /[@#$%^&*]/.test(password) },
+    { label: t("auth.signup.reqLength"), met: password.length >= 8 },
+    { label: t("auth.signup.reqLower"), met: /[a-z]/.test(password) },
+    { label: t("auth.signup.reqUpper"), met: /[A-Z]/.test(password) },
+    { label: t("auth.signup.reqNumber"), met: /[0-9]/.test(password) },
+    { label: t("auth.signup.reqSymbol"), met: /[@#$%^&*]/.test(password) },
   ];
 
   // Countdown timer for resend OTP cooldown
@@ -203,10 +205,10 @@ export function SignupForm({
 
         <div className="space-y-1">
           <h2 className="text-base font-bold text-foreground">
-            Email verified successfully
+            {t("auth.signup.successTitle")}
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Redirecting you to set up your workspace...
+            {t("auth.signup.successSubtitle")}
           </p>
         </div>
 
@@ -239,12 +241,12 @@ export function SignupForm({
           <div className="size-9 sm:size-10 border border-border bg-secondary flex items-center justify-center text-secondary-foreground">
             <Mail className="size-4 sm:size-5" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            Check your email
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-heading">
+            {t("auth.signup.otpTitle")}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground leading-normal break-words">
-            We sent a 6-digit verification code to{" "}
-            <span className="font-semibold text-foreground break-all">
+            {t("auth.signup.otpSubtitle")}{" "}
+            <span className="font-semibold text-foreground break-all" dir="ltr">
               {email}
             </span>
             .
@@ -255,7 +257,7 @@ export function SignupForm({
         {resendSuccess && (
           <div className="border border-success/40 bg-success/10 p-2.5 text-xs text-success flex items-start gap-2">
             <Check className="size-4 shrink-0 mt-0.5" />
-            <span>A fresh verification code was sent to your inbox.</span>
+            <span>{t("auth.signup.otpFreshCode")}</span>
           </div>
         )}
 
@@ -273,7 +275,7 @@ export function SignupForm({
               htmlFor="otp-input"
               className="text-xs uppercase tracking-wider text-muted-foreground"
             >
-              Verification Code
+              {t("auth.signup.otpLabel")}
             </FieldLabel>
             <input
               id="otp-input"
@@ -301,10 +303,10 @@ export function SignupForm({
             {isVerifying ? (
               <span className="flex items-center gap-2">
                 <Loader className="size-4 animate-spin" />
-                <span>Verifying...</span>
+                <span>{t("auth.signup.otpVerifying")}</span>
               </span>
             ) : (
-              "Verify & Continue"
+              t("auth.signup.otpSubmit")
             )}
           </Button>
         </form>
@@ -320,8 +322,8 @@ export function SignupForm({
             }}
             className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground cursor-pointer transition-colors py-1 pe-2"
           >
-            <ArrowLeft className="size-3.5" />
-            <span>Edit email</span>
+            <ArrowLeft className="size-3.5 rtl:rotate-180" />
+            <span>{t("auth.signup.otpEditEmail")}</span>
           </button>
 
           <button
@@ -333,12 +335,12 @@ export function SignupForm({
             {isResending ? (
               <>
                 <Loader className="size-3.5 animate-spin" />
-                <span>Sending...</span>
+                <span>{t("auth.signup.otpSending")}</span>
               </>
             ) : resendCooldown > 0 ? (
-              <span>Resend in {resendCooldown}s</span>
+              <span>{t("auth.signup.otpResendCooldown", { seconds: resendCooldown })}</span>
             ) : (
-              <span>Resend code</span>
+              <span>{t("auth.signup.otpResend")}</span>
             )}
           </button>
         </div>
@@ -380,11 +382,11 @@ export function SignupForm({
             </Link>
 
             <div className="space-y-1 text-start">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                Create an account
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-heading">
+                {t("auth.signup.title")}
               </h1>
               <FieldDescription className="text-xs sm:text-sm">
-                Enter your email and password below to get started.
+                {t("auth.signup.subtitle")}
               </FieldDescription>
               {serverError && (
                 <div className="p-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive">
@@ -396,7 +398,7 @@ export function SignupForm({
 
           <Field data-invalid={!!errors.email}>
             <FieldLabel htmlFor="email" className="text-xs sm:text-sm">
-              Email
+              {t("auth.signup.email")}
             </FieldLabel>
             <Input
               {...register("email", {
@@ -417,7 +419,7 @@ export function SignupForm({
 
           <Field data-invalid={!!errors.password}>
             <FieldLabel htmlFor="password" className="text-xs sm:text-sm">
-              Password
+              {t("auth.signup.password")}
             </FieldLabel>
             <div className="relative">
               <Input
@@ -435,8 +437,8 @@ export function SignupForm({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-none"
-                title={showPassword ? "Hide password" : "Show password"}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? t("auth.signup.hidePassword") : t("auth.signup.showPassword")}
+                aria-label={showPassword ? t("auth.signup.hidePassword") : t("auth.signup.showPassword")}
               >
                 {showPassword ? (
                   <EyeOff className="size-4" />
@@ -449,7 +451,7 @@ export function SignupForm({
             {(password.length > 0 || errors.password) && (
               <div className="border border-border/80 bg-muted/20 p-2 sm:p-2.5 mt-1 space-y-1.5">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
-                  Password Requirements
+                  {t("auth.signup.reqTitle")}
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 text-[11px] sm:text-xs">
                   {passwordRequirements.map((req, idx) => (
@@ -480,7 +482,7 @@ export function SignupForm({
               htmlFor="confirm-password"
               className="text-xs sm:text-sm"
             >
-              Confirm Password
+              {t("auth.signup.confirmPassword")}
             </FieldLabel>
             <div className="relative">
               <Input
@@ -498,8 +500,8 @@ export function SignupForm({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowConfirm(!showConfirmPassword)}
                 className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-none"
-                title={showConfirmPassword ? "Hide password" : "Show password"}
-                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                title={showConfirmPassword ? t("auth.signup.hidePassword") : t("auth.signup.showPassword")}
+                aria-label={showConfirmPassword ? t("auth.signup.hidePassword") : t("auth.signup.showPassword")}
               >
                 {showConfirmPassword ? (
                   <EyeOff className="size-4" />
@@ -520,22 +522,22 @@ export function SignupForm({
           >
             {isSubmitting ? (
               <p className="flex flex-row items-center justify-center gap-2">
-                <span>Creating Account</span>
+                <span>{t("auth.signup.submitting")}</span>
                 <Loader className="size-4 animate-spin" />
               </p>
             ) : (
-              "Create Account"
+              t("auth.signup.submit")
             )}
           </Button>
 
           <FieldDescription className="px-1 text-center text-[11px] sm:text-xs leading-relaxed -mt-1 sm:mt-0">
-            By creating an account, you agree to our{" "}
+            {t("auth.signup.termsPrefix")}{" "}
             <a href="#" className="underline hover:text-foreground">
-              Terms of Service
+              {t("auth.signup.terms")}
             </a>{" "}
-            and{" "}
+            {t("auth.signup.and")}{" "}
             <a href="#" className="underline hover:text-foreground">
-              Privacy Policy
+              {t("auth.signup.privacy")}
             </a>
             .
           </FieldDescription>

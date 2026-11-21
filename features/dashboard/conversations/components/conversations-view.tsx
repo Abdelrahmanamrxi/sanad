@@ -15,6 +15,8 @@ export function ConversationsView() {
   const [selectedId, setSelectedId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [knowledgeState, setKnowledgeState] = useState<boolean>(false);
+
   const title = useDebounce(searchQuery, 400);
 
   const { data, error, isPending, isRefetching, refetch } = useQuery({
@@ -142,10 +144,7 @@ export function ConversationsView() {
 
   // 3. Fallback Empty State: No Conversations in Workspace Yet
   if (conversations.length === 0) {
-    return (
-      <ConversationsEmptyState
-      />
-    );
+    return <ConversationsEmptyState />;
   }
 
   return (
@@ -164,15 +163,16 @@ export function ConversationsView() {
           isLoading={isPending}
           isError={Boolean(error)}
           onRetry={() => refetch()}
+          setKnowledgeState={setKnowledgeState}
         />
       </div>
 
       {/* Right Column: Active Conversation Viewer */}
       <div className="flex-1 min-w-0 flex flex-col h-full bg-background overflow-hidden">
-        {currentConversation ? (
+        {currentConversation  ? (
           <>
             <ConversationHeader conversation={currentConversation} />
-            <ConversationThread conversation={currentConversation} />
+            <ConversationThread knowledgeState={knowledgeState} setKnowledgeState={setKnowledgeState} conversation={currentConversation} />
           </>
         ) : isPending ? (
           <div className="flex-1 flex flex-col h-full animate-pulse p-6 space-y-4">

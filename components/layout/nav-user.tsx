@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { useTranslation } from "react-i18next";
 export function NavUser({
   user,
   planTier,
@@ -43,18 +44,20 @@ export function NavUser({
 }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { t, i18n } = useTranslation();
 
   const UpgradeSuggestion = () => {
     switch (planTier) {
       case "free":
-        return "Upgrade to Starter";
+        return t("dashboard.sidebar.upgradeToStarter");
       case "starter":
-        return "Upgrade to Pro";
+        return t("dashboard.sidebar.upgradeToPro");
       default:
-        return "Check Usage";
+        return t("dashboard.sidebar.checkUsage");
     }
   };
   const { isMobile } = useSidebar();
+  const isArabic = i18n.language === "ar";
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -78,7 +81,7 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-fit"
-            side={isMobile ? "bottom" : "right"}
+            side={isMobile ? "bottom" : isArabic ? "left" : "right"}
             align="end"
             sideOffset={4}
           >
@@ -117,7 +120,7 @@ export function NavUser({
               render={<Link href="/dashboard/account" />}
               >
                 <BadgeCheckIcon />
-                Account
+                {t("dashboard.sidebar.account")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={<Link href="/dashboard/billing" />}
@@ -125,7 +128,7 @@ export function NavUser({
               
               >
                 <CreditCardIcon />
-                Billing
+                {t("dashboard.sidebar.billing")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -143,7 +146,7 @@ export function NavUser({
                   Logging out... <Loader size={3} className="animate-spin" />
                 </span>
               ) : (
-                "Log out"
+                t("dashboard.sidebar.signOut")
               )}
             </DropdownMenuItem>
           </DropdownMenuContent>

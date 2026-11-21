@@ -106,7 +106,7 @@ export async function getStatCardsData(
   const aiResolutionPct =
     totalConv > 0 ? Math.round((aiResolvedConv / totalConv) * 100) : 0;
 
-  // Real delta calculations (only if baseline data exists)
+  // Real delta calculations (compares last 7 days vs previous 7-14 days)
   const convThisWeek = convThisWeekRes.count ?? 0;
   const convLastWeek = convLastWeekRes.count ?? 0;
   let convDelta: string | undefined = undefined;
@@ -116,6 +116,10 @@ export async function getStatCardsData(
     const diff = Math.round(((convThisWeek - convLastWeek) / convLastWeek) * 100);
     convDelta = `${diff >= 0 ? "+" : ""}${diff}%`;
     convDeltaType = diff >= 0 ? "positive" : "negative";
+  } else if (convThisWeek > 0) {
+    // When previous week had 0 chats but current week has activity
+    convDelta = "+100%";
+    convDeltaType = "positive";
   }
 
   const visThisWeek = visitorsThisWeekRes.count ?? 0;
@@ -127,6 +131,10 @@ export async function getStatCardsData(
     const diff = Math.round(((visThisWeek - visLastWeek) / visLastWeek) * 100);
     visDelta = `${diff >= 0 ? "+" : ""}${diff}%`;
     visDeltaType = diff >= 0 ? "positive" : "negative";
+  } else if (visThisWeek > 0) {
+    // When previous week had 0 visitors but current week has activity
+    visDelta = "+100%";
+    visDeltaType = "positive";
   }
 
   // Real Latency Calculation

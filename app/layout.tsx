@@ -36,15 +36,23 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
-export default function RootLayout({
+import { cookies } from "next/headers";
+import { DEFAULT_LANGUAGE, LANGUAGE_COOKIE, Language, getDirection } from "@/lib/i18n/settings";
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const rawLang = cookieStore.get(LANGUAGE_COOKIE)?.value;
+  const lang: Language = rawLang === "ar" || rawLang === "en" ? rawLang : DEFAULT_LANGUAGE;
+  const dir = getDirection(lang);
+
   return (
     <html
-      lang="en"
-      dir="ltr"
+      lang={lang}
+      dir={dir}
       data-scroll-behavior="smooth"
       className={`scroll-smooth ${plexSans.variable} ${plexArabic.variable} ${mono.variable}`}
       suppressHydrationWarning

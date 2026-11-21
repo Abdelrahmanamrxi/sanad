@@ -31,7 +31,7 @@ export default function BillingError({ error, reset }: BillingErrorProps) {
           <div className="flex items-center gap-2">
             <span className="size-2 bg-destructive inline-block" />
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-destructive">
-              Billing & Subscription Exception
+              Billing & Subscription Error
             </span>
           </div>
           <div className="flex size-8 items-center justify-center border border-destructive/30 bg-destructive/10 text-destructive rounded-none">

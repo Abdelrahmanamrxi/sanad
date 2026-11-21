@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import ModeToggle from "@/components/ui/ui-toggle";
+import LanguageToggle from "@/components/ui/language-toggle";
 import { Separator } from "@/components/ui/separator";
 import { getAuthContext } from "@/lib/auth";
 import AppError from "@/lib/http/error";
@@ -10,21 +11,33 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import TanstackProvider from "@/components/providers/tanstack-provider";
-export const revalidate=0;
+import { Language } from "@/lib/i18n/settings";
+import { I18nProvider } from "@/components/providers/i18n-provider";
+export const revalidate = 0;
 
-export default async function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   let authContext;
-  try{
-    authContext=await getAuthContext()
-  }
-  catch(err){
-    if(err instanceof AppError){
-      if(err.status===401) redirect("/signin")
-      if(err.status===404) redirect("/onboarding")
+  try {
+    authContext = await getAuthContext();
+
+    const { data } = await authContext.supabase
+      .from("business")
+      .select("app_language")
+      .eq("id", authContext.businessId)
+      .single()
+  
+  } catch (err) {
+    if (err instanceof AppError) {
+      if (err.status === 401) redirect("/signin");
+      if (err.status === 404) redirect("/onboarding");
     }
-   redirect('/signin')
+    redirect("/signin");
   }
-  const { user, businessId, businessName,planTier } = authContext;
+  const { user, businessId, businessName, planTier,appLanguage } = authContext;
 
   const userName =
     user.user_metadata?.full_name ||
@@ -33,6 +46,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
     "User";
 
   return (
+    <I18nProvider initialLanguage={appLanguage}>
+
     <TanstackProvider>
       <SidebarProvider>
         <AppSidebar
@@ -42,29 +57,33 @@ export default async function Layout({ children }: { children: React.ReactNode }
             email: user.email || "",
           }}
           planTier={planTier}
-        />
-      <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="-ms-1" />
-            <Separator
-              orientation="vertical"
-              className="data-vertical:h-4 data-vertical:self-auto"
-            />
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase font-semibold text-muted-foreground px-1.5 py-0.5 border border-border bg-muted/40 rounded-none tracking-wider">
-                Business
-              </span>
-              <span className="text-sm font-semibold text-foreground tracking-tight truncate max-w-[200px] sm:max-w-[320px]">
-                {businessName}
-              </span>
+          />
+        <SidebarInset>
+          <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="-ms-1" />
+              <Separator
+                orientation="vertical"
+                className="data-vertical:h-4 data-vertical:self-auto"
+                />
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono uppercase font-semibold text-muted-foreground px-1.5 py-0.5 border border-border bg-muted/40 rounded-none tracking-wider">
+                  Business
+                </span>
+                <span className="text-sm font-semibold text-foreground tracking-tight truncate max-w-[200px] sm:max-w-[320px]">
+                  {businessName}
+                </span>
+              </div>
             </div>
-          </div>
-          <ModeToggle />
-        </header>
-        <div className="flex-1 p-6 min-w-0">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+            <div className="flex items-center gap-2">
+              <LanguageToggle />
+              <ModeToggle />
+            </div>
+          </header>
+          <div className="flex-1 p-6 min-w-0">{children}</div>
+        </SidebarInset>
+      </SidebarProvider>
     </TanstackProvider>
+                </I18nProvider>
   );
 }

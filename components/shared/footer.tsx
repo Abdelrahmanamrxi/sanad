@@ -6,10 +6,20 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Activity, ShieldCheck } from "lucide-react";
 import { footerLinks } from "@/features/marketing/lib/navigation";
+import { useTranslation } from "react-i18next";
 import logo from "../../public/sanad_logo.png";
 import logoDark from "../../public/sanad_logo_dark.png";
 
 export default function Footer() {
+  const { t } = useTranslation();
+
+  const productLinks = [
+    { label: t("nav.features"), href: "#features" },
+    { label: t("nav.demo"), href: "#demo" },
+    { label: t("nav.pricing"), href: "#pricing" },
+    { label: t("nav.useCases"), href: "#use-cases" },
+  ];
+
   return (
     <motion.footer
       initial={{ opacity: 0, y: 16 }}
@@ -54,20 +64,18 @@ export default function Footer() {
                 />
               </motion.div>
             </Link>
-            <p className="text-sm leading-relaxed text-foreground/75">
-              Structured, dependable AI conversational support built
-              specifically for Egyptian &amp; MENA enterprises.
+            <p className="text-sm leading-relaxed text-foreground/75 text-start">
+              {t("footer.tagline")}
             </p>
           </div>
 
           <div className="flex flex-col gap-2">
             <div className="inline-flex items-center gap-2 text-xs font-mono text-muted-foreground">
               <span className="size-2 bg-success animate-pulse shrink-0" />
-              <span>Cairo &amp; Riyadh Nodes: 100% Operational</span>
+              <span>{t("footer.nodes")}</span>
             </div>
-            <p className="text-xs text-muted-foreground hidden sm:block">
-              &copy; 2026 Sanad Platform LLC. All rights reserved across Egypt
-              and MENA.
+            <p className="text-xs text-muted-foreground hidden sm:block text-start">
+              {t("footer.copyright")}
             </p>
           </div>
         </div>
@@ -76,11 +84,11 @@ export default function Footer() {
         <div className="flex gap-14 sm:gap-20">
           {/* Product Links */}
           <div className="flex flex-col gap-3.5">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground/90 font-mono">
-              Product
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground/90 font-mono text-start">
+              {t("nav.features")}
             </h3>
             <ul className="flex flex-col gap-2.5">
-              {footerLinks.product.map((link) => (
+              {productLinks.map((link) => (
                 <li key={link.label}>
                   <motion.div
                     whileHover={{ x: 3 }}
@@ -124,9 +132,8 @@ export default function Footer() {
         </div>
 
         {/* Mobile-only copyright */}
-        <p className="text-xs text-muted-foreground block sm:hidden pt-4 border-t border-border/40">
-          &copy; 2026 Sanad Platform LLC. All rights reserved across Egypt and
-          MENA.
+        <p className="text-xs text-muted-foreground block sm:hidden pt-4 border-t border-border/40 text-start">
+          {t("footer.copyright")}
         </p>
       </div>
     </motion.footer>

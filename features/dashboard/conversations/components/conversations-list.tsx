@@ -27,6 +27,7 @@ interface ConversationsListProps {
   isLoading?: boolean;
   isError?: boolean;
   onRetry?: () => void;
+  setKnowledgeState:React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function ConversationsList({
@@ -41,6 +42,7 @@ export function ConversationsList({
   isLoading = false,
   isError = false,
   onRetry,
+  setKnowledgeState
 }: ConversationsListProps) {
   const sourceForCounts = allConversations || conversations;
   const tabs: { key: FilterTab; label: string; count: number }[] = [
@@ -166,7 +168,10 @@ export function ConversationsList({
             return (
               <button
                 key={conv.id}
-                onClick={() => onSelect(conv.id)}
+                onClick={() => {
+                  onSelect(conv.id)
+                  setKnowledgeState(false)
+                }}
                 className={cn(
                   "w-full text-start p-3.5 transition-all flex flex-col gap-2 rounded-none cursor-pointer border-s-4",
                   isSelected

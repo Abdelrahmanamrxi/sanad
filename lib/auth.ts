@@ -15,7 +15,7 @@ export const getAuthContext = cache(async () => {
   }
   const { data: business, error: dbError } = await supabase
     .from("business")
-    .select("id, name, name_arabic, subscriptions(plan_tier)")
+    .select("id, name, name_arabic, subscriptions(plan_tier), app_language")
     .eq("owner_id", user.id)
     .single();
 
@@ -37,5 +37,6 @@ export const getAuthContext = cache(async () => {
       business.name_arabic ||
       "My Business") as string,
     planTier,
+    appLanguage:business.app_language
   };
 });

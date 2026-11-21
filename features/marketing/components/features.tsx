@@ -22,6 +22,7 @@ import {
   CardDescription,
   CardFooter,
 } from '@/components/ui/card'
+import { useTranslation } from 'react-i18next'
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -79,6 +80,8 @@ const fileSamples: UploadFileSample[] = [
 ]
 
 export default function Features() {
+  const { t, i18n } = useTranslation()
+  const isArabic = i18n.language === 'ar'
   const [copied, setCopied] = useState(false)
   const [selectedFile, setSelectedFile] = useState<UploadFileSample>(fileSamples[0])
   const [loopState, setLoopState] = useState<'unanswered' | 'answered'>('unanswered')
@@ -114,18 +117,18 @@ export default function Features() {
 
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <div className="flex flex-col items-start text-left gap-3 mb-12 sm:mb-16 max-w-3xl">
+        <div className="flex flex-col items-start text-start gap-3 mb-12 sm:mb-16 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary text-secondary-foreground text-xs font-semibold uppercase tracking-wider border border-primary/20 shadow-2xs">
             <Cpu className="size-3.5 text-primary" />
-            <span>Operational Architecture &bull; Retrieval-Augmented Generation</span>
+            <span>{t("features.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]">
-            Deploy a verified AI assistant in three straightforward steps.
+            {t("features.title")}
           </h2>
 
           <p className="text-sm sm:text-base text-foreground/75 leading-relaxed">
-            Sanad ingests enterprise documentation, indexes structured facts into vector memory, and deploys asynchronously to your web interface.
+            {t("features.subtitle")}
           </p>
         </div>
 
@@ -146,23 +149,23 @@ export default function Features() {
                     01
                   </span>
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-mono">
-                    Ingestion &bull; Vector Parsing
+                    {t("features.step1Tag")}
                   </span>
                 </div>
 
                 <CardTitle className="text-lg sm:text-xl font-bold text-foreground">
-                  Knowledge Document Ingestion
+                  {t("features.step1Title")}
                 </CardTitle>
 
                 <CardDescription className="text-sm text-foreground/75 leading-relaxed font-normal">
-                  Upload PDF manuals, Excel price sheets, or doctor rosters. Sanad semantically parses tables and conditions into private vector memory.
+                  {t("features.step1Desc")}
                 </CardDescription>
 
                 {/* Interactive File Preview Widget */}
                 <div className="mt-3 p-3 bg-muted/50 dark:bg-muted/30 border border-border/70 flex flex-col gap-2.5">
                   <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground">
-                    <span>Sample Ingestion Source:</span>
-                    <span className="text-primary font-semibold">Semantic Parser</span>
+                    <span>{t('features.step1SampleHeader')}</span>
+                    <span className="text-primary font-semibold">{t('features.step1Parser')}</span>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
@@ -185,9 +188,9 @@ export default function Features() {
                             ) : (
                               <FileText className="size-3.5 text-primary shrink-0" />
                             )}
-                            <span className="truncate">{file.name}</span>
+                            <span className="truncate" dir="ltr">{file.name}</span>
                           </div>
-                          <span className="text-[10px] text-primary shrink-0">{file.size}</span>
+                          <span className="text-[10px] text-primary shrink-0 font-mono">{file.size}</span>
                         </button>
                       )
                     })}
@@ -195,18 +198,22 @@ export default function Features() {
 
                   {/* Extraction Result Badge */}
                   <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-mono">
-                    <span className="text-muted-foreground">Extracted Vectors:</span>
+                    <span className="text-muted-foreground">
+                      {isArabic ? 'الحقائق المستخرجة:' : 'Extracted Vectors:'}
+                    </span>
                     <span className="text-success font-bold">
-                      {selectedFile.extractedFacts} entities ({selectedFile.latency})
+                      {selectedFile.extractedFacts} {isArabic ? 'حقيقة مستخرجة' : 'entities'} ({selectedFile.latency})
                     </span>
                   </div>
                 </div>
               </CardHeader>
 
               <CardFooter className="p-6 pt-0">
-                <div className="w-full flex items-center gap-2 p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs text-foreground/80 font-mono">
+                <div className="w-full flex items-center gap-2 p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs text-foreground/80 font-mono text-start">
                   <UploadCloud className="size-4 text-primary shrink-0" />
-                  <span className="truncate font-medium">Formats: PDF, XLSX, DOCX, CSV &amp; REST Endpoints</span>
+                  <span className="truncate font-medium">
+                    {isArabic ? 'الصيغ المدعومة: PDF, XLSX, DOCX, CSV وقواعد البيانات' : 'Formats: PDF, XLSX, DOCX, CSV & REST Endpoints'}
+                  </span>
                 </div>
               </CardFooter>
             </Card>
@@ -221,26 +228,26 @@ export default function Features() {
                     02
                   </span>
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-mono">
-                    Deployment
+                    {t('features.step2Tag')}
                   </span>
                 </div>
 
-                <CardTitle className="text-lg sm:text-xl font-bold text-foreground">
-                  One-Line Script Integration
+                <CardTitle className="text-lg sm:text-xl font-bold text-foreground text-start">
+                  {t('features.step2Title')}
                 </CardTitle>
 
-                <CardDescription className="text-sm text-foreground/75 leading-relaxed font-normal">
-                  Embed a single asynchronous script tag into your web application header. Executes in &lt;40ms without altering Core Web Vitals.
+                <CardDescription className="text-sm text-foreground/75 leading-relaxed font-normal text-start">
+                  {t('features.step2Desc')}
                 </CardDescription>
 
                 {/* Single Script Code Box */}
-                <div className="mt-3 p-3 bg-muted/50 dark:bg-muted/30 border border-border/70 flex flex-col gap-2.5">
+                <div className="mt-3 p-3 bg-muted/50 dark:bg-muted/30 border border-border/70 flex flex-col gap-2.5 text-start">
                   <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pb-1 border-b border-border/60">
-                    <span className="font-semibold text-foreground">HTML Embed Tag</span>
-                    <span className="text-primary">Asynchronous Loading</span>
+                    <span className="font-semibold text-foreground">{t('features.step2EmbedHeader')}</span>
+                    <span className="text-primary">{t('features.step2Async')}</span>
                   </div>
 
-                  <div className="relative bg-card/90 dark:bg-black/40 border border-border/70 p-2.5 font-mono text-[11px] text-foreground/90 overflow-x-auto min-h-[64px] flex items-center">
+                  <div className="relative bg-card/90 dark:bg-black/40 border border-border/70 p-2.5 font-mono text-[11px] text-foreground/90 overflow-x-auto min-h-[64px] flex items-center" dir="ltr">
                     <pre className="w-full whitespace-pre-wrap break-all leading-relaxed">
                       {scriptSnippet}
                     </pre>
@@ -249,7 +256,7 @@ export default function Features() {
                   <div className="flex items-center justify-between text-[11px] font-mono">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
                       <span className="size-2 bg-success animate-pulse shrink-0" />
-                      Latency: 38ms
+                      {t('features.step2Latency')}
                     </span>
                     <button
                       type="button"
@@ -259,12 +266,12 @@ export default function Features() {
                       {copied ? (
                         <>
                           <Check className="size-3 text-success" />
-                          <span>Copied</span>
+                          <span>{t('features.step2Copied')}</span>
                         </>
                       ) : (
                         <>
                           <Copy className="size-3" />
-                          <span>Copy Snippet</span>
+                          <span>{t('features.step2Copy')}</span>
                         </>
                       )}
                     </button>
@@ -273,8 +280,8 @@ export default function Features() {
               </CardHeader>
 
               <CardFooter className="p-6 pt-0">
-                <div className="w-full flex items-center justify-between p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs font-mono text-foreground/85">
-                  <span className="truncate font-medium">Compatible with all web platforms &amp; CMS</span>
+                <div className="w-full flex items-center justify-between p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs font-mono text-foreground/85 text-start">
+                  <span className="truncate font-medium">{t('features.step2Footer')}</span>
                   <Terminal className="size-4 text-primary shrink-0" />
                 </div>
               </CardFooter>
@@ -290,22 +297,22 @@ export default function Features() {
                     03
                   </span>
                   <span className="px-2 py-0.5 rounded-none bg-highlight/15 text-highlight-foreground font-bold text-[10px] tracking-wider uppercase border border-highlight/25 font-mono">
-                    Continuous Resolution
+                    {t('features.step3Tag')}
                   </span>
                 </div>
 
-                <CardTitle className="text-lg sm:text-xl font-bold text-foreground">
-                  Continuous Knowledge Queue
+                <CardTitle className="text-lg sm:text-xl font-bold text-foreground text-start">
+                  {t('features.step3Title')}
                 </CardTitle>
 
-                <CardDescription className="text-sm text-foreground/75 leading-relaxed font-normal">
-                  When an inquiry exceeds indexed documentation, Sanad halts speculation. Unresolved questions route to an administrative queue for single-entry resolution.
+                <CardDescription className="text-sm text-foreground/75 leading-relaxed font-normal text-start">
+                  {t('features.step3Desc')}
                 </CardDescription>
 
                 {/* Interactive Loop Simulation */}
-                <div className="mt-3 p-3 bg-muted/50 dark:bg-muted/30 border border-border/70 flex flex-col gap-2.5">
+                <div className="mt-3 p-3 bg-muted/50 dark:bg-muted/30 border border-border/70 flex flex-col gap-2.5 text-start">
                   <div className="flex items-center justify-between text-[11px] font-mono">
-                    <span className="text-muted-foreground">Queue Simulator:</span>
+                    <span className="text-muted-foreground">{t('features.step3Simulator')}</span>
                     <button
                       type="button"
                       onClick={() =>
@@ -314,7 +321,7 @@ export default function Features() {
                       className="flex items-center gap-1 text-[11px] text-primary hover:underline font-bold cursor-pointer"
                     >
                       <RefreshCw className="size-3" />
-                      {loopState === 'unanswered' ? 'Resolve Query' : 'Reset Simulator'}
+                      {loopState === 'unanswered' ? t('features.step3Resolve') : t('features.step3Reset')}
                     </button>
                   </div>
 
@@ -325,16 +332,16 @@ export default function Features() {
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
-                        className="p-2.5 bg-card border border-border/80 flex flex-col gap-1.5"
+                        className="p-2.5 bg-card border border-border/80 flex flex-col gap-1.5 text-start"
                       >
                         <div className="flex items-center justify-between text-[10px] font-mono text-highlight-foreground bg-highlight/10 px-1.5 py-0.5 border border-highlight/20 w-fit">
-                          <span>Pending Resolution</span>
+                          <span>{t('features.step3Pending')}</span>
                         </div>
-                        <p className="text-xs text-foreground font-medium text-right font-sans">
-                          &ldquo;متاح ركن سيارات (Valet) قدام العيادة؟&rdquo;
+                        <p className="text-xs text-foreground font-medium text-start font-sans">
+                          {t('features.step3Question')}
                         </p>
                         <span className="text-[10px] text-muted-foreground font-mono">
-                          Action: Awaiting administrator verification
+                          {t('features.step3Action')}
                         </span>
                       </motion.div>
                     ) : (
@@ -343,17 +350,17 @@ export default function Features() {
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
-                        className="p-2.5 bg-secondary/30 dark:bg-secondary/15 border border-primary/40 flex flex-col gap-1.5"
+                        className="p-2.5 bg-secondary/30 dark:bg-secondary/15 border border-primary/40 flex flex-col gap-1.5 text-start"
                       >
                         <div className="flex items-center gap-1 text-[10px] font-mono text-success font-semibold">
                           <CheckCircle2 className="size-3 text-success" />
-                          <span>Vector Indexed Permanently</span>
+                          <span>{t('features.step3Resolved')}</span>
                         </div>
-                        <p className="text-xs text-foreground font-medium text-right font-sans">
-                          &ldquo;نعم، متاح خدمة ركن سيارات مجاناً لمرضى العيادة.&rdquo;
+                        <p className="text-xs text-foreground font-medium text-start font-sans">
+                          {t('features.step3Learned')}
                         </p>
                         <span className="text-[10px] text-primary font-mono">
-                          Status: Automated response enabled for future queries
+                          {isArabic ? 'الحالة: مفعل وموثق للاستفسارات القادمة' : 'Status: Automated response enabled for future queries'}
                         </span>
                       </motion.div>
                     )}
@@ -362,9 +369,11 @@ export default function Features() {
               </CardHeader>
 
               <CardFooter className="p-6 pt-0">
-                <div className="w-full flex items-center gap-2 p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs text-foreground/85 font-mono">
+                <div className="w-full flex items-center gap-2 p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs text-foreground/85 font-mono text-start">
                   <span className="size-1.5 bg-primary shrink-0" />
-                  <span className="font-medium">Active Vector Memory Loop</span>
+                  <span className="font-medium">
+                    {isArabic ? 'دائرة تحديث مستمرة لقاعدة المعرفة' : 'Active Vector Memory Loop'}
+                  </span>
                 </div>
               </CardFooter>
             </Card>

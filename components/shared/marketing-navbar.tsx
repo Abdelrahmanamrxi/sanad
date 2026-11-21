@@ -6,7 +6,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Sun, Moon, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { navLinks } from "@/features/marketing/lib/navigation";
+import { useTranslation } from "react-i18next";
+import { LANGUAGE_COOKIE } from "@/lib/i18n/settings";
 import logo from "../../public/sanad_logo.png";
 import logoDark from "../../public/sanad_logo_dark.png";
 
@@ -24,9 +25,12 @@ const getThemeSnapshot = () =>
 const getServerSnapshot = () => false;
 
 export default function MarketingNavbar() {
+  const { t, i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState<"EN" | "AR">("EN");
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+
+  const currentLang = i18n.language === "ar" ? "AR" : "EN";
+
   const isDark = useSyncExternalStore(
     subscribeTheme,
     getThemeSnapshot,
@@ -38,18 +42,22 @@ export default function MarketingNavbar() {
   };
 
   const toggleLang = (lang: "EN" | "AR") => {
-    setCurrentLang(lang);
+    const nextLocale = lang === "AR" ? "ar" : "en";
+    i18n.changeLanguage(nextLocale);
     if (typeof window !== "undefined") {
-      document.documentElement.setAttribute(
-        "dir",
-        lang === "AR" ? "rtl" : "ltr",
-      );
-      document.documentElement.setAttribute(
-        "lang",
-        lang === "AR" ? "ar" : "en",
-      );
+      document.cookie = `${LANGUAGE_COOKIE}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
+      document.documentElement.setAttribute("dir", lang === "AR" ? "rtl" : "ltr");
+      document.documentElement.setAttribute("lang", nextLocale);
     }
   };
+
+  const navLinks = [
+    { label: t("nav.features"), href: "#features" },
+    { label: t("nav.demo"), href: "#demo" },
+    { label: t("nav.useCases"), href: "#use-cases" },
+    { label: t("nav.pricing"), href: "#pricing" },
+    { label: t("nav.faq"), href: "#faq" },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full pt-3 sm:pt-4 px-3 sm:px-6 pointer-events-none transition-all">
@@ -193,13 +201,13 @@ export default function MarketingNavbar() {
             {/* Sign In Button */}
             <Link href="/signin">
               <Button variant="ghost" size="sm">
-                Sign in
+                {t("nav.signIn")}
               </Button>
             </Link>
 
             {/* Sign Up Primary CTA Button */}
             <Link href="/signup">
-              <Button size="sm">Sign Up</Button>
+              <Button size="sm">{t("nav.signUp")}</Button>
             </Link>
           </div>
 
@@ -262,7 +270,7 @@ export default function MarketingNavbar() {
               {/* Language Switcher */}
               <div className="flex items-center justify-between py-1">
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Language / اللغة
+                  {t("nav.language")}
                 </span>
                 <div className="relative flex items-center bg-muted/60 p-0.5 border border-border/50 text-xs">
                   {(["EN", "AR"] as const).map((lang) => {
@@ -304,7 +312,7 @@ export default function MarketingNavbar() {
                   className="w-full"
                 >
                   <Button variant="outline" className="w-full">
-                    Sign in
+                    {t("nav.signIn")}
                   </Button>
                 </Link>
                 <Link
@@ -312,7 +320,7 @@ export default function MarketingNavbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full"
                 >
-                  <Button className="w-full">Sign Up</Button>
+                  <Button className="w-full">{t("nav.signUp")}</Button>
                 </Link>
               </div>
             </motion.div>

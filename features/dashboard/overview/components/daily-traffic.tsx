@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
 import { WeeklyTrafficProps } from "../types";
 
 export default function DailyTraffic({
@@ -5,6 +8,8 @@ export default function DailyTraffic({
 }: {
   weeklyTraffic: WeeklyTrafficProps[];
 }) {
+  const { t } = useTranslation();
+
   const maxTraffic = Math.max(...weeklyTraffic.map((d) => d.total), 1);
   const totalWeeklyChats = weeklyTraffic.reduce((sum, d) => sum + d.total, 0);
   const totalAiAnswered = weeklyTraffic.reduce(
@@ -34,28 +39,32 @@ export default function DailyTraffic({
   const yStep2 = Math.round(maxTraffic * 0.66);
   const yStep3 = Math.round(maxTraffic * 0.33);
 
+  const translateDay = (day: string) => {
+    return t(`dashboard.overview.dailyTraffic.days.${day}`, { defaultValue: day });
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Daily Traffic */}
-      <div className="border border-border bg-card p-5 lg:col-span-3 flex flex-col">
+      <div className="border border-border bg-card p-5 lg:col-span-3 flex flex-col rounded-none">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border pb-3">
           <div>
             <h2 className="text-sm font-semibold text-foreground">
-              Daily Traffic
+              {t("dashboard.overview.dailyTraffic.title")}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Weekly conversation volume: AI answered vs escalated for review
+              {t("dashboard.overview.dailyTraffic.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-4 text-[11px] font-mono text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block size-2 bg-success" />
-              AI Answered
+              <span className="inline-block size-2 bg-success rounded-none" />
+              {t("dashboard.overview.dailyTraffic.aiAnswered")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block size-2 bg-destructive" />
-              Needs Review
+              <span className="inline-block size-2 bg-destructive rounded-none" />
+              {t("dashboard.overview.dailyTraffic.needsReview")}
             </span>
           </div>
         </div>
@@ -106,28 +115,28 @@ export default function DailyTraffic({
                   <div className="flex w-full items-end justify-center gap-1.5 h-full">
                     {/* AI Answered Bar (Resolved & Active combined) */}
                     <div
-                      className={`w-2/5 transition-all ${
+                      className={`w-2/5 transition-all rounded-none ${
                         aiAnsweredH > 0
                           ? "bg-success hover:opacity-85"
                           : "bg-transparent pointer-events-none"
                       }`}
                       style={{ height: `${aiAnsweredH}%` }}
-                      title={`AI Answered: ${day.aiAnswered}`}
+                      title={`${t("dashboard.overview.dailyTraffic.aiAnswered")}: ${day.aiAnswered}`}
                     />
                     {/* Needs Review Bar (Escalated chats) */}
                     <div
-                      className={`w-2/5 transition-all ${
+                      className={`w-2/5 transition-all rounded-none ${
                         needsReviewH > 0
                           ? "bg-destructive hover:opacity-85"
                           : "bg-transparent pointer-events-none"
                       }`}
                       style={{ height: `${needsReviewH}%` }}
-                      title={`Needs Review: ${day.needsReview}`}
+                      title={`${t("dashboard.overview.dailyTraffic.needsReview")}: ${day.needsReview}`}
                     />
                   </div>
                   <div className="mt-2 flex flex-col items-center leading-none">
                     <span className="font-mono text-[11px] font-medium text-foreground">
-                      {day.day}
+                      {translateDay(day.day)}
                     </span>
                     <span className="font-mono text-[9px] text-muted-foreground mt-0.5">
                       {day.total}
@@ -141,18 +150,18 @@ export default function DailyTraffic({
 
         {/* Structured breakdown metrics */}
         <div className="grid grid-cols-2 gap-2.5 border-t border-border pt-4 sm:grid-cols-4">
-          <div className="border border-border bg-background p-2.5">
+          <div className="border border-border bg-background p-2.5 rounded-none">
             <span className="block font-mono text-[10px] uppercase text-muted-foreground">
-              Weekly Volume
+              {t("dashboard.overview.dailyTraffic.weeklyVolume")}
             </span>
             <span className="font-mono text-sm font-bold text-foreground">
               {totalWeeklyChats.toLocaleString()}
             </span>
           </div>
 
-          <div className="border border-border bg-background p-2.5">
+          <div className="border border-border bg-background p-2.5 rounded-none">
             <span className="block font-mono text-[10px] uppercase text-muted-foreground">
-              AI Answered
+              {t("dashboard.overview.dailyTraffic.aiAnswered")}
             </span>
             <span className="font-mono text-sm font-bold text-success">
               {totalAiAnswered.toLocaleString()}{" "}
@@ -162,9 +171,9 @@ export default function DailyTraffic({
             </span>
           </div>
 
-          <div className="border border-border bg-background p-2.5">
+          <div className="border border-border bg-background p-2.5 rounded-none">
             <span className="block font-mono text-[10px] uppercase text-muted-foreground">
-              Needs Review
+              {t("dashboard.overview.dailyTraffic.needsReview")}
             </span>
             <span className="font-mono text-sm font-bold text-destructive">
               {totalNeedsReview.toLocaleString()}{" "}
@@ -174,12 +183,12 @@ export default function DailyTraffic({
             </span>
           </div>
 
-          <div className="border border-border bg-background p-2.5">
+          <div className="border border-border bg-background p-2.5 rounded-none">
             <span className="block font-mono text-[10px] uppercase text-muted-foreground">
-              Busiest Day
+              {t("dashboard.overview.dailyTraffic.busiestDay")}
             </span>
             <span className="font-mono text-sm font-bold text-foreground">
-              {busiest.day}{" "}
+              {translateDay(busiest.day)}{" "}
               <span className="text-[10px] font-normal text-muted-foreground">
                 ({busiest.total})
               </span>

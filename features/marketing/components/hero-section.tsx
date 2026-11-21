@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -43,6 +44,7 @@ const itemVariants: Variants = {
 }
 
 export default function HeroSection() {
+  const { t } = useTranslation()
   const heroRef = useRef<HTMLElement>(null)
 
   // Interactive mouse spotlight tracking
@@ -106,32 +108,32 @@ export default function HeroSection() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary text-secondary-foreground text-xs font-semibold uppercase tracking-wider border border-primary/20 shadow-2xs">
               <span className="size-2 bg-success animate-pulse shrink-0" />
               <Store className="size-3.5 text-primary shrink-0" />
-              <span>Built for clinics, restaurants &amp; shops in Egypt &amp; MENA</span>
+              <span>{t("hero.badge")}</span>
             </div>
           </motion.div>
 
           {/* Main Headline */}
           <motion.h1
             variants={itemVariants}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1] max-w-4xl"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.15] max-w-4xl text-start"
           >
-            Customer support{' '}
+            {t("hero.headlineBefore")}{" "}
             <span className="relative inline-block text-primary">
-              grounded in
+              {t("hero.headlineHighlight")}
               <span className="absolute bottom-1.5 start-0 w-full h-1 bg-primary/25 -z-10" />
-            </span>{' '}
-            verified business data, answering in{' '}
+            </span>{" "}
+            {t("hero.headlineMiddle")}{" "}
             <span className="text-foreground underline decoration-primary/40 underline-offset-8">
-              Arabic &amp; English.
+              {t("hero.headlineUnderline")}
             </span>
           </motion.h1>
 
           {/* Subheading */}
           <motion.p
             variants={itemVariants}
-            className="text-base sm:text-lg lg:text-xl text-foreground/80 font-normal leading-relaxed max-w-3xl"
+            className="text-base sm:text-lg lg:text-xl text-foreground/80 font-normal leading-relaxed max-w-3xl text-start"
           >
-            Upload your official price lists, treatment schedules, and branch menus. Sanad answers visitor questions on your website with 100% grounded facts &mdash; never hallucinating, handling Egyptian slang and Franco with native precision.
+            {t("hero.subheading")}
           </motion.p>
 
           {/* Call to Actions & Trust Guarantees */}
@@ -145,8 +147,8 @@ export default function HeroSection() {
                   size="lg"
                   className="w-full sm:w-auto px-8 py-6 text-sm sm:text-base font-semibold group rounded-none shadow-xs border border-primary/40 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                 >
-                  Start Building Free
-                  <ArrowRight className="size-4 ms-2 transition-transform duration-200 group-hover:translate-x-1" />
+                  {t("hero.startBuilding")}
+                  <ArrowRight className="size-4 ms-2 transition-transform duration-200 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
                 </Button>
               </Link>
             </motion.div>
@@ -159,7 +161,7 @@ export default function HeroSection() {
                   className="w-full sm:w-auto px-7 py-6 text-sm sm:text-base font-semibold group rounded-none border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
                 >
                   <Play className="size-4 me-2 fill-current opacity-80" />
-                  See Interactive Demo
+                  {t("hero.seeDemo")}
                 </Button>
               </Link>
             </motion.div>
@@ -172,15 +174,15 @@ export default function HeroSection() {
           >
             <span className="flex items-center gap-1.5">
               <span className="size-1.5 bg-primary shrink-0" />
-              Zero setup code required
+              {t("hero.trustNoCode")}
             </span>
             <span className="flex items-center gap-1.5">
               <span className="size-1.5 bg-primary shrink-0" />
-              2-minute script installation
+              {t("hero.trustInstall")}
             </span>
             <span className="flex items-center gap-1.5">
               <span className="size-1.5 bg-primary shrink-0" />
-              100% grounded fact guarantee
+              {t("hero.trustGrounded")}
             </span>
           </motion.div>
 
@@ -192,48 +194,48 @@ export default function HeroSection() {
             {/* Metric 1 */}
             <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-2xl sm:text-3xl font-bold text-primary font-mono">98.2%</span>
+                <span className="text-2xl sm:text-3xl font-bold text-primary font-mono">{t("hero.metric1Value")}</span>
                 <ShieldCheck className="size-5 text-primary/70 shrink-0" />
               </div>
-              <span className="text-xs font-bold text-foreground">Operational Accuracy</span>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Direct quotation from your documents without hallucinating prices or policies.
+              <span className="text-xs font-bold text-foreground text-start">{t("hero.metric1Title")}</span>
+              <p className="text-xs text-muted-foreground leading-relaxed text-start">
+                {t("hero.metric1Desc")}
               </p>
             </div>
 
             {/* Metric 2 */}
             <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-2xl sm:text-3xl font-bold text-foreground font-mono">&lt; 280ms</span>
+                <span className="text-2xl sm:text-3xl font-bold text-foreground font-mono">{t("hero.metric2Value")}</span>
                 <Zap className="size-5 text-highlight shrink-0" />
               </div>
-              <span className="text-xs font-bold text-foreground">MENA Edge Latency</span>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Low-latency response nodes optimized for local Egyptian network traffic.
+              <span className="text-xs font-bold text-foreground text-start">{t("hero.metric2Title")}</span>
+              <p className="text-xs text-muted-foreground leading-relaxed text-start">
+                {t("hero.metric2Desc")}
               </p>
             </div>
 
             {/* Metric 3 */}
             <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-2xl sm:text-3xl font-bold text-foreground font-mono">100%</span>
+                <span className="text-2xl sm:text-3xl font-bold text-foreground font-mono">{t("hero.metric3Value")}</span>
                 <Languages className="size-5 text-primary/70 shrink-0" />
               </div>
-              <span className="text-xs font-bold text-foreground">Dialect &amp; Franco</span>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Understands Egyptian colloquialisms, phonetic typos, and Franco-Arabic.
+              <span className="text-xs font-bold text-foreground text-start">{t("hero.metric3Title")}</span>
+              <p className="text-xs text-muted-foreground leading-relaxed text-start">
+                {t("hero.metric3Desc")}
               </p>
             </div>
 
             {/* Metric 4 */}
             <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-2xl sm:text-3xl font-bold text-primary font-mono">2 Min</span>
+                <span className="text-2xl sm:text-3xl font-bold text-primary font-mono">{t("hero.metric4Value")}</span>
                 <Code2 className="size-5 text-primary/70 shrink-0" />
               </div>
-              <span className="text-xs font-bold text-foreground">One-Line Script Embed</span>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Compatible with WordPress, Shopify, Wix, custom HTML &amp; modern web apps.
+              <span className="text-xs font-bold text-foreground text-start">{t("hero.metric4Title")}</span>
+              <p className="text-xs text-muted-foreground leading-relaxed text-start">
+                {t("hero.metric4Desc")}
               </p>
             </div>
           </motion.div>

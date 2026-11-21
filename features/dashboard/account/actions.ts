@@ -10,6 +10,8 @@ import { revalidatePath } from "next/cache";
 import { businessSchema } from "./schemas/business";
 import { passwordSchema } from "./schemas/password";
 import { z } from "zod";
+import { cookies } from "next/headers";
+import { LANGUAGE_COOKIE } from "@/lib/i18n/settings";
 
 export async function updateAccountLanguage(
   prevState: AccountProfileState,
@@ -54,8 +56,15 @@ export async function updateAccountLanguage(
       error: "Failed to update user's app language.",
     };
   }
+  const cookieStore=await cookies()
 
-  revalidatePath("/dashboard/account");
+  cookieStore.set(LANGUAGE_COOKIE,appLanguage,{
+    path:"/",
+    maxAge:60*60*24*365,
+    sameSite:"lax"
+  })
+
+  revalidatePath("/dashboard","layout");
   return {
     success: true,
     savedLanguage: appLanguage as "en" | "ar",

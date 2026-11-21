@@ -3,26 +3,23 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
-  FileText,
-  ShieldCheck,
-  Zap,
-  RotateCw,
-  Send,
-  Sparkles,
-  Bot,
+  FileCheck2,
   Building2,
   Utensils,
   ShoppingBag,
-  Database,
+  RotateCw,
+  Send,
+  ShieldCheck,
   Check,
-  ChevronRight,
-  ExternalLink,
-  HelpCircle,
-  FileCheck2,
+  Sparkles,
+  Zap,
+  Bot,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface QueryVariant {
   id: string
+  chipLabel: string
   questionText: string
   questionTime: string
   badge: string
@@ -36,147 +33,198 @@ interface QueryVariant {
 interface Scenario {
   id: string
   title: string
-  icon: typeof Building2
+  icon: React.ElementType
   branchName: string
   fileType: string
   fileName: string
   fileDetails: string
   factTitle: string
   extractedFacts: string[]
-  scheduleName: string
   guardrailText: string
   queries: QueryVariant[]
 }
 
-const scenarios: Scenario[] = [
+const scenariosAr: Scenario[] = [
+  {
+    id: 'clinic',
+    title: 'عيادة أسنان',
+    icon: Building2,
+    branchName: 'فرع الدقي التخصصي لطب الأسنان',
+    fileType: 'PDF',
+    fileName: 'Dokki_Clinic_Prices_2025.pdf',
+    fileDetails: '42 صفحة • تشمل الإجراءات والأسعار ومواعيد الأطباء',
+    factTitle: 'الحقائق المستخرجة المؤكدة',
+    extractedFacts: [
+      'حشو عصب الضرس: يبدأ من 1,400 ج.م (شامل الأشعة الرقمية والتعقيم)',
+      'د. أحمد فؤاد (استشاري علاج الجذور) متواجد اليوم حتى الساعة 10:00 مساءً',
+      'التقسيط: 0% فوائد حتى 6 أشهر ببطاقات البنك الأهلي وبنك مصر',
+    ],
+    guardrailText: 'ضمان الأمان الذكي: يستخرج «سند» الإجابات من أوراقك فقط ولا يؤلف أبداً أي سعر أو إجراء غير مسجل.',
+    queries: [
+      {
+        id: 'q1',
+        chipLabel: 'سؤال ١: الأسعار والمواعيد',
+        questionText: 'مساء الخير، لو سمحت هو حشو العصب عندكم بكام؟ ومين الدكتور الموجود انهاردة؟',
+        questionTime: 'عميل • 7:14 م',
+        badge: 'موثق من قائمة أسعار فرع الدقي',
+        latency: '240ms',
+        greeting: 'أهلاً بك يا فندم،',
+        body: 'حشو العصب للضرس يبدأ من 1,400 جنيه مصري شامل الأشعة الرقمية والتعقيم. دكتور أحمد فؤاد (استشاري علاج الجذور) متواجد اليوم بفرع الدقي حتى الساعة 10:00 مساءً.',
+        closing: 'هل تحب أحجز لحضرتك موعد مع دكتور أحمد اليوم؟',
+        exactFactMatched: 'Dokki_Clinic_Prices_2025.pdf · صفحة 14 وجدول الأطباء',
+      },
+      {
+        id: 'q2',
+        chipLabel: 'سؤال ٢: الشروط والتقسيط',
+        questionText: 'متاح تقسيط لحشو العصب والتركيبات بكروت البنك الأهلي؟',
+        questionTime: 'عميل • 7:18 م',
+        badge: 'موثق من اتفاقية خيارات الدفع والتقسيط',
+        latency: '210ms',
+        greeting: 'أهلاً بحضرتك،',
+        body: 'نعم بالتأكيد! متاح تقسيط بدون فوائد حتى 6 أشهر باستخدام بطاقات ائتمان البنك الأهلي المصري وبنك مصر.',
+        closing: 'الخدمة سارية على كافة الإجراءات التي تتجاوز 1,000 ج.م.',
+        exactFactMatched: 'Dokki_Clinic_Prices_2025.pdf · البند 8.1 (شروط الدفع)',
+      },
+    ],
+  },
+  {
+    id: 'retail',
+    title: 'متجر تجزئة وأزياء',
+    icon: ShoppingBag,
+    branchName: 'المتجر الإلكتروني وفرع مصر الجديدة',
+    fileType: 'DOCX',
+    fileName: 'Heliopolis_Store_Policies.docx',
+    fileDetails: 'سياسة الاستبدال والاسترجاع والشحن المعتمدة لعام 2025',
+    factTitle: 'الحقائق المستخرجة المؤكدة',
+    extractedFacts: [
+      'الاستبدال والاسترجاع: متاح خلال 14 يوماً من الاستلام بالفاتورة الأصلية',
+      'الشحن المجاني: متاح لجميع الطلبات التي تتجاوز 1,200 ج.م لكافة المحافظات',
+      'المعاينة عند الاستلام: مسموح بفتح الشحنة والتأكد من المقاس قبل الدفع للمندوب',
+    ],
+    guardrailText: 'ضمان الأمان الذكي: يلتزم حرفياً بسياسات جهاز حماية المستهلك وسياسات استرجاع المتجر.',
+    queries: [
+      {
+        id: 'q1',
+        chipLabel: 'سؤال ١: المعاينة والاسترجاع',
+        questionText: 'ينفع أقيس الأوردر مع المندوب قبل ما أدفع؟ وإيه نظام الاسترجاع؟',
+        questionTime: 'عميل • 3:20 م',
+        badge: 'موثق من وثيقة سياسات الشحن والاسترجاع',
+        latency: '230ms',
+        greeting: 'أهلاً بحضرتك،',
+        body: 'نعم بالتأكيد! متاح معاينة وقياس الملابس مع المندوب قبل الاستلام. وإذا رغبت بالاسترجاع يمكنك ذلك خلال 14 يوماً من تاريخ الفاتورة مجاناً.',
+        closing: 'هل تود الاستفسار عن مدة التوصيل لمحافظتك؟',
+        exactFactMatched: 'Heliopolis_Store_Policies.docx · البند 4 (سياسة المعاينة)',
+      },
+      {
+        id: 'q2',
+        chipLabel: 'سؤال ٢: مصاريف الشحن والمحافظات',
+        questionText: 'الشحن لإسكندرية بكام؟ وبياخد كام يوم؟',
+        questionTime: 'عميل • 3:25 م',
+        badge: 'موثق من جدول أسعار الشحن 2025',
+        latency: '200ms',
+        greeting: 'أهلاً بك،',
+        body: 'الشحن لمحافظة الإسكندرية 45 ج.م ويستغرق من 48 إلى 72 ساعة عمل. وإذا تجاوزت قيمة مشترياتك 1,200 ج.م يكون الشحن مجاناً تماماً.',
+        closing: 'هل ترغب في متابعة طلب حالي؟',
+        exactFactMatched: 'Heliopolis_Store_Policies.docx · جدول المحافظات',
+      },
+    ],
+  },
+]
+
+const scenariosEn: Scenario[] = [
   {
     id: 'clinic',
     title: 'Dental Clinic',
     icon: Building2,
     branchName: 'Dokki Dental Specialty Branch',
     fileType: 'PDF',
-    fileName: 'Dokki_Clinic_Prices_2025_v3.pdf',
+    fileName: 'Dokki_Clinic_Prices_2025.pdf',
     fileDetails: '42 pages • Includes procedures, prices & doctor schedules',
     factTitle: 'Verified Extracted Facts',
     extractedFacts: [
-      'Molar root canal treatment: 1,400 EGP (includes digital X-ray & sterilization)',
+      'Molar root canal treatment starts at 1,400 EGP (includes digital X-ray & sterilization)',
       'Dr. Ahmed Fouad (Endodontics Consultant) on duty today until 10:00 PM',
       'Installment: 0% interest up to 6 months with NBE & Banque Misr credit cards',
     ],
-    scheduleName: 'Ramadan_Doctor_Schedule_2025.xlsx',
     guardrailText: 'Smart Guardrail: Sanad only answers from your files and will never invent unlisted prices or procedures.',
     queries: [
       {
         id: 'q1',
-        questionText: 'مساء الخير، لو سمحت هو حشو العصب عندكم بكام؟ ومين الدكتور الموجود انهاردة؟',
+        chipLabel: 'Question 1: Pricing & Schedule',
+        questionText: 'Good evening, how much is a root canal? And which doctor is on duty today?',
         questionTime: 'Visitor • 7:14 PM',
         badge: 'Verified from Dokki Clinic Price Matrix',
         latency: '240ms',
-        greeting: 'أهلاً بك يا فندم،',
-        body: 'حشو العصب للضرس يبدأ من 1,400 جنيه مصري شامل الأشعة الرقمية والتعقيم. دكتور أحمد فؤاد (استشاري علاج الجذور) متواجد اليوم بفرع الدقي حتى الساعة 10:00 مساءً.',
-        closing: 'هل تحب أحجز لحضرتك موعد مع دكتور أحمد اليوم؟',
-        exactFactMatched: 'Dokki_Clinic_Prices_2025_v3.pdf · Page 14 & Schedule.xlsx',
+        greeting: 'Hello!',
+        body: 'Molar root canal treatment starts at 1,400 EGP including digital X-rays and sterilization. Dr. Ahmed Fouad (Endodontics Consultant) is on duty today at the Dokki branch until 10:00 PM.',
+        closing: 'Would you like me to book an appointment with Dr. Ahmed today?',
+        exactFactMatched: 'Dokki_Clinic_Prices_2025.pdf · Page 14 & Schedule.xlsx',
       },
       {
         id: 'q2',
-        questionText: 'متاح تقسيط لحشو العصب والتركيبات بكروت البنك الأهلي؟',
+        chipLabel: 'Question 2: 0% Installment Terms',
+        questionText: 'Do you offer 0% installment plans for dental work with National Bank credit cards?',
         questionTime: 'Visitor • 7:18 PM',
         badge: 'Verified from Payment Options Agreement',
         latency: '210ms',
-        greeting: 'أهلاً بحضرتك،',
-        body: 'نعم بالتأكيد! متاح تقسيط بدون فوائد حتى 6 أشهر باستخدام بطاقات ائتمان البنك الأهلي المصري وبنك مصر.',
-        closing: 'الخدمة سارية على كافة الإجراءات التي تتجاوز 1,000 ج.م.',
-        exactFactMatched: 'Dokki_Clinic_Prices_2025_v3.pdf · Clause 8.1 (Payment Terms)',
-      },
-    ],
-  },
-  {
-    id: 'restaurant',
-    title: 'Artisan Burger',
-    icon: Utensils,
-    branchName: 'Zamalek & Sheikh Zayed Branches',
-    fileType: 'XLSX',
-    fileName: 'Zamalek_Menu_Combos_v4.xlsx',
-    fileDetails: 'Sheet: Active Menu • Includes allergens, combos & delivery zones',
-    factTitle: 'Verified Extracted Facts',
-    extractedFacts: [
-      'Triple Bacon Mushroom: 210 EGP (Gluten-free bun available at 0 EGP extra)',
-      'Delivery to Sheikh Zayed: Available until 2:00 AM (Flat fee 35 EGP)',
-      'Sanad Feast Combo: 4 Single Burgers + 2 Large Fries + 1L Pepsi: 580 EGP',
-    ],
-    scheduleName: 'Branch_Operating_Hours_2025.csv',
-    guardrailText: 'Smart Guardrail: Accurately checks dietary allergens and active branch delivery cut-off times.',
-    queries: [
-      {
-        id: 'q1',
-        questionText: 'لو سمحت سندوتش تريبل بيكون ماشروم بكام؟ ومتاح عيش خالي من الجلوتين وتوصيل لزايد؟',
-        questionTime: 'Visitor • 8:30 PM',
-        badge: 'Verified from active menu & delivery sheet',
-        latency: '190ms',
-        greeting: 'أهلاً بك يا فندم،',
-        body: 'سعر تريبل بيكون ماشروم هو 210 جنيه مصري، ومتاح بالتأكيد خبز خالي من الجلوتين (Gluten-Free) بدون أي تكلفة إضافية.',
-        closing: 'خدمة التوصيل لفرع الشيخ زايد متاحة حتى الساعة 2:00 صباحاً. تحب نعمل لحضرتك الأوردر؟',
-        exactFactMatched: 'Zamalek_Menu_Combos_v4.xlsx · Row 18 & Delivery Matrix',
-      },
-      {
-        id: 'q2',
-        questionText: 'عندكم كومبو عائلي يكفي 4 أفراد وسعره كام؟',
-        questionTime: 'Visitor • 8:34 PM',
-        badge: 'Verified from Zamalek Combo Sheet',
-        latency: '180ms',
-        greeting: 'مساء النور!',
-        body: 'عندنا "Sanad Feast Combo" يكفي 4 أفراد، يشمل (4 برجر سنجل + 2 بطاطس كبير + لتر بيبسي) بسعر 580 ج.م شامل الضريبة.',
-        closing: 'متاح الطلب للتوصيل الفوري أو الاستلام من أقرب فرع.',
-        exactFactMatched: 'Zamalek_Menu_Combos_v4.xlsx · Sheet: Combos · Row 12',
+        greeting: 'Hello!',
+        body: 'Yes, absolutely! 0% interest installment is available for up to 6 months using NBE and Banque Misr credit cards on procedures exceeding 1,000 EGP.',
+        closing: 'Would you like details on other payment tenures?',
+        exactFactMatched: 'Dokki_Clinic_Prices_2025.pdf · Clause 8.1 (Payment Terms)',
       },
     ],
   },
   {
     id: 'retail',
-    title: 'Retail & Fashion',
+    title: 'Fashion & Retail',
     icon: ShoppingBag,
-    branchName: 'Cairo Festival City & Mall of Egypt',
-    fileType: 'PDF',
-    fileName: 'Return_Policy_&_Branch_Stock_2025.pdf',
-    fileDetails: '26 pages • Store exchange policy & live branch inventory',
+    branchName: 'E-commerce & Heliopolis Boutique',
+    fileType: 'DOCX',
+    fileName: 'Heliopolis_Store_Policies.docx',
+    fileDetails: '2025 Store Warranty, Exchange & Shipping Standards',
     factTitle: 'Verified Extracted Facts',
     extractedFacts: [
-      'Black Leather Jacket (Size L): In stock at CFC and Mall of Egypt',
-      'Exchange & Refund: 14 days with original receipt in new condition',
-      'Free shipping on exchanges across Greater Cairo',
+      'Exchange & returns: 14 days from delivery with the original invoice',
+      'Free shipping on all orders over 1,200 EGP nationwide across Egypt',
+      'Inspection upon delivery: Try-on allowed before paying the courier',
     ],
-    scheduleName: 'Live_Store_Inventory_Feed.xlsx',
-    guardrailText: 'Smart Guardrail: Sanad applies your 14-day refund policy strictly without deviation.',
+    guardrailText: 'Smart Guardrail: Strictly adheres to consumer protection standards and store return terms.',
     queries: [
       {
         id: 'q1',
-        questionText: 'عايز أعرف الجاكيت الجلد الأسود موجود منه مقاس L في فرع كايرو فيستيفال؟ وإيه نظام الاسترجاع؟',
-        questionTime: 'Visitor • 4:15 PM',
-        badge: 'Verified from branch inventory & policy',
-        latency: '220ms',
-        greeting: 'مرحباً بحضرتك،',
-        body: 'نعم، مقاس L من السترة الجلدية السوداء متوفر حالياً في فرع كايرو فيستيفال سيتي (CFC). سياسة الاستبدال والاسترجاع تتيح لك 14 يوماً مع الفاتورة الأصلية بحالتها الجديدة.',
-        closing: 'هل تحب نحجز القطعة لحضرتك في الفرع لتجربتها؟',
-        exactFactMatched: 'Return_Policy_&_Branch_Stock_2025.pdf · Section 3.1 & Stock DB',
+        chipLabel: 'Question 1: Try-on & Return Policy',
+        questionText: 'Can I try on the clothes before paying the courier? What is your return policy?',
+        questionTime: 'Visitor • 3:20 PM',
+        badge: 'Verified from Shipping & Return Policy',
+        latency: '230ms',
+        greeting: 'Hello!',
+        body: 'Yes, inspection and try-on with the courier before payment is fully allowed. If you wish to return items, free returns are valid within 14 days of delivery.',
+        closing: 'Would you like to track an existing order?',
+        exactFactMatched: 'Heliopolis_Store_Policies.docx · Clause 4 (Inspection Policy)',
       },
       {
         id: 'q2',
-        questionText: 'لو اشتريت أونلاين والمقاس طلع كبير الاستبدال بياخد شحن كام؟',
-        questionTime: 'Visitor • 4:19 PM',
-        badge: 'Verified from Shipping Policy',
-        latency: '205ms',
-        greeting: 'أهلاً بك،',
-        body: 'الاستبدال مجاني تماماً بدون أي مصاريف شحن داخل القاهرة الكبرى، مندوب التوصيل بيوصلك بالمقاس البديل ويستلم القطعة القديمة مباشرة.',
-        closing: 'فترة الاستبدال متاحة خلال 14 يوماً من استلام الشحنة.',
-        exactFactMatched: 'Return_Policy_&_Branch_Stock_2025.pdf · Clause 5.2 (Free Exchange)',
+        chipLabel: 'Question 2: Shipping Rates & Times',
+        questionText: 'How much is shipping to Alexandria, and how long does it take?',
+        questionTime: 'Visitor • 3:25 PM',
+        badge: 'Verified from 2025 Shipping Rates',
+        latency: '200ms',
+        greeting: 'Hello!',
+        body: 'Shipping to Alexandria is 45 EGP and takes 48 to 72 business hours. If your order exceeds 1,200 EGP, shipping is completely free.',
+        closing: 'Would you like help completing an order?',
+        exactFactMatched: 'Heliopolis_Store_Policies.docx · Shipping Zones',
       },
     ],
   },
 ]
 
 export default function InteractiveDemo() {
-  const [activeScenarioId, setActiveScenarioId] = useState('clinic')
-  const [activeQueryIndex, setActiveQueryIndex] = useState(0)
+  const { t, i18n } = useTranslation()
+  const isArabic = i18n.language === 'ar'
+  const scenarios = isArabic ? scenariosAr : scenariosEn
+
+  const [activeScenarioId, setActiveScenarioId] = useState<string>('clinic')
+  const [activeQueryIndex, setActiveQueryIndex] = useState<number>(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const activeScenario = scenarios.find((s) => s.id === activeScenarioId) || scenarios[0]
@@ -217,15 +265,15 @@ export default function InteractiveDemo() {
         <div className="flex flex-col items-center text-center gap-3 mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary text-secondary-foreground text-xs font-semibold uppercase tracking-wider border border-primary/20 shadow-2xs">
             <Sparkles className="size-3.5 text-primary" />
-            <span>Interactive Grounding Sandbox &bull; Real-time Verification</span>
+            <span>{t('demo.badge')}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-            Grounded Retrieval-Augmented Verification Engine.
+            {t('demo.title')}
           </h2>
 
           <p className="text-sm sm:text-base text-foreground/75 max-w-2xl leading-relaxed">
-            Test how Sanad isolates verified prices, procedures, and branch rules directly from business documents to answer visitor inquiries with 100% fidelity.
+            {t('demo.subtitle')}
           </p>
 
           {/* Scenario Switcher Tabs */}
@@ -263,28 +311,30 @@ export default function InteractiveDemo() {
                 <span className="size-2.5 bg-primary shrink-0" />
               </div>
               <span className="text-foreground/80 font-mono text-xs font-semibold">
-                Sanad Grounding Engine &bull; Cairo Shard [Verified Memory]
+                {t('demo.headerEngine')}
               </span>
             </div>
 
             <div className="flex items-center gap-2 font-mono">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-success/10 text-success border border-success/30 text-xs font-semibold">
                 <span className="size-1.5 bg-success shrink-0 animate-pulse" />
-                Deterministic Guardrails Active
+                {t('demo.headerGuardrail')}
               </span>
             </div>
           </div>
 
           {/* Dual Pane Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-border/60">
+          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x lg:rtl:divide-x-reverse divide-border/60">
             {/* Left Pane: Uploaded Documents & Verified Facts (5 cols) */}
             <div className="lg:col-span-5 p-5 sm:p-6 flex flex-col gap-5 bg-card/40 dark:bg-card/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-foreground font-bold text-sm">
-                  <FileCheck2 className="size-4 text-primary" />
-                  <span>1. Uploaded Business Documents</span>
+                  <FileCheck2 className="size-4 text-primary shrink-0" />
+                  <span>{t('demo.leftPaneTitle')}</span>
                 </div>
-                <span className="text-xs text-muted-foreground font-mono">Synced</span>
+                <span className="text-xs text-muted-foreground font-mono">
+                  {t('demo.leftPaneSynced')}
+                </span>
               </div>
 
               {/* Uploaded File Card */}
@@ -301,8 +351,8 @@ export default function InteractiveDemo() {
                     <div className="size-8 bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-xs font-mono shrink-0">
                       {activeScenario.fileType}
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-mono font-bold text-foreground truncate">
+                    <div className="min-w-0 text-start">
+                      <p className="text-xs font-mono font-bold text-foreground truncate" dir="ltr">
                         {activeScenario.fileName}
                       </p>
                       <p className="text-[11px] text-muted-foreground truncate">
@@ -313,7 +363,7 @@ export default function InteractiveDemo() {
 
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-secondary text-secondary-foreground text-[10px] font-bold shrink-0 border border-primary/20">
                     <Check className="size-3 text-primary" />
-                    Indexed
+                    {t('demo.leftPaneIndexed')}
                   </span>
                 </motion.div>
               </AnimatePresence>
@@ -322,10 +372,10 @@ export default function InteractiveDemo() {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-foreground">
-                    Exact Verified Knowledge:
+                    {t('demo.exactFactsTitle')}
                   </span>
                   <span className="text-[11px] font-mono font-semibold text-primary bg-primary/10 px-2 py-0.5">
-                    100% Grounded
+                    {t('demo.exactFactsBadge')}
                   </span>
                 </div>
 
@@ -334,7 +384,7 @@ export default function InteractiveDemo() {
                     {activeScenario.extractedFacts.map((factText, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-2.5 p-2 bg-muted/40 border border-border/40 text-xs text-foreground font-medium leading-relaxed"
+                        className="flex items-start gap-2.5 p-2 bg-muted/40 border border-border/40 text-xs text-foreground font-medium leading-relaxed text-start"
                       >
                         <span className="size-1.5 bg-primary shrink-0 mt-1.5" />
                         <span>{factText}</span>
@@ -345,13 +395,17 @@ export default function InteractiveDemo() {
               </div>
 
               {/* Active Citation Badge */}
-              <div className="p-3 bg-card/60 border border-border/50 text-xs font-mono flex flex-col gap-1">
-                <span className="text-[10px] uppercase text-muted-foreground">Active Citation Reference</span>
-                <span className="text-primary font-semibold truncate">{activeQuery.exactFactMatched}</span>
+              <div className="p-3 bg-card/60 border border-border/50 text-xs font-mono flex flex-col gap-1 text-start">
+                <span className="text-[10px] uppercase text-muted-foreground">
+                  {t('demo.citationTitle')}
+                </span>
+                <span className="text-primary font-semibold truncate" dir={isArabic ? 'rtl' : 'ltr'}>
+                  {activeQuery.exactFactMatched}
+                </span>
               </div>
 
               {/* Smart Guardrail Banner */}
-              <div className="flex items-start gap-2.5 p-3 bg-secondary text-secondary-foreground border border-primary/25 text-xs font-medium">
+              <div className="flex items-start gap-2.5 p-3 bg-secondary text-secondary-foreground border border-primary/25 text-xs font-medium text-start">
                 <ShieldCheck className="size-4 text-primary shrink-0 mt-0.5" />
                 <p className="leading-relaxed">{activeScenario.guardrailText}</p>
               </div>
@@ -365,13 +419,13 @@ export default function InteractiveDemo() {
                   <div className="size-8 bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                     <Bot className="size-4" />
                   </div>
-                  <div>
+                  <div className="text-start">
                     <h4 className="text-sm font-bold text-foreground">
-                      {activeScenario.title} Digital Assistant
+                      {activeScenario.title} {t('demo.rightPaneAssistant')}
                     </h4>
                     <p className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
                       <span className="size-1.5 bg-success shrink-0" />
-                      2. Instant Grounded Answer on WhatsApp / Web
+                      <span>{t('demo.rightPaneSubtitle')}</span>
                     </p>
                   </div>
                 </div>
@@ -387,10 +441,9 @@ export default function InteractiveDemo() {
               </div>
 
               {/* Interactive Inbound Question Selector Chips */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2 text-start">
                 <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-                  <span>Click to test visitor inquiry:</span>
-                  <span className="text-primary font-semibold">Live Egyptian Dialect</span>
+                  <span>{t('demo.testInquiryLabel')}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {activeScenario.queries.map((q, idx) => {
@@ -400,13 +453,13 @@ export default function InteractiveDemo() {
                         key={q.id}
                         type="button"
                         onClick={() => setActiveQueryIndex(idx)}
-                        className={`text-xs px-3 py-1.5 text-right font-medium transition-all cursor-pointer border ${
+                        className={`text-xs px-3 py-1.5 text-start font-medium transition-all cursor-pointer border ${
                           isSelected
                             ? 'bg-primary text-primary-foreground border-primary shadow-2xs font-semibold'
                             : 'bg-card border-border/80 text-foreground/80 hover:border-primary/40 hover:text-foreground'
                         }`}
                       >
-                        {idx === 0 ? 'سؤال ١: الأسعار والمواعيد' : 'سؤال ٢: الشروط والتقسيط'}
+                        {q.chipLabel}
                       </button>
                     )
                   })}
@@ -419,17 +472,16 @@ export default function InteractiveDemo() {
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`query-${activeScenario.id}-${activeQuery.id}`}
-                    initial={{ opacity: 0, x: -8 }}
+                    initial={{ opacity: 0, x: isArabic ? 8 : -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
+                    exit={{ opacity: 0, x: isArabic ? 8 : -8 }}
                     transition={{ duration: 0.25 }}
                     className="self-start max-w-[90%]"
-                    dir="rtl"
                   >
-                    <div className="p-3.5 bg-muted/90 text-foreground text-sm font-medium leading-relaxed border border-border/60 text-right">
+                    <div className="p-3.5 bg-muted/90 text-foreground text-sm font-medium leading-relaxed border border-border/60 text-start">
                       <p>{activeQuery.questionText}</p>
                     </div>
-                    <span className="text-[11px] text-muted-foreground mt-1 block px-1 text-right font-mono">
+                    <span className="text-[11px] text-muted-foreground mt-1 block px-1 text-start font-mono">
                       {activeQuery.questionTime}
                     </span>
                   </motion.div>
@@ -444,23 +496,17 @@ export default function InteractiveDemo() {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.35, delay: 0.1 }}
                     className="self-end max-w-[96%]"
-                    dir="rtl"
                   >
-                    <div className="p-4 bg-secondary/80 dark:bg-secondary/25 text-secondary-foreground border border-primary/30 shadow-sm flex flex-col gap-2.5 text-right relative">
+                    <div className="p-4 bg-secondary/80 dark:bg-secondary/25 text-secondary-foreground border border-primary/30 shadow-sm flex flex-col gap-2.5 text-start relative">
                       <div className="absolute top-0 start-0 w-1 h-full bg-primary" />
 
                       {/* Verified Badge Header */}
-                      <div
-                        className="flex items-center justify-between text-xs font-semibold border-b border-primary/15 pb-2 text-primary"
-                        dir="ltr"
-                      >
+                      <div className="flex items-center justify-between text-xs font-semibold border-b border-primary/15 pb-2 text-primary">
                         <div className="flex items-center gap-1.5">
                           <Zap className="size-3.5 fill-current" />
                           <span className="truncate">{activeQuery.badge}</span>
                         </div>
-                        <span className="font-mono text-xs bg-primary/10 px-2 py-0.5">
-                          Latency: {activeQuery.latency}
-                        </span>
+                      
                       </div>
 
                       {/* Grounded AI Text */}
@@ -471,13 +517,17 @@ export default function InteractiveDemo() {
                       </div>
 
                       {/* Live Citation Reference */}
-                      <div className="mt-1 pt-2 border-t border-primary/15 text-[10px] font-mono text-muted-foreground" dir="ltr">
-                        Source: {activeQuery.exactFactMatched}
+                      <div
+                        className="mt-1 pt-2 border-t border-primary/15 text-[10px] font-mono text-muted-foreground"
+                        dir={isArabic ? 'rtl' : 'ltr'}
+                      >
+                        {isArabic ? 'المصدر المرجعي: ' : 'Source: '}
+                        {activeQuery.exactFactMatched}
                       </div>
                     </div>
 
-                    <span className="text-[11px] text-muted-foreground mt-1 block px-1 text-left font-mono" dir="ltr">
-                      Sanad AI &bull; {activeQuery.latency} [100% Grounded]
+                    <span className="text-[11px] text-muted-foreground mt-1 block px-1 text-end font-mono">
+                      Sanad AI • {activeQuery.latency} [100% Grounded]
                     </span>
                   </motion.div>
                 </AnimatePresence>
@@ -485,11 +535,11 @@ export default function InteractiveDemo() {
 
               {/* Simulated WhatsApp Input Footer */}
               <div className="pt-3 border-t border-border/60 flex items-center gap-2">
-                <div className="flex-1 bg-muted/60 border border-border/70 px-4 py-2.5 text-xs text-muted-foreground font-mono">
-                  Select a question above or test in live production sandbox...
+                <div className="flex-1 bg-muted/60 border border-border/70 px-4 py-2.5 text-xs text-muted-foreground font-mono text-start">
+                  {t('demo.inputPlaceholder')}
                 </div>
                 <div className="size-9 bg-primary text-primary-foreground flex items-center justify-center shadow-xs shrink-0">
-                  <Send className="size-4" />
+                  <Send className="size-4 rtl:rotate-180" />
                 </div>
               </div>
             </div>

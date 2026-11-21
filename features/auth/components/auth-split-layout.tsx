@@ -17,7 +17,10 @@ import {
   UploadCloud,
   Code2,
   Check,
+  Languages,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { LANGUAGE_COOKIE } from "@/lib/i18n/settings";
 import logo from "../../../public/sanad_logo.png";
 import logoDark from "../../../public/sanad_logo_dark.png";
 
@@ -30,7 +33,20 @@ export function AuthSplitLayout({
   children,
   type = "signup",
 }: AuthSplitLayoutProps) {
+  const { t, i18n } = useTranslation();
   const rightPanelRef = useRef<HTMLDivElement>(null);
+
+  const isAr = i18n.language === "ar";
+
+  const toggleLang = () => {
+    const nextLocale = isAr ? "en" : "ar";
+    i18n.changeLanguage(nextLocale);
+    if (typeof window !== "undefined") {
+      document.cookie = `${LANGUAGE_COOKIE}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
+      document.documentElement.setAttribute("dir", nextLocale === "ar" ? "rtl" : "ltr");
+      document.documentElement.setAttribute("lang", nextLocale);
+    }
+  };
 
   // Interactive mouse spotlight for the showcase panel
   const mouseX = useMotionValue(300);
@@ -74,32 +90,44 @@ export function AuthSplitLayout({
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors group"
           >
-            <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-1" />
-            <span>Home</span>
+            <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
+            <span>{t("auth.layout.home")}</span>
           </Link>
 
-          <div className="text-xs text-muted-foreground">
-            {type === "signup" ? (
-              <span>
-                Already have an account?{" "}
-                <Link
-                  href="/signin"
-                  className="font-semibold text-primary hover:underline"
-                >
-                  Sign in
-                </Link>
-              </span>
-            ) : (
-              <span>
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="font-semibold text-primary hover:underline"
-                >
-                  Sign up
-                </Link>
-              </span>
-            )}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleLang}
+              className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border border-border bg-card hover:bg-muted/40 transition-colors cursor-pointer rounded-none"
+              title={isAr ? "Switch to English" : "التبديل إلى العربية"}
+            >
+              <Languages className="size-3 text-primary" />
+              <span>{isAr ? "English" : "العربية"}</span>
+            </button>
+
+            <div className="text-xs text-muted-foreground">
+              {type === "signup" ? (
+                <span>
+                  {t("auth.layout.alreadyHaveAccount")}{" "}
+                  <Link
+                    href="/signin"
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    {t("auth.layout.signIn")}
+                  </Link>
+                </span>
+              ) : (
+                <span>
+                  {t("auth.layout.dontHaveAccount")}{" "}
+                  <Link
+                    href="/signup"
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    {t("auth.layout.signUp")}
+                  </Link>
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -111,42 +139,41 @@ export function AuthSplitLayout({
           <div className="mt-5 lg:hidden border border-border/80 bg-card/70 p-3.5 space-y-2.5 backdrop-blur-xs">
             <div className="flex items-center justify-between text-xs font-semibold text-foreground">
               <div className="flex items-center gap-1.5 text-primary">
-                <ShieldCheck className="size-4" />
-                <span>Answers From Your Files Only</span>
+                <ShieldCheck className="size-4 shrink-0" />
+                <span>{t("auth.layout.mobileTitle")}</span>
               </div>
               <span className="text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 border border-primary/20 font-mono">
-                Sanad AI
+                {t("auth.layout.mobilePill")}
               </span>
             </div>
 
-            <div className="space-y-1.5 text-xs text-muted-foreground pt-0.5">
+            <div className="space-y-1.5 text-xs text-muted-foreground pt-0.5 text-start">
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
                 <span className="leading-tight">
-                  Only answers from the files, menus, and prices you upload
+                  {t("auth.layout.mobilePoint1")}
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
                 <span className="leading-tight">
-                  Takes 1 minute to add to any website or store
+                  {t("auth.layout.mobilePoint2")}
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="size-3.5 text-success shrink-0 mt-0.5" />
                 <span className="leading-tight">
-                  Unanswered questions go to your inbox so you can train it
-                  easily
+                  {t("auth.layout.mobilePoint3")}
                 </span>
               </div>
             </div>
 
             <div className="border-t border-border/60 pt-2 flex items-center justify-between text-[11px] text-muted-foreground italic">
               <span className="truncate pe-2">
-                &ldquo;Answers our patients 24/7 without guessing.&rdquo;
+                {t("auth.layout.mobileQuote")}
               </span>
               <span className="font-semibold text-foreground not-italic shrink-0">
-                Dokki Dental
+                {t("auth.layout.mobileAuthor")}
               </span>
             </div>
           </div>
@@ -156,12 +183,10 @@ export function AuthSplitLayout({
         <div className="relative z-10 mt-6 sm:mt-auto border-t border-border/60 pt-3 flex flex-col sm:flex-row items-center justify-between gap-1.5 text-[11px] text-muted-foreground pb-2 sm:pb-0">
           <div className="inline-flex items-center gap-1.5">
             <ShieldCheck className="size-3.5 text-primary" />
-            <span>
-              Accurate answers from your business files • Never makes things up
-            </span>
+            <span>{t("auth.layout.tagline")}</span>
           </div>
           <div>
-            <span>&copy; {new Date().getFullYear()} Sanad Technologies</span>
+            <span>{t("auth.layout.copyright", { year: new Date().getFullYear() })}</span>
           </div>
         </div>
       </div>
@@ -228,20 +253,19 @@ export function AuthSplitLayout({
 
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary text-secondary-foreground text-xs font-semibold uppercase tracking-wider border border-primary/20">
             <span className="size-2 bg-success animate-pulse shrink-0" />
-            <span>Website AI Widget</span>
+            <span>{t("auth.layout.widgetBadge")}</span>
           </div>
         </div>
 
         {/* Center: Contextual Showcase based on Sign In vs Sign Up */}
         {type === "signin" ? (
-          <div className="relative z-10 my-auto flex flex-col gap-5 max-w-lg mx-auto w-full">
+          <div className="relative z-10 my-auto flex flex-col gap-5 max-w-lg mx-auto w-full text-start">
             <div className="space-y-1.5">
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-snug">
-                Welcome back to Sanad.
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-snug font-heading">
+                {t("auth.layout.signinHeading")}
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Your AI customer assistant is active, answering customer
-                questions in Egyptian Arabic &amp; English using your files.
+                {t("auth.layout.signinSubheading")}
               </p>
             </div>
 
@@ -252,11 +276,11 @@ export function AuthSplitLayout({
                 <div className="flex items-center gap-2">
                   <span className="size-2 bg-success animate-pulse inline-block" />
                   <span className="text-xs font-medium uppercase tracking-wider text-foreground">
-                    Assistant Status: Active
+                    {t("auth.layout.assistantStatus")}
                   </span>
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  Online 24/7
+                  {t("auth.layout.statusOnline")}
                 </span>
               </div>
 
@@ -264,21 +288,25 @@ export function AuthSplitLayout({
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="p-3 border border-border bg-background/60 rounded-none space-y-1">
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                    Factual Accuracy
+                    {t("auth.layout.metricAccuracyTitle")}
                   </div>
-                  <div className="text-xl font-bold text-highlight">100%</div>
+                  <div className="text-xl font-bold text-highlight">
+                    {t("auth.layout.metricAccuracyValue")}
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    From your files only
+                    {t("auth.layout.metricAccuracySub")}
                   </div>
                 </div>
 
                 <div className="p-3 border border-border bg-background/60 rounded-none space-y-1">
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                    Reply Speed
+                    {t("auth.layout.metricSpeedTitle")}
                   </div>
-                  <div className="text-xl font-bold text-primary">&lt; 1s</div>
+                  <div className="text-xl font-bold text-primary">
+                    {t("auth.layout.metricSpeedValue")}
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Instant answers
+                    {t("auth.layout.metricSpeedSub")}
                   </div>
                 </div>
               </div>
@@ -286,28 +314,27 @@ export function AuthSplitLayout({
               {/* Live Egyptian Dialogue Simulation Box */}
               <div className="p-3.5 border border-border/80 bg-background/80 space-y-2 rounded-none">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Sample Customer Question</span>
+                  <span>{t("auth.layout.sampleTitle")}</span>
                   <span className="text-primary font-medium">
-                    Answered from files
+                    {t("auth.layout.sampleBadge")}
                   </span>
                 </div>
 
                 <div className="space-y-2 text-xs">
                   {/* User query */}
-                  <div className="bg-muted/40 p-2.5 border border-border/60 text-foreground text-end dir-rtl">
+                  <div className="bg-muted/40 p-2.5 border border-border/60 text-foreground text-start">
                     <p className="font-sans leading-relaxed">
-                      &ldquo;مساء الخير، عندكم كشف باطنة في فرع التجمع؟&rdquo;
+                      {t("auth.layout.sampleQuestion")}
                     </p>
                   </div>
 
                   {/* AI Response */}
-                  <div className="bg-primary/10 border border-primary/25 p-2.5 text-foreground text-end dir-rtl space-y-1.5">
+                  <div className="bg-primary/10 border border-primary/25 p-2.5 text-foreground text-start space-y-1.5">
                     <p className="font-sans leading-relaxed">
-                      &ldquo;أهلاً بك! نعم، متوفر استشاري باطنة في فرع التجمع
-                      الخامس يومياً من ١١:٠٠ ص حتى ٩:٠٠ م.&rdquo;
+                      {t("auth.layout.sampleAnswer")}
                     </p>
-                    <span className="text-[11px] text-primary block tracking-wide text-start dir-ltr font-medium">
-                      Source: Clinic_Schedule.pdf
+                    <span className="text-[11px] text-primary block tracking-wide font-medium" dir="ltr">
+                      {t("auth.layout.sampleSource")}
                     </span>
                   </div>
                 </div>
@@ -315,14 +342,13 @@ export function AuthSplitLayout({
             </div>
           </div>
         ) : (
-          <div className="relative z-10 my-auto flex flex-col gap-5 max-w-lg mx-auto w-full">
+          <div className="relative z-10 my-auto flex flex-col gap-5 max-w-lg mx-auto w-full text-start">
             <div className="space-y-1.5">
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-snug">
-                Your business files. An AI chatbot. Zero hallucinations.
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-snug font-heading">
+                {t("auth.layout.signupHeading")}
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Tailored for clinics, restaurants, gyms, and shops in Egypt
-                &amp; MENA.
+                {t("auth.layout.signupSubheading")}
               </p>
             </div>
 
@@ -334,11 +360,10 @@ export function AuthSplitLayout({
                 </div>
                 <div className="text-sm">
                   <span className="font-bold text-foreground">
-                    1. Upload your documents
+                    {t("auth.layout.step1Title")}
                   </span>
                   <p className="text-muted-foreground text-xs sm:text-sm pt-0.5">
-                    Price lists, menus, or FAQs. The bot only answers from your
-                    files.
+                    {t("auth.layout.step1Desc")}
                   </p>
                 </div>
               </div>
@@ -349,10 +374,10 @@ export function AuthSplitLayout({
                 </div>
                 <div className="text-sm">
                   <span className="font-bold text-foreground">
-                    2. Embed with 1 line
+                    {t("auth.layout.step2Title")}
                   </span>
                   <p className="text-muted-foreground text-xs sm:text-sm pt-0.5">
-                    Paste a single script tag into your website or store.
+                    {t("auth.layout.step2Desc")}
                   </p>
                 </div>
               </div>
@@ -365,15 +390,14 @@ export function AuthSplitLayout({
                 <div className="text-sm">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-bold text-foreground">
-                      3. The &ldquo;Unanswered&rdquo; Inbox
+                      {t("auth.layout.step3Title")}
                     </span>
                     <span className="text-[10px] font-semibold bg-highlight/25 text-highlight-foreground px-1.5 py-0.5 uppercase tracking-wide">
-                      Killer Feature
+                      {t("auth.layout.step3Badge")}
                     </span>
                   </div>
                   <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                    If the bot doesn&apos;t know an answer, it lands in your
-                    inbox. You answer once, and the bot learns it permanently.
+                    {t("auth.layout.step3Desc")}
                   </p>
                 </div>
               </div>
@@ -384,10 +408,10 @@ export function AuthSplitLayout({
         {/* Bottom Testimonial / Real Usecase (Larger) */}
         <div className="relative z-10 border-t border-border/70 pt-4 flex items-center justify-between text-xs sm:text-sm">
           <p className="text-xs sm:text-sm text-muted-foreground italic truncate pe-3">
-            &ldquo;Answers our patients 24/7 without guessing.&rdquo;
+            {t("auth.layout.testimonialQuote")}
           </p>
           <span className="text-xs sm:text-sm font-semibold text-foreground shrink-0">
-            Dokki Dental Clinic
+            {t("auth.layout.testimonialAuthor")}
           </span>
         </div>
       </div>
