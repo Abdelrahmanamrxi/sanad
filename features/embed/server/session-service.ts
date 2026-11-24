@@ -10,7 +10,7 @@ import { PLANS, type PlanTier } from "@/features/billing/plans";
 const visitorConvoLocks = new Map<string, Promise<string>>();
 
 export interface VerifiedWidget {
-  widgetConfig: Record<string, any>;
+  widgetConfig: Record<string, unknown>;
   businessId: string;
 }
 

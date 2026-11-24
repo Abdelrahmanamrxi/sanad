@@ -5,7 +5,7 @@ import { NonRetriableError } from "inngest";
 import LlamaCloud from "@llamaindex/llama-cloud";
 
 const client = new LlamaCloud({
-  apiKey: process.env.LLAMA_INDEX_API_KEY!,
+  apiKey: process.env.LLAMA_INDEX_API_KEY || "placeholder",
 });
 
 export async function extractFileText(
@@ -47,7 +47,9 @@ export async function extractFileText(
         }
       } catch (err) {
         console.warn("LlamaCloud parsing failed, falling back to unpdf:", err);
-        const pdf = await getDocumentProxy(new Uint8Array(await blob.arrayBuffer()));
+        const pdf = await getDocumentProxy(
+          new Uint8Array(await blob.arrayBuffer()),
+        );
         ({ text } = await extractText(pdf, { mergePages: true }));
       }
       break;

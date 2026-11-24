@@ -24,6 +24,14 @@ const getThemeSnapshot = () =>
   document.documentElement.classList.contains("dark");
 const getServerSnapshot = () => false;
 
+function applyLanguageSettings(nextLocale: string, isRtl: boolean) {
+  if (typeof window !== "undefined") {
+    document.cookie = `${LANGUAGE_COOKIE}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    document.documentElement.setAttribute("dir", isRtl ? "rtl" : "ltr");
+    document.documentElement.setAttribute("lang", nextLocale);
+  }
+}
+
 export default function MarketingNavbar() {
   const { t, i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,18 +45,14 @@ export default function MarketingNavbar() {
     getServerSnapshot,
   );
 
-  const toggleTheme = () => {
+  const handleToggleTheme = () => {
     document.documentElement.classList.toggle("dark");
   };
 
-  const toggleLang = (lang: "EN" | "AR") => {
+  const handleToggleLang = (lang: "EN" | "AR") => {
     const nextLocale = lang === "AR" ? "ar" : "en";
     i18n.changeLanguage(nextLocale);
-    if (typeof window !== "undefined") {
-      document.cookie = `${LANGUAGE_COOKIE}=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
-      document.documentElement.setAttribute("dir", lang === "AR" ? "rtl" : "ltr");
-      document.documentElement.setAttribute("lang", nextLocale);
-    }
+    applyLanguageSettings(nextLocale, lang === "AR");
   };
 
   const navLinks = [
@@ -149,7 +153,7 @@ export default function MarketingNavbar() {
                   <button
                     key={lang}
                     type="button"
-                    onClick={() => toggleLang(lang)}
+                    onClick={() => handleToggleLang(lang)}
                     className={`relative px-2.5 py-1 font-medium transition-colors z-10 ${
                       isActive
                         ? "text-foreground font-semibold"
@@ -177,7 +181,7 @@ export default function MarketingNavbar() {
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={toggleTheme}
+              onClick={handleToggleTheme}
               aria-label="Toggle theme"
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -216,7 +220,7 @@ export default function MarketingNavbar() {
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={toggleTheme}
+              onClick={handleToggleTheme}
               aria-label="Toggle theme"
             >
               {isDark ? (
@@ -279,7 +283,7 @@ export default function MarketingNavbar() {
                       <button
                         key={lang}
                         type="button"
-                        onClick={() => toggleLang(lang)}
+                        onClick={() => handleToggleLang(lang)}
                         className={`relative px-3 py-1 font-medium transition-colors z-10 ${
                           isActive
                             ? "text-foreground font-semibold"

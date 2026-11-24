@@ -5,6 +5,6 @@ export default function useDebounce<T>(value: T, timeMs: number) {
   useEffect(() => {
     const id = setTimeout(() => setDebounced(value), timeMs);
     return () => clearTimeout(id);
-  }, [value]);
+  }, [value, timeMs]);
   return debounced;
 }
