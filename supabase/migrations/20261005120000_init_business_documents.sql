@@ -17,16 +17,21 @@ create table if not exists public.business (
   created_at timestamptz default now()
 );
 
--- 2. Create initial Documents table (matching the name before rename)
-create table if not exists public."Documents" (
-  id uuid primary key default gen_random_uuid(),
-  business_id uuid not null references public.business(id) on delete cascade,
-  name text not null,
-  mime_type text not null,
-  doc_status text not null default 'queued',
-  storage_path text,
-  stats jsonb default '{}'::jsonb,
-  error_message text,
-  created_at timestamptz default now(),
-  unique (id, business_id)
-);
+-- 2. Create initial Documents table (only if neither Documents nor documents exists)
+do $$
+begin
+  if not exists (select 1 from pg_tables where schemaname = 'public' and tablename in ('Documents', 'documents')) then
+    create table public."Documents" (
+      id uuid primary key default gen_random_uuid(),
+      business_id uuid not null references public.business(id) on delete cascade,
+      name text not null,
+      mime_type text not null,
+      doc_status text not null default 'queued',
+      storage_path text,
+      stats jsonb default '{}'::jsonb,
+      error_message text,
+      created_at timestamptz default now(),
+      unique (id, business_id)
+    );
+  end if;
+end $$;
