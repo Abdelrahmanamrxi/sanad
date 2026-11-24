@@ -102,7 +102,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
       - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
+        uses: supabase/setup-cli@v3
+        with:
+          version: latest
       # Deploy to Staging (Fix 4: Same 'supabase db push' command. Fix 5: Pass credentials via env)
       - name: Deploy to Staging Database
         if: github.ref == 'refs/heads/staging'
