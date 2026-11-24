@@ -68,14 +68,28 @@ jobs:
         continue-on-error: true
 
       # Step 7: Test production build and static page generation
+            # Step 8: Test production build and static page generation
       - name: Build Next.js Application
         run: npm run build
         env:
-          # dummy placeholder information to check build is working or not
+          # Supabase
           NEXT_PUBLIC_SUPABASE_URL: "https://placeholder-ci.supabase.co"
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "placeholder-ci-key"
-          SUPABASE_SERVICE_ROLE_KEY: "placeholder-ci-service-key"
-          WIDGET_SESSION_SECRET: "placeholder-secret-at-least-32-chars-long"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "placeholder-ci-publishable-key"
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder-ci-service-role-key"
+          SUPABASE_STORAGE_BUCKET: "sanad-file-storage"
+
+          # Security
+          WIDGET_SESSION_SECRET: "placeholder-session-secret-min-32-chars-long"
+
+          # AI & Parsing SDKs (لتجاوز فحص الـ Constructors عند بدء التشغيل)
+          LLAMA_INDEX_API_KEY: "placeholder-llama-key"
+          GROQ_API_KEY: "placeholder-groq-key"
+          OPENROUTER_API_EMBEDDING_KEY: "placeholder-openrouter-key"
+          CLOUDFLARE_API_TOKEN: "placeholder-cf-token"
+          CLOUDFLARE_ACCOUNT_ID: "placeholder-cf-account"
+          CF_EMBEDDING_MODEL: "@cf/baai/bge-m3"
+          LLM_API_KEY: "placeholder-llm-key"
+          LLM_BASE_URL: "https://backend.placeholder.com/v1"
   # =========================================================================
   # 2. CD JOB: Automated Database Migration Deployment
   # =========================================================================
