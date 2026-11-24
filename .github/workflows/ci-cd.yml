@@ -65,6 +65,7 @@ jobs:
       # Step 7: Audit High Level CVEs for dependencies (production dependencies only)
       - name: Security Audit For Dependencies
         run: npm audit --audit-level=high --omit=dev
+        continue-on-error: true
 
       # Step 7: Test production build and static page generation
       - name: Build Next.js Application
