@@ -1,0 +1,114 @@
+name: CI/CD Pipeline
+
+on: 
+  push: 
+    branches: 
+      - main
+      - staging
+
+  pull_request: 
+    branches: 
+      - main
+      - staging
+
+# Cancel in-flight workflows for the same branch/PR when new commits are pushed
+concurrency: 
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Security hardening: read-only permissions for repository contents
+permissions: 
+  contents: read
+
+jobs:
+  # =========================================================================
+  # 1. CI JOB: Code Validation, Type Safety, Linting & Production Build
+  # =========================================================================
+  ci:
+    name: Validate Application
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # Step 1: Clone the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js runtime with npm package cache
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Step 3: Clean, deterministic install from package-lock.json
+      - name: Install Dependencies
+        run: npm ci
+        
+      # Step 4: Restore Next.js / Turbopack build cache across CI runs
+      - name: Restore Next.js Build Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      # Step 5: Verify TypeScript types without emitting JavaScript
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+      
+      # Step 6: Run ESLint to enforce code standards and React Compiler rules
+      - name: Run ESLint
+        run: npm run lint
+
+      # Step 7 Audit High Level CVEs for dependencies (production dependencies not dev)
+      - name: Security Audit For Dependencies
+        run: npm audit --audit-level=high
+
+      # Step 7: Test production build and static page generation
+      - name: Build Next.js Application
+        run: npm run build
+        env:
+          # dummy placeholder information to check build is working or not
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder-ci.supabase.co"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "placeholder-ci-key"
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder-ci-service-key"
+          WIDGET_SESSION_SECRET: "placeholder-secret-at-least-32-chars-long"
+  # =========================================================================
+  # 2. CD JOB: Automated Database Migration Deployment
+  # =========================================================================
+  deploy-migrations:
+    name: Deploy Database Migrations
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+      # Deploy to Staging (Fix 4: Same 'supabase db push' command. Fix 5: Pass credentials via env)
+      - name: Deploy to Staging Database
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          supabase link --project-ref "$PROJECT_REF"
+          echo "Running pre migration check for staging (dry-run)"
+          supabase db push --dry-run
+          supabase db push
+        env:
+          PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      # Deploy to Production (Fix 4: Same 'supabase db push' command. Fix 5: Pass credentials via env)
+      - name: Deploy to Production Database
+        if: github.ref == 'refs/heads/main'
+        run: |
+          supabase link --project-ref "$PROJECT_REF"
+          echo "Running pre migration check for production (dry-run)"
+          supabase db push --dry-run
+          supabase db push
+        env:
+          PROJECT_REF: ${{ vars.PROD_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}

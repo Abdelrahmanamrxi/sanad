@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   type PlaygroundConfig,
   type PlaygroundMessage,
@@ -15,7 +15,9 @@ export default function usePlaygroundChat(config: PlaygroundConfig) {
   const abortController = useRef<AbortController | null>(null);
   const messagesRef = useRef<PlaygroundMessage[]>(messages);
   const router=useRouter()
-  messagesRef.current = messages;
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const sendMessage = useCallback(
     async (query: string) => {
@@ -158,7 +160,7 @@ export default function usePlaygroundChat(config: PlaygroundConfig) {
         router.refresh()
       }
     },
-    [config, isStreaming],
+    [config, isStreaming, router],
   );
 
   const stop = useCallback(() => {
