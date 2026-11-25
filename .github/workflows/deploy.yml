@@ -63,10 +63,10 @@ jobs:
           supabase link --project-ref "$PROJECT_REF"
 
           echo "Running pre-migration check for staging (dry-run)"
-          supabase db push --dry-run --include-all --remote
+          supabase db push --dry-run --include-all --linked
 
           echo "Deploying migrations to staging"
-          supabase db push --include-all --remote --yes
+          supabase db push --include-all --linked --yes
         env:
           PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -104,10 +104,10 @@ jobs:
           supabase link --project-ref "$PROJECT_REF"
 
           echo "Running pre-migration check for production (dry-run)"
-          supabase db push --dry-run --include-all --remote
+          supabase db push --dry-run --include-all --linked
 
           echo "Deploying migrations to production"
-          supabase db push --include-all --remote --yes
+          supabase db push --include-all --linked --yes
         env:
           PROJECT_REF: ${{ vars.PROD_PROJECT_REF }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
