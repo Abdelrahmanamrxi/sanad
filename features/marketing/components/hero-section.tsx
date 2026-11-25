@@ -189,10 +189,10 @@ export default function HeroSection() {
           {/* Operational Benchmarks & Architecture Strip */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full pt-8 sm:pt-10 border-t border-border/60"
+            className="flex sm:flex-row flex-col justify-center items-center gap-3.5 w-full pt-8 sm:pt-10 border-t border-border/60"
           >
             {/* Metric 1 */}
-            <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
+            <div className="bg-card border border-border/80 w-full p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
                 <span className="text-2xl sm:text-3xl font-bold text-primary font-mono">{t("hero.metric1Value")}</span>
                 <ShieldCheck className="size-5 text-primary/70 shrink-0" />
@@ -203,20 +203,11 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* Metric 2 */}
-            <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl sm:text-3xl font-bold text-foreground font-mono">{t("hero.metric2Value")}</span>
-                <Zap className="size-5 text-highlight shrink-0" />
-              </div>
-              <span className="text-xs font-bold text-foreground text-start">{t("hero.metric2Title")}</span>
-              <p className="text-xs text-muted-foreground leading-relaxed text-start">
-                {t("hero.metric2Desc")}
-              </p>
-            </div>
+        
+         
 
-            {/* Metric 3 */}
-            <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
+            {/* Metric 2*/}
+            <div className="bg-card border border-border/80 p-5 w-full shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
                 <span className="text-2xl sm:text-3xl font-bold text-foreground font-mono">{t("hero.metric3Value")}</span>
                 <Languages className="size-5 text-primary/70 shrink-0" />
@@ -227,8 +218,9 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* Metric 4 */}
-            <div className="bg-card border border-border/80 p-5 shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
+            {/* Metric 4
+            3 */}
+            <div className="bg-card border border-border/80 p-5  w-full shadow-2xs flex flex-col gap-2 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
                 <span className="text-2xl sm:text-3xl font-bold text-primary font-mono">{t("hero.metric4Value")}</span>
                 <Code2 className="size-5 text-primary/70 shrink-0" />

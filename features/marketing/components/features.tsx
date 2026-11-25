@@ -212,7 +212,7 @@ export default function Features() {
                 <div className="w-full flex items-center gap-2 p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs text-foreground/80 font-mono text-start">
                   <UploadCloud className="size-4 text-primary shrink-0" />
                   <span className="truncate font-medium">
-                    {isArabic ? 'الصيغ المدعومة: PDF, XLSX, DOCX, CSV وقواعد البيانات' : 'Formats: PDF, XLSX, DOCX, CSV & REST Endpoints'}
+                    {isArabic ? 'الصيغ المدعومة: PDF, DOCX, MD وقواعد البيانات' : 'Formats: PDF, DOCX, MD'}
                   </span>
                 </div>
               </CardFooter>
@@ -254,10 +254,7 @@ export default function Features() {
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] font-mono">
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="size-2 bg-success animate-pulse shrink-0" />
-                      {t('features.step2Latency')}
-                    </span>
+                 
                     <button
                       type="button"
                       onClick={handleCopy}
@@ -296,7 +293,7 @@ export default function Features() {
                   <span className="size-8 rounded-none bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center font-mono">
                     03
                   </span>
-                  <span className="px-2 py-0.5 rounded-none bg-highlight/15 text-highlight-foreground font-bold text-[10px] tracking-wider uppercase border border-highlight/25 font-mono">
+                  <span className="px-2 py-0.5 rounded-none bg-highlight/15 text-primary font-bold text-[10px] tracking-wider uppercase border border-highlight/25 font-mono">
                     {t('features.step3Tag')}
                   </span>
                 </div>
@@ -334,7 +331,7 @@ export default function Features() {
                         exit={{ opacity: 0, y: -4 }}
                         className="p-2.5 bg-card border border-border/80 flex flex-col gap-1.5 text-start"
                       >
-                        <div className="flex items-center justify-between text-[10px] font-mono text-highlight-foreground bg-highlight/10 px-1.5 py-0.5 border border-highlight/20 w-fit">
+                        <div className="flex items-center justify-between text-[10px] font-mono text-amber-500 bg-highlight/10 px-1.5 py-0.5 border border-highlight/20 w-fit">
                           <span>{t('features.step3Pending')}</span>
                         </div>
                         <p className="text-xs text-foreground font-medium text-start font-sans">
@@ -372,7 +369,7 @@ export default function Features() {
                 <div className="w-full flex items-center gap-2 p-2.5 rounded-none bg-muted/60 border border-border/50 text-xs text-foreground/85 font-mono text-start">
                   <span className="size-1.5 bg-primary shrink-0" />
                   <span className="font-medium">
-                    {isArabic ? 'دائرة تحديث مستمرة لقاعدة المعرفة' : 'Active Vector Memory Loop'}
+                    {isArabic ? 'دائرة تحديث مستمرة لقاعدة المعرفة' : 'Active Knowledge Memory Loop'}
                   </span>
                 </div>
               </CardFooter>

@@ -51,7 +51,7 @@
     "step2Latency": "Latency: 38ms",
     "step2Copy": "Copy Snippet",
     "step2Copied": "Copied",
-    "step2Footer": "Compatible with all web platforms & CMS",
+    "step2Footer": "Compatible with all web platforms",
     "step3Tag": "Continuous Learning",
     "step3Title": "Continuous Knowledge Queue",
     "step3Desc": "When an inquiry exceeds indexed documentation, Sanad halts speculation. Unresolved questions route to an administrative queue for single-entry resolution.",
@@ -187,8 +187,8 @@
   },
   "footer": {
     "tagline": "Structured, dependable AI conversational support built specifically for Egyptian & MENA enterprises.",
-    "nodes": "Cairo & Riyadh Nodes: 100% Operational",
-    "copyright": "© 2026 Sanad Platform LLC. All rights reserved across Egypt and MENA."
+    "nodes": "Cairo Nodes 100% Operational",
+    "copyright": "© 2026 Sanad Platform LLC."
   },
   "auth": {
     "signin": {

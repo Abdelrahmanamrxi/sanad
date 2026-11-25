@@ -1,0 +1,41 @@
+# ===========================
+# 2. Database CI: Validate Database Migrations Before Merging
+# ============================
+
+name: Validate Database Locally
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  db-migrations:
+    name: Local Database Migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # Clone Repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup Supabase CLI
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.119.0
+
+      # Start a Local Supabase Environment to test migrations before merging.
+      - name: Start a Supabase Local Environment
+        run: supabase start
+
+      # Validate Migrations Before Merging by setting the database to a clean version.
+      - name: Validate Migrations Locally
+        run: supabase db reset
+
+      # Stopping Local Environment and Cleaning up DB if it fails
+      - name: Stop Local Database
+        if: always()
+        run: supabase stop
