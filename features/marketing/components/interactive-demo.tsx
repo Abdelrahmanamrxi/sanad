@@ -527,7 +527,7 @@ export default function InteractiveDemo() {
                     </div>
 
                     <span className="text-[11px] text-muted-foreground mt-1 block px-1 text-end font-mono">
-                      Sanad AI • {activeQuery.latency} [100% Grounded]
+                      Sanad AI 
                     </span>
                   </motion.div>
                 </AnimatePresence>

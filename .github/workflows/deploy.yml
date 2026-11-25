@@ -1,0 +1,114 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
+
+# Cancel in-flight workflows for the same branch/PR when new commits are pushed
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Security hardening: read-only permissions for repository contents
+permissions:
+  contents: read
+
+jobs:
+  # =========================================================================
+  # 1. CI JOB: Code Validation, Type Safety, Linting & Production Build
+  # =========================================================================
+  ci:
+    uses: ./.github/workflows/ci.yml
+    
+  # =========================================================================
+  # 2. DATABASE CI JOB: Validate Migrations Locally
+  # =========================================================================
+  db-migrations:
+    uses: ./.github/workflows/database.yml
+
+  # =========================================================================
+  # 3. CD JOB: Deploy Migrations to STAGING
+  # =========================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+
+    needs:
+      - ci
+      - db-migrations
+
+    # Only deploy when code is pushed to staging
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+
+    # Uses secrets and variables from the staging environment
+    environment: staging
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.119.0
+
+      - name: Deploy Migrations to Staging
+        run: |
+          supabase link --project-ref "$PROJECT_REF"
+
+          echo "Running pre-migration check for staging (dry-run)"
+          supabase db push --dry-run --include-all --remote
+
+          echo "Deploying migrations to staging"
+          supabase db push --include-all --remote --yes
+        env:
+          PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+
+  # =========================================================================
+  # 4. CD JOB: Deploy Migrations to PRODUCTION
+  # =========================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    needs:
+      - ci
+      - db-migrations
+
+    # Only deploy when code is pushed to main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    # Uses secrets and variables from the production environment.
+    # GitHub requires approval here if you configured required reviewers.
+    environment: production
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.119.0
+
+      - name: Deploy Migrations to Production
+        run: |
+          supabase link --project-ref "$PROJECT_REF"
+
+          echo "Running pre-migration check for production (dry-run)"
+          supabase db push --dry-run --include-all --remote
+
+          echo "Deploying migrations to production"
+          supabase db push --include-all --remote --yes
+        env:
+          PROJECT_REF: ${{ vars.PROD_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
