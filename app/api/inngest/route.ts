@@ -1,3 +1,4 @@
+import "@/lib/polyfills/message-port";
 import { inngest } from "@/lib/clients/connections/inngest";
 import { serve } from "inngest/next";
 import { processDocument } from "@/features/dashboard/knowledge-base/inngest/process-document";

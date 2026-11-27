@@ -72,6 +72,38 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build & Deploy Worker to Staging
+        run: |
+          npx opennextjs-cloudflare build
+          node scripts/patch-worker.mjs
+          npx wrangler deploy --env staging
+        env:
+          NEXT_PUBLIC_APP_ENV: ${{ vars.NEXT_PUBLIC_APP_ENV }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Placeholders for server-only SDK constructors evaluated during next build
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder-ci-service-role-key"
+          SUPABASE_STORAGE_BUCKET: "sanad-file-storage"
+          WIDGET_SESSION_SECRET: "placeholder-session-secret-min-32-chars-long"
+          LLAMA_INDEX_API_KEY: "placeholder-llama-key"
+          GROQ_API_KEY: "placeholder-groq-key"
+          OPENROUTER_API_EMBEDDING_KEY: "placeholder-openrouter-key"
+          CLOUDFLARE_AI_API_TOKEN: "placeholder-cf-ai-token"
+          CF_EMBEDDING_MODEL: "@cf/baai/bge-m3"
+          LLM_API_KEY: "placeholder-llm-key"
+          LLM_BASE_URL: "https://backend.placeholder.com/v1"
+
   # =========================================================================
   # 4. CD JOB: Deploy Migrations to PRODUCTION
   # =========================================================================
@@ -112,3 +144,35 @@ jobs:
           PROJECT_REF: ${{ vars.PROD_PROJECT_REF }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build & Deploy Worker to Production
+        run: |
+          npx opennextjs-cloudflare build
+          node scripts/patch-worker.mjs
+          npx wrangler deploy --env production
+        env:
+          NEXT_PUBLIC_APP_ENV: ${{ vars.NEXT_PUBLIC_APP_ENV }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Placeholders for server-only SDK constructors evaluated during next build
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder-ci-service-role-key"
+          SUPABASE_STORAGE_BUCKET: "sanad-file-storage"
+          WIDGET_SESSION_SECRET: "placeholder-session-secret-min-32-chars-long"
+          LLAMA_INDEX_API_KEY: "placeholder-llama-key"
+          GROQ_API_KEY: "placeholder-groq-key"
+          OPENROUTER_API_EMBEDDING_KEY: "placeholder-openrouter-key"
+          CLOUDFLARE_AI_API_TOKEN: "placeholder-cf-ai-token"
+          CF_EMBEDDING_MODEL: "@cf/baai/bge-m3"
+          LLM_API_KEY: "placeholder-llm-key"
+          LLM_BASE_URL: "https://backend.placeholder.com/v1"

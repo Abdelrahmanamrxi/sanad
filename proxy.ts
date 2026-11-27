@@ -4,6 +4,9 @@ import { createServerClient } from "@supabase/ssr";
 
 export default async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith("/api/inngest")) {
+    return NextResponse.next();
+  }
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
