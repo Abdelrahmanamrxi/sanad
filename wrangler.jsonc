@@ -1,0 +1,38 @@
+{
+  // Tells VScode to use wrangler's config file to understand the code.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sanad",
+  // The code that gets deployed 
+  "main": ".open-next/worker.js", // The entry point of the worker, where code is handled when a request is received.
+  "compatibility_date": "2026-01-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public","expose_global_message_channel"],
+  // Tells worker where the static files are stored. (css,img,fonts,js-files)
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS" // a name to access these files.
+  },
+  "env": {
+    "staging": {
+      "name": "sanad-staging",
+      "vars": {
+        "NEXT_PUBLIC_APP_ENV": "staging",
+        "NEXT_PUBLIC_SUPABASE_URL":"https://omvyyixverrwoipcrsvm.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY":"sb_publishable_NkVP9xIehh-CCZQ3y2H5mw_z6XfGxYQ",
+        "CF_EMBEDDING_MODEL": "@cf/baai/bge-m3",
+        "LLM_BASE_URL": "https://backend.sovereigneg.com/v1",
+        "INNGEST_DEV": "0"
+      }
+    },
+    "production": {
+      "name": "sanad",
+      "vars": { // These vars allow worker to distinguish between to environments
+        "NEXT_PUBLIC_APP_ENV": "production",
+         "NEXT_PUBLIC_SUPABASE_URL":"https://dgawylfxksvfzplrhqan.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY":"sb_publishable_pjuVMXq0dQCfLDGMheBchg_FmTDLySw",
+        "CF_EMBEDDING_MODEL": "@cf/baai/bge-m3",
+        "LLM_BASE_URL":"https://backend.sovereigneg.com/v1",
+        "INNGEST_DEV": "0"
+      }
+    }
+  }
+}

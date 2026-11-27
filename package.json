@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "format:check": "prettier --check",
-    "inngest:dev": "npx inngest-cli@latest dev -u http://localhost:3000/api/inngest"
+    "inngest:dev": "npx inngest-cli@latest dev -u http://localhost:3000/api/inngest",
+    "preview": "opennextjs-cloudflare build && node scripts/patch-worker.mjs && opennextjs-cloudflare preview",
+    "deploy:staging": "opennextjs-cloudflare build && node scripts/patch-worker.mjs && wrangler deploy --env staging",
+    "deploy:prod": "opennextjs-cloudflare build && node scripts/patch-worker.mjs && wrangler deploy --env production"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.69",
@@ -61,6 +64,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.19",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -71,6 +75,7 @@
     "supabase": "^2.119.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^3.2.7"
+    "vitest": "^3.2.7",
+    "wrangler": "^4.169.0"
   }
 }

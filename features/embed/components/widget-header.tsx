@@ -21,10 +21,11 @@ export interface WidgetHeaderProps {
   avatarMonogram?: string;
   isRtl?: boolean;
   hasMessages: boolean;
+  hideWindowControls?: boolean;
   onRequestHumanSupport: () => void;
   onClearChat: () => void;
-  onMinimize: () => void;
-  onClose: () => void;
+  onMinimize?: () => void;
+  onClose?: () => void;
 }
 
 export function WidgetHeader({
@@ -43,6 +44,7 @@ export function WidgetHeader({
   avatarMonogram = "س",
   isRtl = true,
   hasMessages,
+  hideWindowControls = false,
   onRequestHumanSupport,
   onClearChat,
   onMinimize,
@@ -72,19 +74,22 @@ export function WidgetHeader({
         {/* Shoulder Bar: Minimize on left shoulder, Monogram centered, Close on right shoulder */}
         <div
           className={cn(
-            "flex items-center justify-between mb-1.5 transition-all",
+            "flex items-center mb-1.5 transition-all",
+            hideWindowControls ? "justify-center" : "justify-between",
             isArch ? "w-full max-w-[210px] mx-auto px-1" : "w-full max-w-[340px] px-2"
           )}
         >
           {/* Left Shoulder: Minimize caret button */}
-          <button
-            type="button"
-            onClick={onMinimize}
-            className="size-8 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/15 transition-colors cursor-pointer text-muted-foreground hover:text-foreground shrink-0 shadow-2xs"
-            title={isRtl ? "تصغير" : "Minimize"}
-          >
-            <ChevronDown className="size-4.5" />
-          </button>
+          {!hideWindowControls && (
+            <button
+              type="button"
+              onClick={onMinimize}
+              className="size-8 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/15 transition-colors cursor-pointer text-muted-foreground hover:text-foreground shrink-0 shadow-2xs"
+              title={isRtl ? "تصغير" : "Minimize"}
+            >
+              <ChevronDown className="size-4.5" />
+            </button>
+          )}
 
           {/* Center Apex: Prominent Letter Monogram Stamp */}
           <div
@@ -106,14 +111,16 @@ export function WidgetHeader({
           </div>
 
           {/* Right Shoulder: Close button */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="size-8 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-rose-500/15 hover:text-rose-500 text-muted-foreground transition-colors cursor-pointer shrink-0 shadow-2xs"
-            title={isRtl ? "إغلاق" : "Close"}
-          >
-            <X className="size-4" />
-          </button>
+          {!hideWindowControls && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="size-8 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-rose-500/15 hover:text-rose-500 text-muted-foreground transition-colors cursor-pointer shrink-0 shadow-2xs"
+              title={isRtl ? "إغلاق" : "Close"}
+            >
+              <X className="size-4" />
+            </button>
+          )}
         </div>
 
         {/* Brand Title (e.g. عيادة النور) */}
@@ -255,23 +262,27 @@ export function WidgetHeader({
           <RotateCcw className="size-3.5" style={{ color: headerMuted }} />
         </button>
 
-        <button
-          type="button"
-          onClick={onMinimize}
-          className="size-7 flex items-center justify-center hover:bg-white/[0.08] transition-colors cursor-pointer rounded-sm"
-          title={isRtl ? "تصغير" : "Minimize"}
-        >
-          <Minus className="size-3.5" style={{ color: headerMuted }} />
-        </button>
+        {!hideWindowControls && (
+          <>
+            <button
+              type="button"
+              onClick={onMinimize}
+              className="size-7 flex items-center justify-center hover:bg-white/[0.08] transition-colors cursor-pointer rounded-sm"
+              title={isRtl ? "تصغير" : "Minimize"}
+            >
+              <Minus className="size-3.5" style={{ color: headerMuted }} />
+            </button>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="size-7 flex items-center justify-center hover:bg-rose-500/15 hover:text-rose-400 transition-colors cursor-pointer rounded-sm"
-          title={isRtl ? "إغلاق" : "Close"}
-        >
-          <X className="size-4" style={{ color: headerMuted }} />
-        </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="size-7 flex items-center justify-center hover:bg-rose-500/15 hover:text-rose-400 transition-colors cursor-pointer rounded-sm"
+              title={isRtl ? "إغلاق" : "Close"}
+            >
+              <X className="size-4" style={{ color: headerMuted }} />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
