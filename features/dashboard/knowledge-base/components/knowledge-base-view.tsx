@@ -57,7 +57,7 @@ export function KnowledgeBaseView({
       const isProcessing = docs?.some(
         (d) => d.doc_status === "processing" || d.doc_status === "queued",
       );
-      return isProcessing ? 2000 : false;
+      return isProcessing ? 5000 : false;
     },
   });
   // Selected document & chunks
@@ -75,7 +75,7 @@ export function KnowledgeBaseView({
       refetchInterval: () => {
         return selectedDoc?.doc_status === "processing" ||
           selectedDoc?.doc_status === "queued"
-          ? 2000
+          ? 5000
           : false;
       },
     },
