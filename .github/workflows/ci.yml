@@ -49,6 +49,10 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      # Step 7: Run unit tests
+      - name: Run Tests
+        run: npm test
+
       # Step 7: Audit High Level CVEs for dependencies (production dependencies only)
       - name: Security Audit For Dependencies
         run: npm audit --audit-level=high --omit=dev
