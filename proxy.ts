@@ -57,7 +57,7 @@ export default async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/onboarding", request.url));
       }
     }
-  } 
+  }
   return response;
 }
 
