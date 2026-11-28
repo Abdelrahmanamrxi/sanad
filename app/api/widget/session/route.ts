@@ -39,11 +39,16 @@ export const POST = handle(async (req) => {
   // 2. Verify widget existence, status, and domain authorization
   const originOrReferer =
     req.headers.get("origin") || req.headers.get("referer");
+  const appHost =
+    req.headers.get("x-forwarded-host") ||
+    req.headers.get("host") ||
+    req.nextUrl.hostname;
 
   const { widgetConfig, businessId } = await validateWidgetAccess(
     widgetKey,
     originOrReferer,
     hostDomain,
+    appHost,
   );
 
   // 3. Atomically register or update the visitor

@@ -44,6 +44,7 @@ export async function validateWidgetAccess(
   widgetKey: string,
   originOrReferer: string | null,
   candidateHost?: string | null,
+  appHost?: string | null,
 ): Promise<VerifiedWidget> {
   // Query by either primary key (widget id) or business_id
   const { data: widgetConfig, error: widgetErr } = await supabaseAdminClient
@@ -81,8 +82,13 @@ export async function validateWidgetAccess(
         callerDomain === "127.0.0.1" ||
         !callerDomain);
 
+    const appDomain = normalizeDomain(appHost || "");
+    const isSameAppDomain = Boolean(appDomain && callerDomain === appDomain);
+
     const isInternalApp =
-      callerDomain === "sanad.app" || callerDomain.endsWith(".sanad.app");
+      isSameAppDomain ||
+      callerDomain === "sanad.app" ||
+      callerDomain.endsWith(".sanad.app");
 
     const isAllowed =
       isLocalhost ||
