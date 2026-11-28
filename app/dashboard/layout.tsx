@@ -23,13 +23,6 @@ export default async function Layout({
   let authContext;
   try {
     authContext = await getAuthContext();
-
-    const { data } = await authContext.supabase
-      .from("business")
-      .select("app_language")
-      .eq("id", authContext.businessId)
-      .single()
-  
   } catch (err) {
     if (err instanceof AppError) {
       if (err.status === 401) redirect("/signin");

@@ -112,7 +112,7 @@ export function NavMain({
                             render={
                               <Link
                                 href={subItem.url}
-                                prefetch={true}
+                                prefetch={false}
                                 onClick={() => handleLinkClick(subItem.url)}
                               />
                             }
@@ -143,7 +143,7 @@ export function NavMain({
                 render={
                   <Link
                     href={item.url}
-                    prefetch={true}
+                    prefetch={false}
                     onClick={() => handleLinkClick(item.url)}
                   />
                 }
