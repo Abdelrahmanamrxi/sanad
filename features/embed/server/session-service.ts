@@ -160,16 +160,40 @@ export async function upsertVisitor(
 }
 
 /**
+ * Looks up an existing widget conversation for the visitor without creating one.
+ */
+export async function findExistingWidgetConversation(
+  businessId: string,
+  visitorId: string,
+): Promise<string | null> {
+  const { data: existingConvo } = await supabaseAdminClient
+    .from("conversations")
+    .select("id")
+    .eq("business_id", businessId)
+    .eq("visitor_id", visitorId)
+    .eq("channel", "widget")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return existingConvo?.id ?? null;
+}
+
+/**
  * Atomically resolves or creates a single conversation for the visitor.
  * Combines an in-process mutex with database query fallback to eliminate duplicate conversations.
  */
 export async function getOrCreateWidgetConversation(
   businessId: string,
   visitorId: string,
-  originPage?: string,
-  title?: string,
-  summary?: string,
+  options: {
+    originPage?: string;
+    title?: string;
+    summary?: string;
+    preferredId?: string;
+  } = {},
 ): Promise<string> {
+  const { originPage, title, summary, preferredId } = options;
   const lockKey = `${businessId}:${visitorId}`;
 
   const existingLock = visitorConvoLocks.get(lockKey);
@@ -198,6 +222,7 @@ export async function getOrCreateWidgetConversation(
       const { data: newConvo, error: newConvoError } = await supabaseAdminClient
         .from("conversations")
         .insert({
+          ...(preferredId ? { id: preferredId } : {}),
           business_id: businessId,
           visitor_id: visitorId,
           channel: "widget",
