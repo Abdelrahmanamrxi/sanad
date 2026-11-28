@@ -12,6 +12,7 @@ import { buildRetrievalQuery } from "@/features/embed/server/knowledge-retrieval
 import { getWidgetBotConfig } from "@/features/embed/server/bot-config";
 import { retrieveWidgetKnowledge } from "@/features/embed/server/knowledge-retrieval";
 import { persistChatExchangeAndStatus } from "@/features/embed/server/persist-messages";
+import { getOrCreateWidgetConversation } from "@/features/embed/server/session-service";
 
 
 
@@ -30,7 +31,7 @@ export const POST = handle(async (req) => {
     );
   }
 
-  const { businessId, conversationId } = session;
+  const { businessId, conversationId, visitorId } = session;
 
   // 2. Parse and validate request payload
   const rawBody = await req.json().catch(() => null);
@@ -122,8 +123,13 @@ ${context}`,
     onFinish: async ({ text, usage }) => {
       const latencyMs = Math.round(performance.now() - startTime);
       try {
+        const resolvedConversationId = await getOrCreateWidgetConversation(
+          businessId,
+          visitorId,
+          { preferredId: conversationId },
+        );
         await persistChatExchangeAndStatus({
-          conversationId,
+          conversationId: resolvedConversationId,
           businessId,
           userMessage: message,
           assistantText: text,

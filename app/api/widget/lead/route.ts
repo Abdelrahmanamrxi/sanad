@@ -3,6 +3,7 @@ import { z } from "zod";
 import { handle } from "@/lib/http/async-handler";
 import AppError from "@/lib/http/error";
 import { verifyWidgetSession } from "@/features/embed/server/token";
+import { getOrCreateWidgetConversation } from "@/features/embed/server/session-service";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 
 const leadSchema = z.object({
@@ -77,13 +78,24 @@ export const POST = handle(async (req: Request) => {
     throw new AppError("Failed to Insert new Lead", 500);
   }
 
-  //4) Update Vistor's Table and Link lead to active conversation
+  // 4) Ensure conversation exists and link lead to active conversation
+  const resolvedConversationId = await getOrCreateWidgetConversation(
+    businessId,
+    visitorId,
+    {
+      originPage: originPage || "/",
+      preferredId: conversationId,
+    },
+  );
 
-  await supabaseAdminClient.from("conversations").update({
-    has_lead:true,
-    lead_id:lead.id,
-    status:'active'
-  }).eq('id',conversationId)
+  await supabaseAdminClient
+    .from("conversations")
+    .update({
+      has_lead: true,
+      lead_id: lead.id,
+      status: "active",
+    })
+    .eq("id", resolvedConversationId);
 
   return NextResponse.json({
     success:true,

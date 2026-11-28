@@ -6,7 +6,7 @@ import { signWidgetSession } from "@/features/embed/server/token";
 import {
   validateWidgetAccess,
   upsertVisitor,
-  getOrCreateWidgetConversation,
+  findExistingWidgetConversation,
   fetchConversationHistory,
   resolveWidgetBranding,
 } from "@/features/embed/server/session-service";
@@ -54,16 +54,18 @@ export const POST = handle(async (req) => {
   // 3. Atomically register or update the visitor
   const visitorId = await upsertVisitor(businessId, anonId);
 
-  // 4. Atomically resolve or create the single conversation for this visitor
-  const conversationId = await getOrCreateWidgetConversation(
+  // 4. Look up existing conversation without creating an empty one
+  const existingConversationId = await findExistingWidgetConversation(
     businessId,
     visitorId,
-    originPage || "/"
   );
+  const conversationId = existingConversationId ?? crypto.randomUUID();
 
-  // 5. Fetch previous message history and subscription branding in parallel
+  // 5. Fetch previous message history (only if conversation exists) and subscription branding in parallel
   const [history, branding] = await Promise.all([
-    fetchConversationHistory(conversationId),
+    existingConversationId
+      ? fetchConversationHistory(existingConversationId)
+      : Promise.resolve([]),
     resolveWidgetBranding(businessId),
   ]);
 
