@@ -1,5 +1,4 @@
 import "server-only";
-import { extractText, getDocumentProxy } from "unpdf";
 import mammoth from "mammoth";
 import { NonRetriableError } from "inngest";
 import LlamaCloud from "@llamaindex/llama-cloud";
@@ -47,6 +46,7 @@ export async function extractFileText(
         }
       } catch (err) {
         console.warn("LlamaCloud parsing failed, falling back to unpdf:", err);
+        const { extractText, getDocumentProxy } = await import("unpdf");
         const pdf = await getDocumentProxy(
           new Uint8Array(await blob.arrayBuffer()),
         );

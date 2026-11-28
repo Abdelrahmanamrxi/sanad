@@ -18,7 +18,7 @@ export async function generateEmbedding(
     const res = await fetch(CF_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+        Authorization: `Bearer ${process.env.CLOUDFLARE_AI_API_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ text: batch }),

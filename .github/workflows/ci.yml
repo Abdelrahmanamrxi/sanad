@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       # Step 3: Clean, deterministic install from package-lock.json
@@ -48,6 +48,10 @@ jobs:
       # Step 6: Run ESLint to enforce code standards and React Compiler rules
       - name: Run ESLint
         run: npm run lint
+
+      # Step 7: Run unit tests
+      - name: Run Tests
+        run: npm test
 
       # Step 7: Audit High Level CVEs for dependencies (production dependencies only)
       - name: Security Audit For Dependencies
